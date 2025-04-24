@@ -6,7 +6,7 @@ class User {
 
     async findAll() {
         try {
-            var result = await knex.select(["id", "name", "email", "role"]).table("users")
+            var result = await knex.select(["id", "username", "email", "role"]).table("users")
             return result
         } catch(err) {
             console.log('erro no findAll', err)
@@ -18,7 +18,7 @@ class User {
 
     async findById(id) {
         try {
-            var result = await knex.select(["id", "name", "email", "role"]).where({id: id}).table("users")
+            var result = await knex.select(["id", "username", "email", "role"]).where({id: id}).table("users")
             if(result.length > 0)
                 return result[0]
             else 
@@ -31,7 +31,7 @@ class User {
 
     async findByEmail(email) {
         try {
-            var result = await knex.select(["id", "name", "email", "password", "role"]).where({email: email}).table("users")
+            var result = await knex.select(["id", "username", "email", "password", "role"]).where({email: email}).table("users")
             if(result.length > 0) 
                 return result[0]
             else
@@ -42,11 +42,11 @@ class User {
         }
     }
 
-    async new(name, email, password) {
+    async new(username, email, password) {
         try {
             var hash = await bcrypt.hash(password, 8)
 
-            await knex.insert({name, email, password: hash, role: 0}).table("users")
+            await knex.insert({username, email, password: hash}).table("users")
         } catch(err) {
             console.log(err)
         }
@@ -70,7 +70,7 @@ class User {
         
     }
 
-    async update(id, name, email, role) {
+    async update(id, username, email, role) {
         var user = await this.findById(id)
         if(user != undefined) {
             var editUser = {}
@@ -85,8 +85,8 @@ class User {
                     }
                 }
             }
-            if(name != undefined) {
-                editUser.name = name
+            if(username != undefined) {
+                editUser.username = username
             }
 
             if(role != undefined) {

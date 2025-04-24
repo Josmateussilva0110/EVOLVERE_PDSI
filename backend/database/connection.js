@@ -1,10 +1,12 @@
+require("dotenv").config();
+
 var knex = require('knex')({
     client: 'mysql2',
     connection: {
-      host : '127.0.0.1',
-      user : 'root',
-      password : '12345678',
-      database : 'api_gerencia_usuarios'
+      host : process.env.HOST,
+      user : process.env.USER,
+      password : process.env.PASSWORD,
+      database : process.env.DATABASE
     }
   });
 

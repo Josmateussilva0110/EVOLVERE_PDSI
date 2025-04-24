@@ -54,7 +54,7 @@ class UserController {
     }
 
     async create(request, response) {
-        var {name, email, password} = request.body
+        var {username, email, password} = request.body
         if(email == undefined) {
             response.status(400)
             response.json({err: "email invalido."})
@@ -68,14 +68,14 @@ class UserController {
             return 
         }
 
-        await User.new(name, email, password)
+        await User.new(username, email, password)
         response.status(200)
         response.send('Sem erro.')
     }
 
     async edit(request, response) {
-        var {id, name, email, role} = request.body
-        var result = await User.update(id, name, email, role)
+        var {id, username, email, role} = request.body
+        var result = await User.update(id, username, email, role)
         if(result != undefined) {
             if(result.status) {
                 response.status(200)
