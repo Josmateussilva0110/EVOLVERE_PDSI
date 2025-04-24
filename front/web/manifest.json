@@ -1,6 +1,6 @@
 {
-    "name": "integracao_api",
-    "short_name": "integracao_api",
+    "name": "front",
+    "short_name": "front",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
