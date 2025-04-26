@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MaterialApp(home: CadastroUsuarioScreen()));
+void main() => runApp(MaterialApp(home: RegisterUserScreen()));
 
-class CadastroUsuarioScreen extends StatefulWidget {
+class RegisterUserScreen extends StatefulWidget {
   @override
-  _CadastroScreenState createState() => _CadastroScreenState();
+  _RegisterUserScreenState createState() => _RegisterUserScreenState();
 }
 
-class _CadastroScreenState extends State<CadastroUsuarioScreen> {
+class _RegisterUserScreenState extends State<RegisterUserScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
