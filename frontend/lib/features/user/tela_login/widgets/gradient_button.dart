@@ -15,7 +15,10 @@ class GradientButton extends StatelessWidget {
     return InkWell(
       onTap: onPressed,
       borderRadius: BorderRadius.circular(8),
-      child: Container(
+      hoverColor: Colors.grey[300],
+      highlightColor: Colors.grey[300],
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 100),
         width: double.infinity,
         height: 44,
         decoration: BoxDecoration(
