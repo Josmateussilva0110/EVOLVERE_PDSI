@@ -1,17 +1,58 @@
 import 'package:flutter/material.dart';
 
 class CustomTopCurve extends StatelessWidget {
-  const CustomTopCurve({super.key});
+  final String label;
+  final VoidCallback? onBack;
+
+  const CustomTopCurve({
+    super.key,
+    required this.label,
+    this.onBack,
+  });
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       height: 250,
-      child: CustomPaint(painter: TopCurvePainter()),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            size: const Size(double.infinity, double.infinity),
+            painter: TopCurvePainter(),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: MediaQuery.of(context).padding.top + 8,
+                left: 8,
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: onBack ?? () => Navigator.of(context).pop(),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 80,
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 34,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
+
 
 class TopCurvePainter extends CustomPainter {
   @override

@@ -17,7 +17,7 @@ class LoginScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: [
-          const CustomTopCurve(),
+          const CustomTopCurve(label: 'Login',),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             child: Column(

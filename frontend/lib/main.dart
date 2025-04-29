@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'features/user/tela_login/themes/app_theme.dart';
-import 'features/user/tela_login/screens/login_screen.dart';
+//import 'features/user/tela_login/screens/login_screen.dart';
+import './features/user/create_user_screen.dart';
+//import './features/user/create_categorie_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,12 +28,11 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Tela de Login',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _themeMode,
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(toggleTheme: toggleTheme),
+      home: RegisterUserScreen(),
     );
   }
 }

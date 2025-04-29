@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../user/tela_login/components/custom_top_curve.dart';
 
 void main() => runApp(MaterialApp(home: RegisterUserScreen()));
 
@@ -10,6 +11,7 @@ class RegisterUserScreen extends StatefulWidget {
 class _RegisterUserScreenState extends State<RegisterUserScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+  bool _acceptTerms = false;
 
   @override
   Widget build(BuildContext context) {
@@ -19,37 +21,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 61, 100, 239),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(132),
-                    bottomRight: Radius.circular(132),
-                  ),
-                ),
-                padding: EdgeInsets.only(top: 20, bottom: 40),
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.arrow_back, color: Colors.white),
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      'Cadastrar',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 35,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              CustomTopCurve(label: "Cadastrar"),
               SizedBox(height: 30),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -85,13 +57,50 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                         label: "Confirmar Senha",
                         obscureText: _obscureConfirmPassword,
                         toggle: () {
-                          setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+                          setState(
+                            () =>
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword,
+                          );
                         },
                       ),
                       SizedBox(height: 30),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _acceptTerms,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _acceptTerms = value ?? false;
+                              });
+                            },
+                            activeColor: Color(0xFF2196F3),
+                          ),
+                          Expanded(
+                            child: RichText(
+                              text: TextSpan(
+                                text: 'Aceito todos os ',
+                                style: TextStyle(color: Colors.white),
+                                children: [
+                                  TextSpan(
+                                    text: 'termos e condições',
+                                    style: TextStyle(
+                                      color: Color(0xFF2196F3),
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                    // Aqui você pode adicionar lógica de clique se quiser abrir outra tela
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 20),
+
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 63, 94, 205),
+                          backgroundColor: Color(0xFF2196F3),
                           foregroundColor: Colors.white,
                           padding: EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
@@ -99,7 +108,10 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                           ),
                         ),
                         onPressed: () {},
-                        child: Text('Cadastrar', style: TextStyle(fontSize: 16)),
+                        child: Text(
+                          'Cadastrar',
+                          style: TextStyle(fontSize: 16),
+                        ),
                       ),
                     ],
                   ),
@@ -115,7 +127,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                       TextSpan(
                         text: 'Entrar',
                         style: TextStyle(
-                          color: Color(0xFF5A7DFF),
+                          color: Color(0xFF2196F3),
                           fontWeight: FontWeight.bold,
                         ),
                         // Pode adicionar funcionalidade de clique aqui
@@ -146,7 +158,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Color(0xFF5A7DFF), width: 2),
+          borderSide: BorderSide(color: Color(0xFF2196F3), width: 2),
         ),
       ),
     );
@@ -179,7 +191,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Color(0xFF5A7DFF), width: 2),
+          borderSide: BorderSide(color: Color(0xFF2196F3), width: 2),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../user/tela_login/components/custom_top_curve.dart';
 
 void main() => runApp(MaterialApp(home: RegisterCategorieScreen()));
 
@@ -42,37 +43,7 @@ class _CategoriesScreenState extends State<RegisterCategorieScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Color.fromARGB(255, 61, 100, 239),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(132),
-                    bottomRight: Radius.circular(132),
-                  ),
-                ),
-                padding: EdgeInsets.only(top: 20, bottom: 40),
-                width: double.infinity,
-                child: Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.topLeft,
-                      child: IconButton(
-                        onPressed: () {},
-                        icon: Icon(Icons.arrow_back, color: Colors.white),
-                      ),
-                    ),
-                    SizedBox(height: 12),
-                    Text(
-                      'Nova Categoria',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 35,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              CustomTopCurve(label: "Nova Categoria"),
               SizedBox(height: 30),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -199,7 +170,7 @@ class _CategoriesScreenState extends State<RegisterCategorieScreen> {
                 height: 52, 
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 63, 94, 205),
+                    backgroundColor: Color.fromARGB(255, 43, 107, 237),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -259,7 +230,7 @@ class _CategoriesScreenState extends State<RegisterCategorieScreen> {
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: Color.fromARGB(255, 65, 84, 192),
+                color: Color.fromARGB(255, 43, 107, 237),
                 width: 2,
               ),
             ),
