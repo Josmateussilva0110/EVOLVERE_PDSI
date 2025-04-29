@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import '../user/tela_login/components/custom_top_curve.dart';
+import '../../components/custom_top_curve.dart';
+import '../../widgets/text_field.dart';
 
 void main() => runApp(MaterialApp(home: RegisterCategorieScreen()));
 
@@ -63,21 +64,13 @@ class _CategoriesScreenState extends State<RegisterCategorieScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _buildTextField(
-                        label: "Nome da Categoria",
-                        hint: "Digite o nome da categoria",
-                      ),
+                      CustomTextField(label: "Nome da Categoria"),
                       SizedBox(height: 20),
-                      _buildTextField(
-                        label: "Descrição",
-                        hint: "Digite uma breve descrição",
-                        maxLines: 5,
-                      ),
+                      CustomTextField(label: "Descrição", maxLines: 5),
+
                       SizedBox(height: 20),
                       Column(
-                        crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start, 
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Ícone',
@@ -87,7 +80,7 @@ class _CategoriesScreenState extends State<RegisterCategorieScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          
+
                           Center(
                             child: GestureDetector(
                               onTap: _pickImage,
@@ -101,7 +94,12 @@ class _CategoriesScreenState extends State<RegisterCategorieScreen> {
                                         ? Icon(
                                           Icons.add_a_photo,
                                           size: 28,
-                                          color: const Color.fromARGB(255, 0, 0, 0),
+                                          color: const Color.fromARGB(
+                                            255,
+                                            0,
+                                            0,
+                                            0,
+                                          ),
                                         )
                                         : null,
                               ),
@@ -167,10 +165,10 @@ class _CategoriesScreenState extends State<RegisterCategorieScreen> {
               SizedBox(height: 15),
               SizedBox(
                 width: 200,
-                height: 52, 
+                height: 52,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 43, 107, 237),
+                    backgroundColor: Color(0xFF2196F3),
                     foregroundColor: Colors.white,
                     padding: EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
@@ -178,10 +176,7 @@ class _CategoriesScreenState extends State<RegisterCategorieScreen> {
                     ),
                   ),
                   onPressed: () {},
-                  child: Text(
-                    'Salvar',
-                    style: TextStyle(fontSize: 18),
-                  ), 
+                  child: Text('Salvar', style: TextStyle(fontSize: 18)),
                 ),
               ),
 
@@ -190,53 +185,6 @@ class _CategoriesScreenState extends State<RegisterCategorieScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTextField({
-    required String label,
-    required String hint,
-    int maxLines = 1,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: Colors.white70, 
-            fontSize: 16, 
-            fontWeight: FontWeight.w500, 
-          ),
-        ),
-        SizedBox(height: 10),
-        TextField(
-          maxLines: maxLines,
-          style: TextStyle(
-            color: Colors.white,
-          ), 
-          decoration: InputDecoration(
-            hintText: hint,
-            hintStyle: TextStyle(
-              color: Colors.white38,
-            ), 
-            filled: true,
-            fillColor: Color(0xFF2C2C2C),
-            contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: Color.fromARGB(255, 43, 107, 237),
-                width: 2,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

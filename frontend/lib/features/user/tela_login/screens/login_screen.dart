@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/login_form.dart';
 import '../widgets/theme_toggle_button.dart';
-import '../components/custom_top_curve.dart';
+import '../../components/custom_top_curve.dart';
 
 class LoginScreen extends StatelessWidget {
   final VoidCallback toggleTheme;

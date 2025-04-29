@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'features/user/tela_login/themes/app_theme.dart';
 //import 'features/user/tela_login/screens/login_screen.dart';
-import './features/user/create_user_screen.dart';
-//import './features/user/create_categorie_screen.dart';
+import 'features/user/register_user/screens/user_screen.dart';
+//import 'features/user/register_category/screens/categorie_screen.dart';
 
 void main() {
   runApp(const MyApp());
