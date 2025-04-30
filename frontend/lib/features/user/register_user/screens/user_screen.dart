@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../components/custom_top_curve.dart';
 import '../components/register_form.dart';
+import '../../widgets/footer.dart';
 
 class RegisterUserScreen extends StatelessWidget {
   @override
@@ -15,34 +16,10 @@ class RegisterUserScreen extends StatelessWidget {
               SizedBox(height: 2),
               RegisterForm(),
               SizedBox(height: 12),
-              _LoginRedirect(),
+              Footer(mensagem: 'Já tem conta ? ', acao: 'Entrar',),
               SizedBox(height: 20),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LoginRedirect extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: RichText(
-        text: TextSpan(
-          text: 'Já tem uma conta? ',
-          style: TextStyle(color: Colors.white),
-          children: [
-            TextSpan(
-              text: 'Entrar',
-              style: TextStyle(
-                color: Color(0xFF2196F3),
-                fontWeight: FontWeight.bold,
-              ),
-              // Pode adicionar navegação aqui
-            ),
-          ],
         ),
       ),
     );
