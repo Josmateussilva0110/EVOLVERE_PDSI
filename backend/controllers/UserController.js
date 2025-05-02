@@ -70,7 +70,7 @@ class UserController {
 
         await User.new(username, email, password)
         response.status(200)
-        response.send('Sem erro.')
+        response.send('Cadastro realizado com sucesso.')
     }
 
     async edit(request, response) {

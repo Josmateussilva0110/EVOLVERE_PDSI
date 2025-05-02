@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:front/features/initial/screens/welcome_screen.dart';
 //import 'package:front/features/user/register_user/screens/user_screen.dart';
 //import 'features/user/tela_login/themes/app_theme.dart';
 import 'features/user/tela_login/screens/login_screen.dart';
-//import 'features/user/register_user/screens/user_screen.dart';
+import 'features/user/register_user/screens/user_screen.dart';
 //import 'features/user/register_category/screens/categorie_screen.dart';
 
 void main() {
@@ -26,14 +27,16 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  @override
+   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      //theme: AppTheme.lightTheme,
-      //darkTheme: AppTheme.darkTheme,
-      themeMode: _themeMode,
-      debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      title: 'App com Rotas',
+      initialRoute: '/',
+      routes: {
+        '/': (context) => WelcomeScreen(),
+        '/login': (context) => LoginScreen(),
+        '/cadastro_usuario': (context) => RegisterUserScreen(),
+      },
     );
   }
 }
