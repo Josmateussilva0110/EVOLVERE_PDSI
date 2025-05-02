@@ -6,7 +6,7 @@ class User {
 
     async findAll() {
         try {
-            var result = await knex.select(["id", "username", "email", "role"]).table("users")
+            var result = await knex.select(["id", "username", "email"]).table("users")
             return result
         } catch(err) {
             console.log('erro no findAll', err)
@@ -18,7 +18,7 @@ class User {
 
     async findById(id) {
         try {
-            var result = await knex.select(["id", "username", "email", "role"]).where({id: id}).table("users")
+            var result = await knex.select(["id", "username", "email"]).where({id: id}).table("users")
             if(result.length > 0)
                 return result[0]
             else 
@@ -31,7 +31,7 @@ class User {
 
     async findByEmail(email) {
         try {
-            var result = await knex.select(["id", "username", "email", "password", "role"]).where({email: email}).table("users")
+            var result = await knex.select(["id", "username", "email", "password"]).where({email: email}).table("users")
             if(result.length > 0) 
                 return result[0]
             else
@@ -70,7 +70,7 @@ class User {
         
     }
 
-    async update(id, username, email, role) {
+    async update(id, username, email) {
         var user = await this.findById(id)
         if(user != undefined) {
             var editUser = {}
@@ -89,9 +89,6 @@ class User {
                 editUser.username = username
             }
 
-            if(role != undefined) {
-                editUser.role = role
-            }
 
             try {
                 await knex.update(editUser).where({id: id}).table("users")
