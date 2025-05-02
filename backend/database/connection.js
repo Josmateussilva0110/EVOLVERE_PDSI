@@ -1,4 +1,5 @@
-require("dotenv").config();
+require('dotenv').config({ path: '../.env' });
+
 
 var knex = require('knex')({
     client: 'mysql2',
