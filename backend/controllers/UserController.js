@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 var bcrypt = require("bcrypt")
 
 
-var secret = "fjskhfrjkgjrhdkfjklnlashdjhjdfsbdfnbmsfbrfndbndbsmoiwwq"
+require('dotenv').config({ path: '../.env' })
 
 class UserController {
 
@@ -74,8 +74,8 @@ class UserController {
     }
 
     async edit(request, response) {
-        var {id, username, email, role} = request.body
-        var result = await User.update(id, username, email, role)
+        var {id, username, email} = request.body
+        var result = await User.update(id, username, email)
         if(result != undefined) {
             if(result.status) {
                 response.status(200)
@@ -90,7 +90,6 @@ class UserController {
             response.status(406)
             response.send('erro ao atualizar.')
         }
-
     }
 
     async remove(request, response) {
@@ -142,17 +141,18 @@ class UserController {
         if(user != undefined) {
             var valid = await bcrypt.compare(password, user.password)
             if(valid) {
-                var token = jwt.sign({email: user.email, role: user.role}, secret)
+                var token = jwt.sign({email: user.email}, process.env.SECRET)
                 response.status(200)
                 response.json({token: token})
             }
             else {
                 response.status(406)
-                response.send('Senha incorreta.')
+                response.json({err: 'Senha invalida.'})
             }
         }
         else {
-            response.json({status: false})
+            response.status(406)
+            response.json({err: 'Usuário não encontrado.'})
         }
    }
 }
