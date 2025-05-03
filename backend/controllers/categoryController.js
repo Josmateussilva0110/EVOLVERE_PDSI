@@ -22,6 +22,38 @@ class CategoryController {
         response.send('Cadastro realizado com sucesso.')
     }
 
+    async getCategories(request, response) {
+        var categories = await Category.findAll()
+        if(categories.length > 0) {
+            response.status(200)
+            response.json({categories})
+        }
+        else {
+            response.status(404)
+            response.json({err: 'Nenhuma categoria cadastrada.'})
+        }
+    }
+
+    async findCategory(request, response) {
+        var id = request.params.id
+        if(!isNaN(id)) {
+            var category = await Category.findById(id)
+            if(category != undefined) {
+                response.status(200)
+                response.json({category})
+            }
+            else {
+                response.status(404)
+                response.json({err: 'Categoria não encontrada.'})
+            }
+        }
+        else 
+        {
+            response.status(400)
+            response.json({err: 'Id invalido.'})
+        }
+    }
+
 }
 
 module.exports = new CategoryController()
