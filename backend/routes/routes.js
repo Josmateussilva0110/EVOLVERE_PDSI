@@ -16,6 +16,7 @@ router.post("/recoverpassword", UserController.recoverPassword)
 router.post("/changepassword", UserController.changePassword)
 router.post("/login", UserController.login)
 router.post("/category", CategoryController.create)
-
+router.get("/categories", CategoryController.getCategories)
+router.get("/category/:id", CategoryController.findCategory)
 
 module.exports = router

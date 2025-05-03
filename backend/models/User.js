@@ -12,7 +12,6 @@ class User {
             console.log('erro no findAll', err)
             return []
         }
-        
     }
 
 
