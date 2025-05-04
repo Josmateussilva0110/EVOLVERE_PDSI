@@ -1,8 +1,8 @@
 var express = require("express")
-var app = express();
 var router = express.Router()
 var HomeController = require("../controllers/HomeController")
 var UserController = require("../controllers/UserController")
+var CategoryController = require("../controllers/categoryController")
 var AdminAuth = require("../middleware/AdminAuth")
 
 router.get('/', HomeController.index)
@@ -15,5 +15,8 @@ router.delete("/user/:id", AdminAuth, UserController.remove)
 router.post("/recoverpassword", UserController.recoverPassword)
 router.post("/changepassword", UserController.changePassword)
 router.post("/login", UserController.login)
+router.post("/category", CategoryController.create)
+router.get("/categories", CategoryController.getCategories)
+router.get("/category/:id", CategoryController.findCategory)
 
 module.exports = router
