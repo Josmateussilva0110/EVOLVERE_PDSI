@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../widgets/welcome_buttons.dart';
 
 class WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF17171D), // cor escura de fundo
+      backgroundColor: const Color(0xFF121217),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        actions: [
+          // Adicione o botão de perfil aqui
+          IconButton(
+            icon: const Icon(
+              Icons.person,
+              color: Colors.white,
+              size: 28,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(context, '/perfil');
+            },
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
