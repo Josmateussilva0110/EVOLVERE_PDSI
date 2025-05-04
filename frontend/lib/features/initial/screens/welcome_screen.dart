@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-//import '../widgets/logo_header.dart';
 import '../widgets/welcome_buttons.dart';
-//import '../widgets/welcome_footer.dart';
 
 class WelcomeScreen extends StatelessWidget {
   @override
@@ -29,6 +27,30 @@ class WelcomeScreen extends StatelessWidget {
                 WelcomeButtons(),
                 SizedBox(height: 30),
                 //WelcomeFooter(),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2B6BED),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 15,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/habitos');
+                  },
+                  child: const Text(
+                    'Ir para Hábitos',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20), // Espaçamento após o botão
               ],
             ),
           ),
