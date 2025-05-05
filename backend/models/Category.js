@@ -11,7 +11,7 @@ class Category {
             return []
         }
     }
-
+    
     async findCategoryName(name) {
         try {
             var result = await knex.select("*").from("category").where({name: name})
