@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:front/features/Habits/Screens/Tela_Frequencia/Tela_Frequencia.dart'; // Adicione esta linha
 
 class TelaPrazo extends StatefulWidget {
   @override

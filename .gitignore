@@ -163,5 +163,5 @@ app.*.symbols
 
 **/node_modules/
 .env
-
+**/uploads/
 
