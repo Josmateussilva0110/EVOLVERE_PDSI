@@ -5,6 +5,8 @@ import '../../widgets/text_field.dart';
 import '../../widgets/form_container.dart';
 import '../widgets/color_selector.dart';
 import '../widgets/icon_picker.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegisterFormCategory extends StatefulWidget {
   @override
@@ -12,6 +14,8 @@ class RegisterFormCategory extends StatefulWidget {
 }
 
 class _RegisterFormCategoryState extends State<RegisterFormCategory> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final List<Color> _colorsAvailable = [
     Colors.red,
     Colors.green,
@@ -23,6 +27,52 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
 
   Color _selectedColor = Colors.red;
   File? _image;
+
+   String colorToHex(Color color) {
+    return '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
+  }
+
+  Future<void> _submitCategory() async {
+  var request = http.MultipartRequest('POST', Uri.parse('http://192.168.1.8:8080/category'))
+    ..fields['name'] = _nameController.text
+    ..fields['description'] = _descriptionController.text
+    ..fields['color'] = colorToHex(_selectedColor);
+
+  if (_image != null) {
+    request.files.add(await http.MultipartFile.fromPath('icon', _image!.path));
+  }
+
+  var response = await request.send();
+
+  if (response.statusCode == 200) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Categoria cadastrada com sucesso!'),
+        backgroundColor: Colors.green,
+      ),
+    );
+    Navigator.pushReplacementNamed(context, '/');
+  } else {
+    String errorMessage = 'Erro ao cadastrar uma categoria.';
+    try {
+      final respStr = await response.stream.bytesToString();
+      final Map<String, dynamic> data = jsonDecode(respStr);
+      if (data.containsKey('err')) {
+        errorMessage = data['err'];
+      }
+    } catch (_) {
+
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
+
 
   Future<void> _pickImage() async {
     final pickedFile = await ImagePicker().pickImage(
@@ -44,9 +94,9 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              CustomTextField(label: "Nome da Categoria"),
+              CustomTextField(label: "Nome da Categoria", controller: _nameController,),
               SizedBox(height: 20),
-              CustomTextField(label: "Descrição", maxLines: 5),
+              CustomTextField(label: "Descrição", maxLines: 5, controller: _descriptionController,),
               SizedBox(height: 20),
               IconPicker(image: _image, onPickImage: _pickImage),
               SizedBox(height: 20),
@@ -75,9 +125,7 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: () {
-              // lógica de cadastro
-            },
+            onPressed: _submitCategory,
             child: Text('Cadastrar', style: TextStyle(fontSize: 16)),
           ),
         ),

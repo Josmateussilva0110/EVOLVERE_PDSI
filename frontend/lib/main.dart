@@ -5,11 +5,9 @@ import 'features/user/register_user/screens/user_screen.dart';
 import 'features/Habits/Screens/Tela_Habitos/tela_habitos.dart';
 import 'features/Habits/Screens/Tela_Frequencia/Tela_Frequencia.dart';
 import 'features/Habits/Screens//Tela_Prazo/tela_Prazo.dart';
-import 'features/home/tela_perfil.dart'; // Adicione esta linha
-//import 'features/user/register_category/screens/categorie_screen.dart';
-import 'features/Habits/Screens/Tela_Habitos/tela_habitos.dart'; // Adicione esta linha
-import 'features/Habits/Screens/Tela_Frequencia/Tela_Frequencia.dart'; // Adicione esta linha
-import 'features/Habits/Screens//Tela_Prazo/tela_Prazo.dart';
+import 'features/home/tela_perfil.dart'; 
+import 'features/user/register_category/screens/categorie_screen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -44,7 +42,8 @@ class _MyAppState extends State<MyApp> {
         '/habitos': (context) => TelaHabitos(),
         '/frequencia': (context) => TelaFrequencia(),
         '/prazo': (context) => TelaPrazo(),
-        '/perfil': (context) => const TelaPerfil(),
+        '/perfil': (context) => TelaPerfil(),
+        '/cadastro_categoria': (context) => RegisterCategoryScreen(),
       },
     );
   }
