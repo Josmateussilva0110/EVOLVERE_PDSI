@@ -5,6 +5,7 @@ import '../../widgets/password_field.dart';
 import '../widgets/login_options.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class LoginForm extends StatefulWidget {
   @override
@@ -62,7 +63,7 @@ class _LoginFormState extends State<LoginForm> {
 
             onPressed: () async {
               final response = await http.post(
-                Uri.parse('http://192.168.1.8:8080/login'),
+                Uri.parse('${dotenv.env['API_URL']}/login'),
                 headers: {'Content-Type': 'application/json'},
                 body: jsonEncode({'email': _emailController.text, 'password': _passwordController.text}),
               );
