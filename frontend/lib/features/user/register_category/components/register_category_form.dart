@@ -7,6 +7,7 @@ import '../widgets/color_selector.dart';
 import '../widgets/icon_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RegisterFormCategory extends StatefulWidget {
   @override
@@ -33,7 +34,7 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
   }
 
   Future<void> _submitCategory() async {
-  var request = http.MultipartRequest('POST', Uri.parse('http://192.168.1.8:8080/category'))
+  var request = http.MultipartRequest('POST', Uri.parse('${dotenv.env['API_URL']}/category'))
     ..fields['name'] = _nameController.text
     ..fields['description'] = _descriptionController.text
     ..fields['color'] = colorToHex(_selectedColor);

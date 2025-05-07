@@ -5,6 +5,8 @@ import 'terms_checkbox.dart';
 import '../../widgets/form_container.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 
 class RegisterForm extends StatefulWidget {
@@ -81,7 +83,7 @@ class _RegisterFormState extends State<RegisterForm> {
               }
 
               final response = await http.post(
-                Uri.parse('http://192.168.1.8:8080/user'), 
+                Uri.parse('${dotenv.env['API_URL']}/user'), 
                 headers: {'Content-Type': 'application/json'},
                 body: jsonEncode({
                   'username': _usernameController.text,

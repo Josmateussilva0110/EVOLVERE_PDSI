@@ -5,11 +5,12 @@ import 'features/user/register_user/screens/user_screen.dart';
 import 'features/Habits/Screens/Tela_Habitos/tela_habitos.dart';
 import 'features/Habits/Screens/Tela_Frequencia/Tela_Frequencia.dart';
 import 'features/Habits/Screens//Tela_Prazo/tela_Prazo.dart';
-import 'features/home/tela_perfil.dart'; 
+import 'features/home/tela_perfil.dart';
 import 'features/user/register_category/screens/categorie_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
