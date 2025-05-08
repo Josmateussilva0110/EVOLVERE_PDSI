@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../components/Tela_Frequencia/frequency_option.dart';
-import '../../components/Tela_Frequencia/navigation_dots.dart';
-import '../../themes/Tela_Frequencia/frequency_theme.dart';
-import '../../widgets/Tela_Frequencia/frequency_pickers.dart';
+import '../components/Tela_Frequencia/frequency_option.dart';
+import '../components/Tela_Frequencia/navigation_dots.dart';
+import '../themes/Tela_Frequencia/frequency_theme.dart';
+import '../widgets/Tela_Frequencia/frequency_pickers.dart';
 
 class TelaFrequencia extends StatefulWidget {
   @override

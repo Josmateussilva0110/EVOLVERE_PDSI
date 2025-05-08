@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../components/Tela_Habitos/category_button.dart';
+import 'category_button.dart';
 
 class CategoryGrid extends StatelessWidget {
   final String selectedCategory;
