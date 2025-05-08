@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../themes/Tela_Habitos/habits_theme.dart';
+import '../themes/habits_theme.dart';
 
 class CategoryButton extends StatelessWidget {
   final IconData icon;
