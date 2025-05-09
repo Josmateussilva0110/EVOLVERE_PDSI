@@ -3,11 +3,11 @@ import 'package:front/features/initial/screens/welcome_screen.dart';
 import 'features/user/tela_login/screens/login_screen.dart';
 import 'features/user/register_user/screens/user_screen.dart';
 import 'features/habits/habit_screen/screens/habits_screens.dart';
-import 'features/habits/Tela_Frequencia/Tela_Frequencia.dart';
 import 'features/habits/Tela_Prazo/tela_Prazo.dart';
 import 'features/home/tela_perfil.dart';
 import 'features/user/register_category/screens/categorie_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'features/habits/frequency_screen/screens/frequency_screen.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -41,8 +41,8 @@ class _MyAppState extends State<MyApp> {
         '/login': (context) => LoginScreen(),
         '/cadastro_usuario': (context) => RegisterUserScreen(),
         '/habitos': (context) => HabitScreen(),
-        '/frequencia': (context) => TelaFrequencia(),
         '/prazo': (context) => TelaPrazo(),
+        '/cadastrar_frequencia': (context) => FrequencyScreen(),
         '/perfil': (context) => TelaPerfil(),
         '/cadastro_categoria': (context) => RegisterCategoryScreen(),
       },

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../themes/habits_theme.dart';
+import '../habit_screen/themes/habits_theme.dart';
 
-class HabitAppBar extends StatelessWidget implements PreferredSizeWidget {
+class HeaderAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback? onBack;
 
-  const HabitAppBar({Key? key, required this.title, this.onBack})
+  const HeaderAppBar({Key? key, required this.title, this.onBack})
     : super(key: key);
 
   @override

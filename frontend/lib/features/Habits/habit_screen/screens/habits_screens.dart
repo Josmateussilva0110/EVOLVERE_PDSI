@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../themes/habits_theme.dart';
 import '../components/habit_form.dart';
 import '../widgets/bottom_navigation.dart';
+import '../../components/habits_app_bar.dart';
 
 class HabitScreen extends StatefulWidget {
   const HabitScreen({Key? key}) : super(key: key);
@@ -26,23 +26,7 @@ class _HabitScreenState extends State<HabitScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HabitsTheme.backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Novo Hábito',
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
+      appBar: HeaderAppBar(title: 'Novo Hábito',),
       body: Column(
         children: [
           Expanded(
@@ -59,7 +43,7 @@ class _HabitScreenState extends State<HabitScreen> {
               ),
             ),
           ),
-          BottomNavigation(nextRoute: '/frequencia'),
+          BottomNavigation(nextRoute: '/cadastrar_frequencia'),
         ],
       ),
     );

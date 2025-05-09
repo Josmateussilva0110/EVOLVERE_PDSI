@@ -114,7 +114,7 @@ class _TelaPrazoState extends State<TelaPrazo> {
               children: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pushReplacementNamed(context, '/frequencia');
+                    Navigator.pushReplacementNamed(context, '/cadastrar_frequencia');
                   },
                   child: Text(
                     'Anterior',

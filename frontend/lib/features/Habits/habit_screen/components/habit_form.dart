@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:front/features/habits/components/app_header.dart';
 import '../widgets/habit_text_field.dart';
 import '../widgets/category_grid.dart';
-import '../widgets/category_header.dart';
 
 class HabitForm extends StatelessWidget {
   final String habitName;
@@ -37,9 +37,9 @@ class HabitForm extends StatelessWidget {
           hint: 'Opcional',
           onChanged: onDescriptionChanged,
         ),
-        const SizedBox(height: 32),
-        const CategoryHeader(),
-        const SizedBox(height: 16),
+        SizedBox(height: 32),
+        Appbody(title: 'Categoria',),
+        SizedBox(height: 16),
         CategoryGrid(
           selectedCategory: selectedCategory,
           onCategorySelected: onCategorySelected,

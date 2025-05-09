@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../themes/Tela_Frequencia/frequency_theme.dart';
+import '../../frequency_screen/themes/frequency_theme.dart';
 
 class RepeatPickerWidget extends StatefulWidget {
   final int days;
