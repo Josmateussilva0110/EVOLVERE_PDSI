@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../themes/frequency_theme.dart';
-import 'navigation_dots.dart';
+import '../frequency_screen/themes/frequency_theme.dart';
+import '../frequency_screen/widgets/navigation_dots.dart';
 
 class FrequencyBottomNavigation extends StatelessWidget {
   final VoidCallback onPrevious;
   final VoidCallback onNext;
+  final String previousLabel;
+  final String nextLabel;
+  final int currentIndex;
 
   const FrequencyBottomNavigation({
     Key? key,
     required this.onPrevious,
     required this.onNext,
+    this.previousLabel = 'Anterior',
+    this.nextLabel = 'Próxima',
+    this.currentIndex = 0,
   }) : super(key: key);
 
   @override
@@ -27,7 +33,7 @@ class FrequencyBottomNavigation extends StatelessWidget {
           TextButton(
             onPressed: onPrevious,
             child: Text(
-              'Anterior',
+              previousLabel,
               style: GoogleFonts.inter(
                 color: FrequencyTheme.textColor,
                 fontSize: 16,
@@ -35,11 +41,11 @@ class FrequencyBottomNavigation extends StatelessWidget {
               ),
             ),
           ),
-          NavigationDots(currentIndex: 1, totalDots: 3),
+          NavigationDots(currentIndex: currentIndex, totalDots: 3),
           TextButton(
             onPressed: onNext,
             child: Text(
-              'Próxima',
+              nextLabel,
               style: GoogleFonts.inter(
                 color: FrequencyTheme.accentColor,
                 fontSize: 16,
