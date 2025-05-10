@@ -164,7 +164,7 @@ para pegar as atualizações da main **dentro de sua branch**
 
 ```javascript
 git fetch origin
-git merge origin/main
+git rebase origin/main
 ``` 
 caso ocorra algum conflito resolva e depois:
 
