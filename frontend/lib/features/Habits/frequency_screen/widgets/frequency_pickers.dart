@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../themes/frequency_theme.dart';
-import '../../components/Tela_Frequencia/week_days_picker_widget.dart';
-import '../../components/Tela_Frequencia/month_days_picker_widget.dart';
-import '../../components/Tela_Frequencia/year_days_picker_widget.dart';
-import '../../components/Tela_Frequencia/period_picker_widget.dart';
-import '../../components/Tela_Frequencia/repeat_picker_widget.dart';
+import 'week_days_picker_widget.dart';
+import 'month_days_picker_widget.dart';
+import 'year_days_picker_widget.dart';
+import 'period_picker_widget.dart';
+import 'repeat_picker_widget.dart';
 
 class FrequencyPickers {
   static void showWeekDaysPicker(

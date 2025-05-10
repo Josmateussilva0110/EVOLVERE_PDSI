@@ -38,11 +38,14 @@ class HabitForm extends StatelessWidget {
           onChanged: onDescriptionChanged,
         ),
         SizedBox(height: 32),
-        Appbody(title: 'Categoria',),
+        Appbody(title: 'Categoria'),
         SizedBox(height: 16),
         CategoryGrid(
           selectedCategory: selectedCategory,
           onCategorySelected: onCategorySelected,
+          onAddCategory: () {
+            Navigator.pushNamed(context, '/cadastro_categoria');
+          },
         ),
       ],
     );
