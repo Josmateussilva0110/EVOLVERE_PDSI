@@ -12,11 +12,7 @@ class WelcomeScreen extends StatelessWidget {
         actions: [
           // Adicione o botão de perfil aqui
           IconButton(
-            icon: const Icon(
-              Icons.person,
-              color: Colors.white,
-              size: 28,
-            ),
+            icon: const Icon(Icons.person, color: Colors.white, size: 28),
             onPressed: () {
               Navigator.pushNamed(context, '/perfil');
             },
@@ -93,8 +89,31 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                SizedBox(height: 20), // Espaçamento entre botões
 
-
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF2B6BED),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 15,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/listar_categorias');
+                  },
+                  child: const Text(
+                    'Listar categorias',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
