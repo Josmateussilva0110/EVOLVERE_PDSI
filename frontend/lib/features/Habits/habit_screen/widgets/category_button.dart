@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../themes/habits_theme.dart';
 
 class CategoryButton extends StatelessWidget {
-  final IconData icon;
+  final Widget icon; 
   final String label;
   final String category;
   final bool isSelected;
@@ -35,11 +35,7 @@ class CategoryButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: HabitsTheme.textColor,
-              size: 20,
-            ),
+            icon, // icon pode ser qualquer Widget, como Icon ou Image
             const SizedBox(width: 8),
             Text(
               label,

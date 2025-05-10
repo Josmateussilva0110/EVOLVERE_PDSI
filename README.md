@@ -109,6 +109,19 @@ para rodar o frontend
 flutter run
 ``` 
 
+
+Flutter run key commands.
+
+```javascript
+r Hot reload.
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+``` 
+
+
 # GIT
 
 para baixar o projeto

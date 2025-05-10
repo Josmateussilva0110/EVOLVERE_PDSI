@@ -165,3 +165,5 @@ app.*.symbols
 .env
 **/uploads/
 
+/backend/uploads/*
+!/backend/uploads/.gitkeep
