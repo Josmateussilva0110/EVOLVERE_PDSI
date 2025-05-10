@@ -103,6 +103,12 @@ frontend/
     readme.md
 ``` 
 
+para rodar o frontend
+
+```javascript
+flutter run
+``` 
+
 # GIT
 
 para baixar o projeto

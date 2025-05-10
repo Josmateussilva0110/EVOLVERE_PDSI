@@ -3,7 +3,7 @@ import '../../components/habits_app_bar.dart';
 import '../../components/app_header.dart';
 import '../themes/frequency_theme.dart';
 import '../components/frequency_form.dart';
-import '../widgets/navigation.dart';
+import '../../components/navigation.dart';
 
 class FrequencyScreen extends StatefulWidget {
   @override
@@ -70,6 +70,7 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
             onPrevious:
                 () => Navigator.pushReplacementNamed(context, '/habitos'),
             onNext: () => Navigator.pushReplacementNamed(context, '/prazo'),
+            currentIndex: 1,
           ),
         ],
       ),

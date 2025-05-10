@@ -3,7 +3,7 @@ import 'package:front/features/initial/screens/welcome_screen.dart';
 import 'features/user/tela_login/screens/login_screen.dart';
 import 'features/user/register_user/screens/user_screen.dart';
 import 'features/habits/habit_screen/screens/habits_screens.dart';
-import 'features/habits/Tela_Prazo/tela_Prazo.dart';
+import 'features/Habits/limit_screen/screens/limit_period.dart';
 import 'features/home/tela_perfil.dart';
 import 'features/user/register_category/screens/categorie_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
