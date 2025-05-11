@@ -6,7 +6,7 @@ import 'features/habits/habit_screen/screens/habits_screens.dart';
 import 'features/Habits/limit_screen/screens/limit_period.dart';
 import 'features/home/tela_perfil.dart';
 import 'features/user/register_category/screens/categorie_screen.dart';
-import 'features/user/register_category/screens/list_category_screen.dart'; // Nova importação
+import 'features/user/register_category/screens/list_category_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'features/habits/frequency_screen/screens/frequency_screen.dart';
 
