@@ -16,7 +16,11 @@ class LoginScreen extends StatelessWidget {
               SizedBox(height: 2),
               LoginForm(),
               SizedBox(height: 12),
-              Footer(mensagem: 'Não tem conta? ', acao: 'Cadastrar',),
+              Footer(
+                mensagem: 'Não tem conta? ', 
+                acao: 'Cadastrar',
+                routeName: '/cadastro_usuario',
+              ),
               SizedBox(height: 20),
             ],
           ),

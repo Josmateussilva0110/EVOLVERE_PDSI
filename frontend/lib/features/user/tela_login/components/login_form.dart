@@ -75,7 +75,7 @@ class _LoginFormState extends State<LoginForm> {
                   backgroundColor: Colors.green,
                 ),
                 );
-                Navigator.pushReplacementNamed(context, '/');
+                Navigator.pushReplacementNamed(context, '/inicio');
               }
               else {
                 String errorMessage = 'Erro no login';

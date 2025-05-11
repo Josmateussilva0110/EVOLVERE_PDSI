@@ -164,6 +164,3 @@ app.*.symbols
 **/node_modules/
 .env
 **/uploads/
-
-/backend/uploads/*
-!/backend/uploads/.gitkeep

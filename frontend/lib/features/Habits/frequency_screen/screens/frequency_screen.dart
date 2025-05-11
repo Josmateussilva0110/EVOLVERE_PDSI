@@ -68,7 +68,7 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
           ),
           FrequencyBottomNavigation(
             onPrevious:
-                () => Navigator.pushReplacementNamed(context, '/habitos'),
+                () => Navigator.pushReplacementNamed(context, '/cadastrar_habito'),
             onNext: () => Navigator.pushReplacementNamed(context, '/prazo'),
             currentIndex: 1,
           ),

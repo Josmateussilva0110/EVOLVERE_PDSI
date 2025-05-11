@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import '../../widgets/text_field.dart';
-import '../../widgets/form_container.dart';
+import '../../user/widgets/text_field.dart';
+import '../../user/widgets/form_container.dart';
 import '../widgets/color_selector.dart';
 import '../widgets/icon_picker.dart';
 import 'package:http/http.dart' as http;
