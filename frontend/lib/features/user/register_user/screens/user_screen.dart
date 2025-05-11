@@ -16,7 +16,7 @@ class RegisterUserScreen extends StatelessWidget {
               SizedBox(height: 2),
               RegisterForm(),
               SizedBox(height: 12),
-              Footer(mensagem: 'Já tem conta ? ', acao: 'Entrar',),
+              Footer(mensagem: 'Já tem conta ? ', acao: 'Entrar', routeName: '/login',),
               SizedBox(height: 20),
             ],
           ),

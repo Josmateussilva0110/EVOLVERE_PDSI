@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../components/custom_top_curve.dart';
+import '../../user/components/custom_top_curve.dart';
 import '../components/register_category_form.dart';
 
 class RegisterCategoryScreen extends StatelessWidget {

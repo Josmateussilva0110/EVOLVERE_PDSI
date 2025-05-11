@@ -17,7 +17,7 @@ class ListCategoryScreen extends StatelessWidget {
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pushNamed(context, '/'),
+          onPressed: () => Navigator.pushNamed(context, '/inicio'),
         ),
         actions: [
           IconButton(
