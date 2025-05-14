@@ -4,8 +4,11 @@ class Category {
 
     async findAll() {
         try {
-            var result = await knex.select(["id", "name", "description", "color", "icon"]).table("category")
-            return result
+            var result = await knex
+                .select(["id", "name", "description", "color", "icon"])
+                .from("category") // Alterado de 'categories' para 'category'
+            console.log('Categorias encontradas:', result);
+            return result;
         } catch(err) {
             console.log('erro no findAll categoria', err)
             return []

@@ -45,14 +45,21 @@ class CategoryController {
     }
   
     async getCategories(request, response) {
-        var categories = await Category.findAll()
-        if(categories.length > 0) {
-            response.status(200)
-            response.json({categories})
-        }
-        else {
-            response.status(404)
-            response.json({err: 'Nenhuma categoria cadastrada.'})
+        try {
+            const categories = await Category.findAll();
+            if (categories.length > 0) {
+                response.status(200).json({ categories: categories });
+            } else {
+                response.status(404).json({ 
+                    err: "Nenhuma categoria cadastrada.",
+                    categories: [] 
+                });
+            }
+        } catch (err) {
+            response.status(500).json({ 
+                err: "Erro interno ao buscar categorias",
+                categories: [] 
+            });
         }
     }
 
