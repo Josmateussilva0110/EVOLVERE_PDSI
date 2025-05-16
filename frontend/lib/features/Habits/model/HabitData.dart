@@ -8,6 +8,7 @@ class HabitData {
   DateTime? reminderDateTime;
   int? priority; //todo 1 = alta, 2 = normal, 3 = baixa
 
+
   HabitData({
     this.habitName = '',
     this.description = '',
@@ -18,6 +19,7 @@ class HabitData {
     this.reminderDateTime,
     this.priority = 2,
   }) : frequencyData = frequencyData ?? {'option': 'todos_os_dias', 'value': null};
+
 
   HabitData copyWith({
     String? habitName,
@@ -38,6 +40,7 @@ class HabitData {
       endDate: endDate ?? this.endDate,
       reminderDateTime: reminderDateTime ?? this.reminderDateTime,
       priority: priority ?? this.priority,
+
     );
   }
 }
