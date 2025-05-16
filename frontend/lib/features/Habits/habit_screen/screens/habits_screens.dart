@@ -3,9 +3,11 @@ import '../themes/habits_theme.dart';
 import '../components/habit_form.dart';
 import '../widgets/bottom_navigation.dart';
 import '../../components/habits_app_bar.dart';
+import '../../model/HabitData.dart';
 
 class HabitScreen extends StatefulWidget {
-  const HabitScreen({Key? key}) : super(key: key);
+  final HabitData habitData;
+  const HabitScreen({Key? key, required this.habitData}) : super(key: key);
 
   @override
   _HabitScreenState createState() => _HabitScreenState();
@@ -16,22 +18,44 @@ class _HabitScreenState extends State<HabitScreen> {
   String description = '';
   String selectedCategory = '';
 
+  @override
+  void initState() {
+    super.initState();
+    habitName = widget.habitData.habitName;
+    description = widget.habitData.description;
+    selectedCategory = widget.habitData.selectedCategory;
+  }
+
   void _onCategorySelected(String category) {
     setState(() {
       selectedCategory = selectedCategory == category ? '' : category;
     });
   }
 
+  void _goToFrequency() {
+    final updatedHabitData = widget.habitData.copyWith(
+      habitName: habitName,
+      description: description,
+      selectedCategory: selectedCategory,
+    );
+
+    Navigator.pushReplacementNamed(
+      context,
+      '/cadastrar_frequencia',
+      arguments: updatedHabitData,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HabitsTheme.backgroundColor,
-      appBar: HeaderAppBar(title: 'Novo Hábito',),
+      appBar: HeaderAppBar(title: 'Novo Hábito'),
       body: Column(
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: HabitForm(
                 habitName: habitName,
                 description: description,
@@ -43,7 +67,11 @@ class _HabitScreenState extends State<HabitScreen> {
               ),
             ),
           ),
-          BottomNavigation(nextRoute: '/cadastrar_frequencia'),
+          BottomNavigation(
+            nextRoute: '/cadastrar_frequencia',
+            onNext:
+                _goToFrequency, // Chama a função que passa os dados atualizados
+          ),
         ],
       ),
     );

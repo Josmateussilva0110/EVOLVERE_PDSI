@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'features/initial/widgets/widgets.dart';
 import 'features/user/tela_login/screens/login_screen.dart';
 import 'features/user/register_user/screens/user_screen.dart';
-import 'features/habits/habit_screen/screens/habits_screens.dart';
+import 'features/Habits/habit_screen/screens/habits_screens.dart';
 import 'features/Habits/limit_screen/screens/limit_period.dart';
 import 'features/home/tela_perfil.dart';
 import 'features/register_category/screens/categorie_screen.dart';
 import 'features/register_category/screens/list_category_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'features/habits/frequency_screen/screens/frequency_screen.dart';
+import 'features/Habits/frequency_screen/screens/frequency_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/listHabits/pages/habits_list_page.dart';
+import 'features/Habits/model/HabitData.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -39,18 +40,56 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'App com Rotas',
       initialRoute: '/',
+      // Você pode manter o routes para as rotas simples
       routes: {
         '/': (context) => WelcomeScreen(),
         '/inicio': (context) => HomeScreen(),
         '/login': (context) => LoginScreen(),
         '/cadastro_usuario': (context) => RegisterUserScreen(),
-        '/cadastrar_habito': (context) => HabitScreen(),
-        '/prazo': (context) => TelaPrazo(),
-        '/cadastrar_frequencia': (context) => FrequencyScreen(),
         '/perfil': (context) => TelaPerfil(),
         '/cadastro_categoria': (context) => RegisterCategoryScreen(),
         '/listar_categorias': (context) => ListCategoryScreen(),
         '/listar_habitos': (context) => HabitsListPage(),
+      },
+
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/cadastrar_habito':
+            final args = settings.arguments;
+            if (args is HabitData) {
+              return MaterialPageRoute(
+                builder: (_) => HabitScreen(habitData: args),
+              );
+            }
+            return MaterialPageRoute(
+              builder: (_) => HabitScreen(habitData: HabitData()),
+            );
+
+          case '/cadastrar_frequencia':
+            final args = settings.arguments;
+            if (args is HabitData) {
+              return MaterialPageRoute(
+                builder: (_) => FrequencyScreen(habitData: args),
+              );
+            }
+            return MaterialPageRoute(
+              builder: (_) => FrequencyScreen(habitData: HabitData()),
+            );
+
+          case '/prazo':
+            final args = settings.arguments;
+            if (args is HabitData) {
+              return MaterialPageRoute(
+                builder: (_) => TelaPrazo(habitData: args),
+              );
+            }
+            return MaterialPageRoute(
+              builder: (_) => TelaPrazo(habitData: HabitData()),
+            );
+
+          default:
+            return null;
+        }
       },
     );
   }

@@ -4,19 +4,27 @@ import '../../components/app_header.dart';
 import '../themes/frequency_theme.dart';
 import '../components/frequency_form.dart';
 import '../../components/navigation.dart';
+import '../../model/HabitData.dart';
 
 class FrequencyScreen extends StatefulWidget {
+  final HabitData habitData;
+
+  const FrequencyScreen({Key? key, required this.habitData}) : super(key: key);
+
   @override
   _FrequencyScreenState createState() => _FrequencyScreenState();
 }
 
 class _FrequencyScreenState extends State<FrequencyScreen> {
-  String selectedFrequency = 'todos_os_dias';
-  List<String> selectedDaysOfWeek = [];
-  List<int> selectedDaysOfMonth = [];
-  List<DateTime> selectedYearDays = [];
-  int repeatTimes = 1;
-  String repeatPeriod = 'SEMANA';
+  late HabitData habitData;
+  late Map<String, dynamic> frequencyData;
+
+  @override
+  void initState() {
+    super.initState();
+    habitData = widget.habitData;
+    frequencyData = Map<String, dynamic>.from(habitData.frequencyData);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,32 +42,9 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
                   Appbody(title: 'Frequência que deseja fazer isso?'),
                   SizedBox(height: 24),
                   FrequencyForm(
-                    selectedFrequency: selectedFrequency,
-                    onFrequencySelect: (value) {
-                      setState(() => selectedFrequency = value);
-                    },
-                    selectedDaysOfWeek: selectedDaysOfWeek,
-                    selectedDaysOfMonth: selectedDaysOfMonth,
-                    selectedYearDays: selectedYearDays,
-                    repeatTimes: repeatTimes,
-                    repeatPeriod: repeatPeriod,
-                    onWeekDaysSelected: (days) {
-                      setState(() => selectedDaysOfWeek = days);
-                    },
-                    onMonthDaysSelected: (days) {
-                      setState(() => selectedDaysOfMonth = days);
-                    },
-                    onYearDaysSelected: (dates) {
-                      setState(() => selectedYearDays = dates);
-                    },
-                    onPeriodSelected: (times, period) {
-                      setState(() {
-                        repeatTimes = times;
-                        repeatPeriod = period;
-                      });
-                    },
-                    onRepeatSelected: (times) {
-                      setState(() => repeatTimes = times);
+                    frequencyData: frequencyData,
+                    onFrequencyDataChanged: (newData) {
+                      setState(() => frequencyData = newData);
                     },
                   ),
                 ],
@@ -68,8 +53,20 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
           ),
           FrequencyBottomNavigation(
             onPrevious:
-                () => Navigator.pushReplacementNamed(context, '/cadastrar_habito'),
-            onNext: () => Navigator.pushReplacementNamed(context, '/prazo'),
+                () => Navigator.pushReplacementNamed(
+                  context,
+                  '/cadastrar_habito',
+                ),
+            onNext: () {
+              final updatedHabitData = habitData.copyWith(
+                frequencyData: frequencyData,
+              );
+              Navigator.pushReplacementNamed(
+                context,
+                '/prazo',
+                arguments: updatedHabitData,
+              );
+            },
             currentIndex: 1,
           ),
         ],

@@ -3,15 +3,33 @@ import '../../components/habits_app_bar.dart';
 import '../../components/app_header.dart';
 import '../../components/navigation.dart';
 import '../components/limit_period_form.dart';
+import '../../model/HabitData.dart';
 
 class TelaPrazo extends StatefulWidget {
+  final HabitData habitData;
+
+  const TelaPrazo({Key? key, required this.habitData}) : super(key: key);
+
   @override
   _TelaPrazoState createState() => _TelaPrazoState();
 }
 
 class _TelaPrazoState extends State<TelaPrazo> {
+  late HabitData habitData;
   bool dataAlvoEnabled = false;
   String prioridade = 'Normal';
+
+  @override
+  void initState() {
+    super.initState();
+    habitData = widget.habitData;
+
+    print('chegou em limit: ');
+    print('Nome do hábito: ${habitData.habitName}');
+    print('Descrição: ${habitData.description}');
+    print('Categoria: ${habitData.selectedCategory}');
+    print('tipo: ${habitData.frequencyData}');
+  }
 
   @override
   Widget build(BuildContext context) {

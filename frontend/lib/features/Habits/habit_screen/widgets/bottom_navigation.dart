@@ -4,10 +4,12 @@ import '../themes/habits_theme.dart';
 
 class BottomNavigation extends StatelessWidget {
   final String nextRoute;
+  final VoidCallback? onNext;
 
   const BottomNavigation({
     Key? key,
     required this.nextRoute,
+    this.onNext,
   }) : super(key: key);
 
   @override
@@ -23,7 +25,11 @@ class BottomNavigation extends StatelessWidget {
         children: [
           TextButton(
             onPressed: () {
-              Navigator.pushNamed(context, nextRoute);
+              if (onNext != null) {
+                onNext!(); 
+              } else {
+                Navigator.pushNamed(context, nextRoute);
+              }
             },
             child: Text(
               'Próxima',
