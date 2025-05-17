@@ -80,11 +80,11 @@ class _MyAppState extends State<MyApp> {
             final args = settings.arguments;
             if (args is HabitData) {
               return MaterialPageRoute(
-                builder: (_) => TelaPrazo(habitData: args),
+                builder: (_) => TermScreen(habitData: args),
               );
             }
             return MaterialPageRoute(
-              builder: (_) => TelaPrazo(habitData: HabitData()),
+              builder: (_) => TermScreen(habitData: HabitData()),
             );
 
           default:

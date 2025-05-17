@@ -13,7 +13,7 @@ class HabitData {
     Map<String, dynamic>? frequencyData,
     this.dataAlvoEnabled = false,
     this.priority = 'Normal',
-  }) : frequencyData = frequencyData ?? {'tipo': 'todos_os_dias', 'valores': null};
+  }) : frequencyData = frequencyData ?? {'option': 'todos_os_dias', 'value': null};
 
   HabitData copyWith({
     String? habitName,

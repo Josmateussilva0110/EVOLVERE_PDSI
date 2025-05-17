@@ -19,42 +19,42 @@ class FrequencyForm extends StatelessWidget {
     case 'alguns_dias_semana':
       FrequencyPickers.showWeekDaysPicker(
         context,
-        List<String>.from(frequencyData['valores'] ?? []),
-        (days) => onFrequencyDataChanged({'tipo': type, 'valores': days}),
+        List<String>.from(frequencyData['value'] ?? []),
+        (days) => onFrequencyDataChanged({'option': type, 'value': days}),
       );
       break;
     case 'dias_especificos_mes':
       FrequencyPickers.showMonthDaysPicker(
         context,
-        List<int>.from(frequencyData['valores'] ?? []),
-        (days) => onFrequencyDataChanged({'tipo': type, 'valores': days}),
+        List<int>.from(frequencyData['value'] ?? []),
+        (days) => onFrequencyDataChanged({'option': type, 'value': days}),
       );
       break;
     case 'dias_especificos_ano':
       FrequencyPickers.showYearDaysPicker(
         context,
-        List<DateTime>.from(frequencyData['valores'] ?? []),
-        (dates) => onFrequencyDataChanged({'tipo': type, 'valores': dates}),
+        List<DateTime>.from(frequencyData['value'] ?? []),
+        (dates) => onFrequencyDataChanged({'option': type, 'value': dates}),
       );
       break;
     case 'algumas_vezes_periodo':
       FrequencyPickers.showPeriodPicker(
         context,
-        frequencyData['valores']?['vezes'] ?? 1,
-        frequencyData['valores']?['periodo'] ?? 'SEMANA',
+        frequencyData['value']?['vezes'] ?? 1,
+        frequencyData['value']?['periodo'] ?? 'SEMANA',
         (vezes, periodo) =>
-            onFrequencyDataChanged({'tipo': type, 'valores': {'vezes': vezes, 'periodo': periodo}}),
+            onFrequencyDataChanged({'option': type, 'value': {'vezes': vezes, 'periodo': periodo}}),
       );
       break;
     case 'repetir':
       FrequencyPickers.showRepeatPicker(
         context,
-        frequencyData['valores'] ?? 1,
-        (vezes) => onFrequencyDataChanged({'tipo': type, 'valores': vezes}),
+        frequencyData['value'] ?? 1,
+        (vezes) => onFrequencyDataChanged({'option': type, 'value': vezes}),
       );
       break;
     default:
-      onFrequencyDataChanged({'tipo': type, 'valores': null});
+      onFrequencyDataChanged({'option': type, 'value': null});
   }
 }
 
@@ -76,7 +76,7 @@ class FrequencyForm extends StatelessWidget {
             return FrequencyOption(
               value: entry.key,
               label: entry.value,
-              selectedFrequency: frequencyData['tipo'],
+              selectedFrequency: frequencyData['option'],
               onSelect: (value) => _handleSelection(context, value),
             );
           }).toList(),
