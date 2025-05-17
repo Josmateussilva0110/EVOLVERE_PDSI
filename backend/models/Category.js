@@ -14,7 +14,6 @@ class Category {
             var result = await knex
                 .select(["id", "name", "description", "color", "icon"])
                 .from("category") 
-
             return result;
         } catch(err) {
             console.log(err);

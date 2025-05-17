@@ -21,7 +21,6 @@ class FrequencyForm extends StatelessWidget {
         context,
         List<String>.from(frequencyData['value'] ?? []),
         (days) => onFrequencyDataChanged({'option': type, 'value': days}),
-
       );
       break;
     case 'dias_especificos_mes':
