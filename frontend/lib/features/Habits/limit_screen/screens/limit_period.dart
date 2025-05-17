@@ -21,7 +21,6 @@ class _TermScreenState extends State<TermScreen> {
 
   int priority = 2; //todo: 1 = alta, 2 normal, 3 baixa
 
-
   @override
   void initState() {
     super.initState();
@@ -158,7 +157,21 @@ class _TermScreenState extends State<TermScreen> {
     }
   }
 
-  void _selectDate() async {
+  String getPriorityLabel(int value) {
+  switch (value) {
+    case 1:
+      return 'Alta';
+    case 2:
+      return 'Normal';
+    case 3:
+      return 'Baixa';
+    default:
+      return 'Desconhecida';
+  }
+}
+
+
+  void _selectDate(Function(DateTime) onDateSelected) async {
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -180,38 +193,47 @@ class _TermScreenState extends State<TermScreen> {
     );
 
     if (date != null) {
-      print('Data de início selecionada: $date');
+      setState(() {
+        onDateSelected(date);
+      });
     }
   }
 
   void _selectPriority() {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: const Color(0xFF1C1F26),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children:
-              ['Alta', 'Normal', 'Baixa'].map((option) {
-                return ListTile(
-                  title: Text(option, style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    setState(() {
-                      priority = option;
-                    });
-                    Navigator.pop(context);
-                  },
-                );
-              }).toList(),
-        );
-      },
-    );
-  }
+  final options = {
+    1: 'Alta',
+    2: 'Normal',
+    3: 'Baixa',
+  };
 
-  void _selecionarLembrete() async {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: const Color(0xFF1C1F26),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    ),
+    builder: (context) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: options.entries.map((entry) {
+          return ListTile(
+            title: Text(entry.value, style: TextStyle(color: Colors.white)),
+            onTap: () {
+              setState(() {
+                priority = entry.key;
+                habitData.priority = entry.key;
+              });
+              Navigator.pop(context);
+            },
+          );
+        }).toList(),
+      );
+    },
+  );
+}
+
+
+  void _selectReminder() async {
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -234,7 +256,7 @@ class _TermScreenState extends State<TermScreen> {
 
     if (date == null) return;
 
-    TimeOfDay? hora = await showTimePicker(
+    TimeOfDay? time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
       builder: (context, child) {
@@ -252,15 +274,16 @@ class _TermScreenState extends State<TermScreen> {
       },
     );
 
-    if (hora != null) {
-      final dataHora = DateTime(
-        date.year,
-        date.month,
-        date.day,
-        hora.hour,
-        hora.minute,
-      );
-      print('Lembrete definido para: $dataHora');
+    if (time != null) {
+      setState(() {
+        habitData.reminderDateTime = DateTime(
+          date.year,
+          date.month,
+          date.day,
+          time.hour,
+          time.minute,
+        );
+      });
     }
   }
 
@@ -286,7 +309,6 @@ class _TermScreenState extends State<TermScreen> {
                     onSelectedEndDate:
                         () => _selectDate((date) => habitData.endDate = date),
                     onSelectedReminders: _selectReminder,
-
                     onSelectedPriority: _selectPriority,
                   ),
                 ],

@@ -8,7 +8,6 @@ class HabitData {
   DateTime? reminderDateTime;
   int? priority; //todo 1 = alta, 2 = normal, 3 = baixa
 
-
   HabitData({
     this.habitName = '',
     this.description = '',
@@ -40,7 +39,6 @@ class HabitData {
       endDate: endDate ?? this.endDate,
       reminderDateTime: reminderDateTime ?? this.reminderDateTime,
       priority: priority ?? this.priority,
-
     );
   }
 }
