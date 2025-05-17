@@ -51,13 +51,13 @@ class CategoryController {
                 response.status(200).json({ categories: categories });
             } else {
                 response.status(404).json({ 
-                    err: "Nenhuma categoria cadastrada.",
+                    err: "Nenhuma categoria ativa encontrada.",
                     categories: [] 
                 });
             }
         } catch (err) {
             response.status(500).json({ 
-                err: "Erro interno ao buscar categorias",
+                err: "Erro interno ao buscar categorias ativas",
                 categories: [] 
             });
         }
@@ -126,6 +126,25 @@ class CategoryController {
         } catch (error) {
             console.error("Erro ao arquivar categoria:", error);
             response.status(500).json({ err: "Erro interno ao arquivar categoria" });
+        }
+    }
+
+    async getArchivedCategories(request, response) {
+        try {
+            const categories = await Category.findArchived();
+            if (categories.length > 0) {
+                response.status(200).json({ categories: categories });
+            } else {
+                response.status(404).json({ 
+                    err: "Nenhuma categoria arquivada encontrada.",
+                    categories: [] 
+                });
+            }
+        } catch (err) {
+            response.status(500).json({ 
+                err: "Erro interno ao buscar categorias arquivadas",
+                categories: [] 
+            });
         }
     }
 }

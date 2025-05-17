@@ -4,14 +4,17 @@ class Category {
 
     async findAll() {
         try {
-            var result = await knex
-                .select(["id", "name", "description", "color", "icon"])
-                .from("category") // Alterado de 'categories' para 'category'
-            console.log('Categorias encontradas:', result);
+            const result = await knex.select([
+                "id",
+                "name",
+                "description",
+                "color",
+                "icon"
+            ]).where('archived', false).from("category");
             return result;
         } catch(err) {
-            console.log('erro no findAll categoria', err)
-            return []
+            console.log(err);
+            return [];
         }
     }
     
@@ -71,6 +74,22 @@ class Category {
         } catch (err) {
             console.log("erro ao arquivar categoria", err);
             return false;
+        }
+    }
+
+    async findArchived() {
+        try {
+            const result = await knex.select([
+                "id",
+                "name",
+                "description",
+                "color",
+                "icon"
+            ]).where('archived', true).from("category");
+            return result;
+        } catch(err) {
+            console.log(err);
+            return [];
         }
     }
 }
