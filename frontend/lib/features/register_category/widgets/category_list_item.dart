@@ -1,12 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 import '../models/category.dart';
 
 class CategoryListItem extends StatelessWidget {
   final Category category;
+  final VoidCallback? onCategoryDeleted;
 
-  const CategoryListItem({super.key, required this.category});
+  const CategoryListItem({
+    Key? key,
+    required this.category,
+    this.onCategoryDeleted,
+  }) : super(key: key);
+
+  Future<void> _deleteCategory(BuildContext context) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${dotenv.env['API_URL']}/category/${category.id}'),
+      );
+
+      if (response.statusCode == 200) {
+        // Fecha o dialog
+        Navigator.pop(context);
+
+        // Mostra mensagem de sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Categoria excluída com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Atualiza a lista de categorias
+        // Você pode implementar um callback para atualizar a lista
+        if (onCategoryDeleted != null) {
+          onCategoryDeleted!();
+        }
+      } else {
+        throw Exception('Falha ao excluir categoria');
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao excluir categoria'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,8 +188,7 @@ class CategoryListItem extends StatelessWidget {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // Implementar lógica de exclusão
-                                      Navigator.pop(context);
+                                      _deleteCategory(context);
                                     },
                                     child: Text(
                                       'Excluir',

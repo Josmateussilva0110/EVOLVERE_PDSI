@@ -26,13 +26,16 @@ class _CategoryListState extends State<CategoryList> {
       final categories = await CategoryService.getCategories();
       print('Categorias carregadas: ${categories.length}'); // Debug
 
-      // Debug - imprime cada categoria
-      categories.forEach((category) {
-        print('Categoria: ${category.name}, ID: ${category.id}');
+      // Filtra apenas as categorias não arquivadas
+      final activeCategories = categories.where((category) => !category.archived).toList();
+
+      // Debug - imprime cada categoria ativa
+      activeCategories.forEach((category) {
+        print('Categoria ativa: ${category.name}, ID: ${category.id}');
       });
 
       setState(() {
-        _categories = categories;
+        _categories = activeCategories;
         _isLoading = false;
       });
     } catch (e) {
@@ -62,7 +65,12 @@ class _CategoryListState extends State<CategoryList> {
         itemBuilder: (context, index) {
           final category = _categories[index];
           print('Construindo item: ${category.name}'); // Debug
-          return CategoryListItem(category: category);
+          return CategoryListItem(
+            category: category,
+            onCategoryDeleted: () {
+              _loadCategories(); // Recarrega a lista após excluir
+            },
+          );
         },
       ),
     );
