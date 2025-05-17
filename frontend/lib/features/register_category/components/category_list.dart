@@ -12,6 +12,8 @@ class CategoryList extends StatefulWidget {
 
 class _CategoryListState extends State<CategoryList> {
   List<Category> _categories = [];
+  List<Category> _archivedCategories =
+      []; // Nova lista para categorias arquivadas
   bool _isLoading = true;
 
   @override
@@ -26,8 +28,11 @@ class _CategoryListState extends State<CategoryList> {
       final categories = await CategoryService.getCategories();
       print('Categorias carregadas: ${categories.length}'); // Debug
 
-      // Filtra apenas as categorias não arquivadas
-      final activeCategories = categories.where((category) => !category.archived).toList();
+      // Separa as categorias ativas e arquivadas
+      final activeCategories =
+          categories.where((category) => !category.archived).toList();
+      final archivedCategories =
+          categories.where((category) => category.archived).toList();
 
       // Debug - imprime cada categoria ativa
       activeCategories.forEach((category) {
@@ -36,15 +41,78 @@ class _CategoryListState extends State<CategoryList> {
 
       setState(() {
         _categories = activeCategories;
+        _archivedCategories = archivedCategories;
         _isLoading = false;
       });
     } catch (e) {
       print('Erro ao carregar categorias: $e'); // Debug
       setState(() {
         _categories = [];
+        _archivedCategories = [];
         _isLoading = false;
       });
     }
+  }
+
+  void _showArchivedCategories() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.black,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (context) => Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Categorias Arquivadas',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const Divider(color: Colors.white24),
+                if (_archivedCategories.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text(
+                      'Nenhuma categoria arquivada',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _archivedCategories.length,
+                      itemBuilder: (context, index) {
+                        final category = _archivedCategories[index];
+                        return CategoryListItem(
+                          category: category,
+                          onCategoryDeleted: () {
+                            _loadCategories();
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+    );
   }
 
   @override
@@ -53,26 +121,33 @@ class _CategoryListState extends State<CategoryList> {
       return const Center(child: CircularProgressIndicator());
     }
 
-    if (_categories.isEmpty) {
-      return const Center(child: Text('Nenhuma categoria encontrada'));
-    }
-
-    return RefreshIndicator(
-      onRefresh: _loadCategories,
-      child: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _categories.length,
-        itemBuilder: (context, index) {
-          final category = _categories[index];
-          print('Construindo item: ${category.name}'); // Debug
-          return CategoryListItem(
-            category: category,
-            onCategoryDeleted: () {
-              _loadCategories(); // Recarrega a lista após excluir
-            },
-          );
-        },
-      ),
+    return Column(
+      children: [
+        Expanded(
+          child:
+              _categories.isEmpty
+                  ? const Center(
+                    child: Text(
+                      'Nenhuma categoria ativa',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  )
+                  : RefreshIndicator(
+                    onRefresh: _loadCategories,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _categories.length,
+                      itemBuilder: (context, index) {
+                        final category = _categories[index];
+                        return CategoryListItem(
+                          category: category,
+                          onCategoryDeleted: _loadCategories,
+                        );
+                      },
+                    ),
+                  ),
+        ),
+      ],
     );
   }
 }

@@ -1,16 +1,105 @@
 import 'package:flutter/material.dart';
 import '../components/category_list.dart';
+import '../services/category_service.dart';
+import '../models/category.dart';
 
-class ListCategoryScreen extends StatelessWidget {
+class ListCategoryScreen extends StatefulWidget {
   const ListCategoryScreen({super.key});
+
+  @override
+  State<ListCategoryScreen> createState() => _ListCategoryScreenState();
+}
+
+class _ListCategoryScreenState extends State<ListCategoryScreen> {
+  void _showArchivedCategories() async {
+    final categories = await CategoryService.getCategories();
+    final archivedCategories =
+        categories.where((category) => category.archived).toList();
+
+    if (!mounted) return;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF121217),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Categorias Arquivadas',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const Divider(color: Colors.white24),
+                if (archivedCategories.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Text(
+                      'Nenhuma categoria arquivada',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  )
+                else
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: archivedCategories.length,
+                      itemBuilder: (context, index) {
+                        final category = archivedCategories[index];
+                        return ListTile(
+                          title: Text(
+                            category.name,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          subtitle: Text(
+                            category.description,
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: category.color,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.folder,
+                              color: Colors.white,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121217), // Adicionada cor de fundo
+      backgroundColor: const Color(0xFF121217),
       appBar: AppBar(
-        backgroundColor: Colors.transparent, // AppBar transparente
-        elevation: 0, // Remove a sombra
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         title: const Text(
           'Listar categoria',
           style: TextStyle(color: Colors.white),
@@ -23,13 +112,9 @@ class ListCategoryScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(
               Icons.archive,
-              color: Colors.white,
-            ), // Ícone de arquivo
-            onPressed: () {
-              // Aqui você pode adicionar a navegação para a tela de arquivados
-              // Por exemplo:
-              // Navigator.pushNamed(context, '/categorias_arquivadas');
-            },
+              color: Colors.white, // Mantendo a cor branca
+            ),
+            onPressed: _showArchivedCategories,
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../models/category.dart';
 
 class CategoryListItem extends StatelessWidget {
@@ -45,6 +46,41 @@ class CategoryListItem extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Erro ao excluir categoria'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _archiveCategory(BuildContext context) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('${dotenv.env['API_URL']}/category/${category.id}'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({'archived': true}),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Categoria arquivada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        if (onCategoryDeleted != null) {
+          onCategoryDeleted!();
+        }
+      } else {
+        throw Exception('Falha ao arquivar categoria');
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao arquivar categoria'),
           backgroundColor: Colors.red,
         ),
       );
@@ -247,16 +283,21 @@ class CategoryListItem extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'Fechar',
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
-                              color: Colors.blue,
-                              fontWeight: FontWeight.w500,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(
+                                'Fechar',
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),
