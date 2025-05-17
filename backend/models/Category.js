@@ -52,6 +52,15 @@ class Category {
 
     }
 
+    async delete(id) {
+        try {
+            await knex("category").where({ id: id }).del();
+            return true;
+        } catch (err) {
+            console.log("erro ao deletar categoria", err);
+            return false;
+        }
+    }
 }
 
 module.exports = new Category()

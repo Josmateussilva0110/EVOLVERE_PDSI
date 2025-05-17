@@ -82,6 +82,27 @@ class CategoryController {
             response.json({err: 'Id invalido.'})
         }
     }
+
+    async delete(request, response) {
+        try {
+            const id = request.params.id;
+            
+            if (!id || isNaN(id)) {
+                return response.status(400).json({ err: "ID inválido" });
+            }
+
+            const category = await Category.findById(id);
+            if (!category) {
+                return response.status(404).json({ err: "Categoria não encontrada" });
+            }
+
+            await Category.delete(id);
+            response.status(200).json({ message: "Categoria excluída com sucesso" });
+        } catch (error) {
+            console.error("Erro ao excluir categoria:", error);
+            response.status(500).json({ err: "Erro interno ao excluir categoria" });
+        }
+    }
 }
 
 module.exports = new CategoryController()
