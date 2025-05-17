@@ -22,6 +22,7 @@ class _TermScreenState extends State<TermScreen> {
 
   int priority = 2; //todo: 1 = alta, 2 normal, 3 baixa
 
+
   @override
   void initState() {
     super.initState();
@@ -168,7 +169,6 @@ class _TermScreenState extends State<TermScreen> {
     });
   }
 
-
   void _removeReminder(DateTime reminder) {
     setState(() {
       habitData.reminders.remove(reminder);
@@ -180,8 +180,6 @@ class _TermScreenState extends State<TermScreen> {
     habitData.endDate = null;
   });
 }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
