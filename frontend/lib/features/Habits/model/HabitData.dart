@@ -3,16 +3,20 @@ class HabitData {
   String description;
   String selectedCategory;
   Map<String, dynamic> frequencyData;
-  bool dataAlvoEnabled;
-  String priority;
+  DateTime? startDate;
+  DateTime? endDate;
+  DateTime? reminderDateTime;
+  int? priority; //todo 1 = alta, 2 = normal, 3 = baixa
 
   HabitData({
     this.habitName = '',
     this.description = '',
     this.selectedCategory = '',
     Map<String, dynamic>? frequencyData,
-    this.dataAlvoEnabled = false,
-    this.priority = 'Normal',
+    this.startDate,
+    this.endDate,
+    this.reminderDateTime,
+    this.priority = 2,
   }) : frequencyData = frequencyData ?? {'option': 'todos_os_dias', 'value': null};
 
   HabitData copyWith({
@@ -20,17 +24,20 @@ class HabitData {
     String? description,
     String? selectedCategory,
     Map<String, dynamic>? frequencyData,
-    bool? dataAlvoEnabled,
-    String? priority,
+    DateTime? startDate,
+    DateTime? endDate,
+    DateTime? reminderDateTime,
+    int? priority,
   }) {
     return HabitData(
        habitName: habitName ?? this.habitName,
       description: description ?? this.description,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       frequencyData: frequencyData ?? this.frequencyData,
-      dataAlvoEnabled: dataAlvoEnabled ?? this.dataAlvoEnabled,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      reminderDateTime: reminderDateTime ?? this.reminderDateTime,
       priority: priority ?? this.priority,
-      
     );
   }
 }
