@@ -22,7 +22,6 @@ class _TermScreenState extends State<TermScreen> {
 
   int priority = 2; //todo: 1 = alta, 2 normal, 3 baixa
 
-
   @override
   void initState() {
     super.initState();
@@ -72,7 +71,6 @@ class _TermScreenState extends State<TermScreen> {
 
   void _selectPriority() {
     final options = {1: 'Alta', 2: 'Normal', 3: 'Baixa'};
-
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1C1F26),
@@ -129,7 +127,6 @@ class _TermScreenState extends State<TermScreen> {
     );
 
     if (selectedDate == null) return;
-
     final selectedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -153,7 +150,6 @@ class _TermScreenState extends State<TermScreen> {
         );
       },
     );
-
     if (selectedTime == null) return;
 
     final reminder = DateTime(
