@@ -55,9 +55,7 @@ class CategoryListItem extends StatelessWidget {
   Future<void> _archiveCategory(BuildContext context) async {
     try {
       final response = await http.patch(
-        Uri.parse('${dotenv.env['API_URL']}/category/${category.id}'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'archived': true}),
+        Uri.parse('${dotenv.env['API_URL']}/category/${category.id}/archive'),
       );
 
       if (response.statusCode == 200) {
@@ -163,10 +161,7 @@ class CategoryListItem extends StatelessWidget {
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed: () {
-                                      // Implementar lógica de arquivamento
-                                      Navigator.pop(context);
-                                    },
+                                    onPressed: () => _archiveCategory(context),
                                     child: Text(
                                       'Arquivar',
                                       style: GoogleFonts.inter(

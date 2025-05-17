@@ -61,6 +61,18 @@ class Category {
             return false;
         }
     }
+
+    async archive(id) {
+        try {
+            await knex("category")
+                .where({ id: id })
+                .update({ archived: true });
+            return true;
+        } catch (err) {
+            console.log("erro ao arquivar categoria", err);
+            return false;
+        }
+    }
 }
 
 module.exports = new Category()
