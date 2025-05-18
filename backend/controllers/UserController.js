@@ -23,13 +23,13 @@ class UserController {
             }
             else {
                 response.status(404)
-                response.send('Usuário não encontrado.')
+                response.json({err: "Usuário não encontrado."})
             }
         }
         else 
         {
             response.status(400)
-            response.send('Id invalido.')
+            response.json({err: "Id invalido"})
         }
     }
 
@@ -44,20 +44,32 @@ class UserController {
             }
             else {
                 response.status(404)
-                response.send("email não encontrado.")
+                response.json({err: "Email não encontrado."})
             }
         }
         else {
             response.status(400)
-            response.send("email invalido")
+            response.json({err: "Email invalido."})
         }
     }
 
     async create(request, response) {
         var {username, email, password} = request.body
+        if(username == undefined) {
+            response.status(400)
+            response.json({err: "nome invalido."})
+            return
+        }
+
         if(email == undefined) {
             response.status(400)
             response.json({err: "email invalido."})
+            return
+        }
+
+        if(password == undefined) {
+            response.status(400)
+            response.json({err: "senha invalido."})
             return
         }
 
@@ -68,18 +80,42 @@ class UserController {
             return 
         }
 
-        await User.new(username, email, password)
-        response.status(200)
-        response.send('Cadastro realizado com sucesso.')
+        var done = await User.new(username, email, password)
+        if(done) {
+            response.status(200)
+            response.send('Cadastro realizado com sucesso.')
+        }
+        else {
+            response.status(500)
+            response.json({err: "erro ao cadastrar usuário."})
+        }
     }
 
     async edit(request, response) {
         var {id, username, email} = request.body
+        if(id == undefined) {
+            response.status(400)
+            response.json({err: "usuário invalido."})
+            return
+        }
+
+        if(username == undefined) {
+            response.status(400)
+            response.json({err: "nome invalido."})
+            return
+        }
+
+        if(email == undefined) {
+            response.status(400)
+            response.json({err: "email invalido."})
+            return
+        }
+
         var result = await User.update(id, username, email)
         if(result != undefined) {
             if(result.status) {
                 response.status(200)
-                response.send('atualizado.')
+                response.send('dados do usuário atualizado.')
             }
             else {
                 response.status(406)
@@ -88,7 +124,7 @@ class UserController {
         }
         else {
             response.status(406)
-            response.send('erro ao atualizar.')
+            response.json({err: "erro ao atualizar usuário."})
         }
     }
 
@@ -97,7 +133,7 @@ class UserController {
         var result = await User.delete(id)
         if(result.status) {
             response.status(200)
-            response.send('removido com sucesso.')
+            response.send('usuário removido com sucesso.')
         }
         else {
             response.status(406)
@@ -131,7 +167,7 @@ class UserController {
         }
         else {
             response.status(406)
-            response.send('token invalido.')
+            response.json({err: "token invalido."})
         }
    }
 

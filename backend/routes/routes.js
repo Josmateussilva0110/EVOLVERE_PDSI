@@ -3,6 +3,7 @@ var router = express.Router()
 var HomeController = require("../controllers/HomeController")
 var UserController = require("../controllers/UserController")
 var CategoryController = require("../controllers/categoryController")
+var HabitController = require("../controllers/habitController")
 var AdminAuth = require("../middleware/AdminAuth")
 
 router.get('/', HomeController.index)
@@ -18,5 +19,6 @@ router.post("/login", UserController.login)
 router.post("/category", CategoryController.create)
 router.get("/categories", CategoryController.getCategories)
 router.get("/category/:id", CategoryController.findCategory)
+router.post('/habit', HabitController.create)
 
 module.exports = router

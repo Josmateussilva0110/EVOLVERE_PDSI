@@ -45,12 +45,12 @@ class Category {
     async new(name, description, color, icon) {
         try {
             await knex.insert({name, description, color, icon}).table("category")
+            return true
         } catch(err) {
             console.log('erro em adicionar categoria: ', err)
+            return false
         }
-
     }
-
 }
 
 module.exports = new Category()
