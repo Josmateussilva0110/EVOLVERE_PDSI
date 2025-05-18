@@ -4,7 +4,7 @@ const path = require('path')
 class CategoryController {
 
     async create(request, response) {
-        var {name, description, color, icon} = request.body
+        var {name, description, color} = request.body
         if(name == undefined) {
             response.status(400)
             response.json({err: "categoria invalida."})
@@ -39,9 +39,15 @@ class CategoryController {
             }
         }
 
-        await Category.new(name, description, color, iconPath)
-        response.status(200)
-        response.send('Cadastro realizado com sucesso.')
+        var done = await Category.new(name, description, color, iconPath)
+        if(done) {
+            response.status(200)
+            response.send('Cadastro realizado com sucesso.')
+        }
+        else {
+            response.status(500)
+            response.json({err: "erro ao cadastrar categoria."})
+        }
     }
   
     async getCategories(request, response) {

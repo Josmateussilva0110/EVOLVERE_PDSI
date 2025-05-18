@@ -44,12 +44,12 @@ class User {
     async new(username, email, password) {
         try {
             var hash = await bcrypt.hash(password, 8)
-
             await knex.insert({username, email, password: hash}).table("users")
+            return true
         } catch(err) {
-            console.log(err)
+            console.log('erro ao cadastrar usuário', err)
+            return false
         }
-
     }
 
 

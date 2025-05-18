@@ -6,8 +6,7 @@ class Category {
         try {
             var result = await knex
                 .select(["id", "name", "description", "color", "icon"])
-                .from("category") // Alterado de 'categories' para 'category'
-            console.log('Categorias encontradas:', result);
+                .from("category") 
             return result;
         } catch(err) {
             console.log('erro no findAll categoria', err)
@@ -46,12 +45,12 @@ class Category {
     async new(name, description, color, icon) {
         try {
             await knex.insert({name, description, color, icon}).table("category")
+            return true
         } catch(err) {
             console.log('erro em adicionar categoria: ', err)
+            return false
         }
-
     }
-
 }
 
 module.exports = new Category()
