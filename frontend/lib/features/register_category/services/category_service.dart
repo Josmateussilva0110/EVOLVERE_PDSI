@@ -32,4 +32,23 @@ class CategoryService {
       return [];
     }
   }
+
+  static Future<List<Category>> getArchivedCategories() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${dotenv.env['API_URL']}/categories/archived'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return (data['categories'] as List)
+            .map((category) => Category.fromJson(category))
+            .toList();
+      } else {
+        throw Exception('Falha ao carregar categorias arquivadas');
+      }
+    } catch (e) {
+      throw Exception('Erro ao conectar com o servidor');
+    }
+  }
 }
