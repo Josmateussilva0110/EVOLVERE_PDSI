@@ -162,6 +162,45 @@ class CategoryController {
             response.status(500).json({ err: "Erro interno ao restaurar categoria" });
         }
     }
+
+    async updateCategory(request, response) {
+        try {
+            const id = request.params.id;
+            if (!id || isNaN(id)) {
+                return response.status(400).json({ err: "ID inválido" });
+            }
+            const category = await Category.findById(id);
+            if (!category) {
+                return response.status(404).json({ err: "Categoria não encontrada" });
+            }
+            const { name, description, color } = request.body;
+            let iconPath = undefined;
+            if (request.files && request.files.icon) {
+                const imageFile = request.files.icon;
+                if (imageFile.size > 5 * 1024 * 1024) {
+                    return response.status(400).json({ err: "A imagem deve ter no máximo 5MB!" });
+                }
+                const fileName = Date.now() + path.extname(imageFile.name);
+                const uploadPath = path.join(__dirname, "..", "public", "uploads", fileName);
+                try {
+                    await imageFile.mv(uploadPath);
+                    iconPath = "/uploads/" + fileName;
+                } catch (err) {
+                    console.error("Erro ao salvar a imagem:", err);
+                    return response.status(500).json({ err: "Erro ao salvar a imagem." });
+                }
+            }
+            const success = await Category.update(id, name, description, color, iconPath);
+            if (success) {
+                response.status(200).json({ message: "Categoria atualizada com sucesso" });
+            } else {
+                response.status(500).json({ err: "Erro ao atualizar categoria" });
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar categoria:", error);
+            response.status(500).json({ err: "Erro interno ao atualizar categoria" });
+        }
+    }
 }
 
 module.exports = new CategoryController()

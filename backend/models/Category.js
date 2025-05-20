@@ -104,6 +104,22 @@ class Category {
             return false;
         }
     }
+
+    async update(id, name, description, color, icon) {
+        try {
+            const updateData = { name, description, color };
+            if (icon !== undefined) {
+                updateData.icon = icon;
+            }
+            await knex("category")
+                .where({ id: id })
+                .update(updateData);
+            return true;
+        } catch (err) {
+            console.log("erro ao atualizar categoria", err);
+            return false;
+        }
+    }
 }
 
 module.exports = new Category()

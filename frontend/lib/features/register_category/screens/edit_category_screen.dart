@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../user/components/custom_top_curve.dart';
-import '../components/register_category_form.dart';
+import '../components/edit_category_form.dart';
 import '../models/category.dart';
 
-class RegisterCategoryScreen extends StatelessWidget {
+class EditCategoryScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final category = ModalRoute.of(context)?.settings.arguments as Category?;
@@ -13,11 +13,9 @@ class RegisterCategoryScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              CustomTopCurve(
-                label: category != null ? "Editar Categoria" : "Nova Categoria",
-              ),
+              CustomTopCurve(label: "Editar Categoria"),
               SizedBox(height: 2),
-              RegisterFormCategory(category: category),
+              EditCategoryForm(category: category),
               SizedBox(height: 12),
             ],
           ),

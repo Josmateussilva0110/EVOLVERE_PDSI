@@ -141,7 +141,19 @@ class CategoryListState extends State<CategoryList> {
                         final category = _categories[index];
                         return CategoryListItem(
                           category: category,
-                          onCategoryDeleted: loadCategories,
+                          onCategoryDeleted: () async {
+                            await loadCategories();
+                          },
+                          onEdit: () async {
+                            final result = await Navigator.pushNamed(
+                              context,
+                              '/editar_categoria',
+                              arguments: category,
+                            );
+                            if (result == true) {
+                              await loadCategories();
+                            }
+                          },
                         );
                       },
                     ),

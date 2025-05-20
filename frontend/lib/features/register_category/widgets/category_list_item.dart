@@ -8,11 +8,13 @@ import '../models/category.dart';
 class CategoryListItem extends StatelessWidget {
   final Category category;
   final VoidCallback? onCategoryDeleted;
+  final Future<void> Function()? onEdit;
 
   const CategoryListItem({
     Key? key,
     required this.category,
     this.onCategoryDeleted,
+    this.onEdit,
   }) : super(key: key);
 
   Future<void> _deleteCategory(BuildContext context) async {
@@ -111,13 +113,17 @@ class CategoryListItem extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context);
-                        Navigator.pushNamed(
-                          context,
-                          '/editar_categoria',
-                          arguments: category,
-                        );
+                        if (onEdit != null) {
+                          await onEdit!();
+                        } else {
+                          await Navigator.pushNamed(
+                            context,
+                            '/editar_categoria',
+                            arguments: category,
+                          );
+                        }
                       },
                     ),
                     ListTile(

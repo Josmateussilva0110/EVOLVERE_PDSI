@@ -8,16 +8,17 @@ import '../widgets/icon_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../models/category.dart';
 
-class RegisterFormCategory extends StatefulWidget {
-  final dynamic category;
-  RegisterFormCategory({this.category, Key? key}) : super(key: key);
+class EditCategoryForm extends StatefulWidget {
+  final Category? category;
+  EditCategoryForm({this.category, Key? key}) : super(key: key);
 
   @override
-  _RegisterFormCategoryState createState() => _RegisterFormCategoryState();
+  _EditCategoryFormState createState() => _EditCategoryFormState();
 }
 
-class _RegisterFormCategoryState extends State<RegisterFormCategory> {
+class _EditCategoryFormState extends State<EditCategoryForm> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final List<Color> _colorsAvailable = [
@@ -36,12 +37,9 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
   void initState() {
     super.initState();
     if (widget.category != null) {
-      _nameController.text = widget.category.name ?? '';
-      _descriptionController.text = widget.category.description ?? '';
-      if (widget.category.color != null) {
-        _selectedColor = widget.category.color;
-      }
-      // Imagem não é carregada localmente, só se o usuário escolher outra
+      _nameController.text = widget.category!.name;
+      _descriptionController.text = widget.category!.description;
+      _selectedColor = widget.category!.color;
     }
   }
 
@@ -49,11 +47,14 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
     return '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
   }
 
-  Future<void> _submitCategory() async {
+  Future<void> _submitEdit() async {
+    if (widget.category == null) return;
     var request =
         http.MultipartRequest(
-            'POST',
-            Uri.parse('${dotenv.env['API_URL']}/category'),
+            'PATCH',
+            Uri.parse(
+              '${dotenv.env['API_URL']}/category/${widget.category!.id}',
+            ),
           )
           ..fields['name'] = _nameController.text
           ..fields['description'] = _descriptionController.text
@@ -70,13 +71,13 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Categoria cadastrada com sucesso!'),
+          content: Text('Categoria editada com sucesso!'),
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushReplacementNamed(context, '/');
+      Navigator.pop(context, true);
     } else {
-      String errorMessage = 'Erro ao cadastrar uma categoria.';
+      String errorMessage = 'Erro ao editar a categoria.';
       try {
         final respStr = await response.stream.bytesToString();
         final Map<String, dynamic> data = jsonDecode(respStr);
@@ -149,8 +150,8 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: _submitCategory,
-            child: Text('Cadastrar', style: TextStyle(fontSize: 16)),
+            onPressed: _submitEdit,
+            child: Text('Salvar', style: TextStyle(fontSize: 16)),
           ),
         ),
       ],
