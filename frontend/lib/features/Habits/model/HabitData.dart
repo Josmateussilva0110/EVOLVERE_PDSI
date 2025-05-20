@@ -41,5 +41,4 @@ class HabitData {
       priority: priority ?? this.priority,
     );
   }
-
 }
