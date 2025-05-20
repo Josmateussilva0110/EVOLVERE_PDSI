@@ -5,6 +5,7 @@ import '../../components/navigation.dart';
 import '../components/limit_period_form.dart';
 import '../../model/HabitData.dart';
 import '../../frequency_screen/themes/frequency_theme.dart';
+import '../../services/habit_service.dart';
 
 class TermScreen extends StatefulWidget {
   final HabitData habitData;
@@ -28,18 +29,17 @@ class _TermScreenState extends State<TermScreen> {
   }
 
   String getPriorityLabel(int value) {
-  switch (value) {
-    case 1:
-      return 'Alta';
-    case 2:
-      return 'Normal';
-    case 3:
-      return 'Baixa';
-    default:
-      return 'Desconhecida';
+    switch (value) {
+      case 1:
+        return 'Alta';
+      case 2:
+        return 'Normal';
+      case 3:
+        return 'Baixa';
+      default:
+        return 'Desconhecida';
+    }
   }
-}
-
 
   void _selectDate(Function(DateTime) onDateSelected) async {
     DateTime? date = await showDatePicker(
@@ -70,92 +70,74 @@ class _TermScreenState extends State<TermScreen> {
   }
 
   void _selectPriority() {
-  final options = {
-    1: 'Alta',
-    2: 'Normal',
-    3: 'Baixa',
-  };
+    final options = {1: 'Alta', 2: 'Normal', 3: 'Baixa'};
 
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: const Color(0xFF1C1F26),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: options.entries.map((entry) {
-          return ListTile(
-            title: Text(entry.value, style: TextStyle(color: Colors.white)),
-            onTap: () {
-              setState(() {
-                priority = entry.key;
-                habitData.priority = entry.key;
-              });
-              Navigator.pop(context);
-            },
-          );
-        }).toList(),
-      );
-    },
-  );
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF1C1F26),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children:
+              options.entries.map((entry) {
+                return ListTile(
+                  title: Text(
+                    entry.value,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      priority = entry.key;
+                      habitData.priority = entry.key;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+        );
+      },
+    );
+  }
+
+  Future<void> _addReminder(BuildContext context) async {
+    final selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+
+    if (selectedDate == null) return;
+
+    final selectedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (selectedTime == null) return;
+
+    final reminder = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
+
+    habitData.reminders.add(reminder);
+    setState(() {}); 
+  }
+
+  void _removeReminder(DateTime reminder) {
+  setState(() {
+    habitData.reminders.remove(reminder);
+  });
 }
 
 
-  void _selectReminder() async {
-    DateTime? date = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: FrequencyTheme.accentColor,
-              onPrimary: FrequencyTheme.textColor,
-              surface: FrequencyTheme.cardColor,
-              onSurface: FrequencyTheme.textColor,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (date == null) return;
-
-    TimeOfDay? time = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-      builder: (context, child) {
-        return Theme(
-          data: ThemeData.dark().copyWith(
-            colorScheme: const ColorScheme.dark(
-              primary: FrequencyTheme.accentColor,
-              onPrimary: FrequencyTheme.textColor,
-              surface: FrequencyTheme.cardColor,
-              onSurface: FrequencyTheme.textColor,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (time != null) {
-      setState(() {
-        habitData.reminderDateTime = DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        );
-      });
-    }
-  }
 
   String getPriorityLabel(int value) {
   switch (value) {
@@ -304,12 +286,14 @@ class _TermScreenState extends State<TermScreen> {
                   SizedBox(height: 24),
                   LimitPeriodForm(
                     priority: getPriorityLabel(priority),
+                    reminders: habitData.reminders,
                     onSelectedStartDate:
                         () => _selectDate((date) => habitData.startDate = date),
                     onSelectedEndDate:
                         () => _selectDate((date) => habitData.endDate = date),
-                    onSelectedReminders: _selectReminder,
+                    onSelectedReminders: () => _addReminder(context),
                     onSelectedPriority: _selectPriority,
+                    onRemoveReminder: _removeReminder,
                   ),
                 ],
               ),
@@ -321,7 +305,7 @@ class _TermScreenState extends State<TermScreen> {
                   context,
                   '/cadastrar_frequencia',
                 ),
-            onNext: () {
+            onNext: () async {
               print('chegou em limit: ');
               print('Nome do hábito: ${habitData.habitName}');
               print('Descrição: ${habitData.description}');
@@ -329,10 +313,26 @@ class _TermScreenState extends State<TermScreen> {
               print('tipo: ${habitData.frequencyData}');
               print('data inicio: ${habitData.startDate}');
               print('data fim: ${habitData.endDate}');
-              print('lembrete: ${habitData.reminderDateTime}');
+              print('lembrete: ${habitData.reminders}');
               print('prioridade: ${habitData.priority}');
               //print('prioridade (label): ${getPriorityLabel(habitData.priority!)}');
-              Navigator.pushReplacementNamed(context, '/inicio');
+              final errorMessage = await HabitService.createHabit(habitData);
+              if (errorMessage == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text('Habito cadastrada com sucesso!'),
+                      backgroundColor: Colors.green,
+                  ),
+                  );
+                Navigator.pushReplacementNamed(context, '/inicio');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(errorMessage),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             previousLabel: 'Anterior',
             nextLabel: 'Criar Hábito',
