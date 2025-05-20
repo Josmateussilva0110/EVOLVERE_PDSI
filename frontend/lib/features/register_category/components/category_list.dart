@@ -7,10 +7,10 @@ class CategoryList extends StatefulWidget {
   const CategoryList({super.key});
 
   @override
-  State<CategoryList> createState() => _CategoryListState();
+  State<CategoryList> createState() => CategoryListState();
 }
 
-class _CategoryListState extends State<CategoryList> {
+class CategoryListState extends State<CategoryList> {
   List<Category> _categories = [];
   List<Category> _archivedCategories =
       []; // Nova lista para categorias arquivadas
@@ -19,10 +19,10 @@ class _CategoryListState extends State<CategoryList> {
   @override
   void initState() {
     super.initState();
-    _loadCategories();
+    loadCategories();
   }
 
-  Future<void> _loadCategories() async {
+  Future<void> loadCategories() async {
     try {
       print('Iniciando carregamento das categorias...'); // Debug
       final categories = await CategoryService.getCategories();
@@ -102,7 +102,7 @@ class _CategoryListState extends State<CategoryList> {
                         return CategoryListItem(
                           category: category,
                           onCategoryDeleted: () {
-                            _loadCategories();
+                            loadCategories();
                             Navigator.pop(context);
                           },
                         );
@@ -133,7 +133,7 @@ class _CategoryListState extends State<CategoryList> {
                     ),
                   )
                   : RefreshIndicator(
-                    onRefresh: _loadCategories,
+                    onRefresh: loadCategories,
                     child: ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: _categories.length,
@@ -141,7 +141,7 @@ class _CategoryListState extends State<CategoryList> {
                         final category = _categories[index];
                         return CategoryListItem(
                           category: category,
-                          onCategoryDeleted: _loadCategories,
+                          onCategoryDeleted: loadCategories,
                         );
                       },
                     ),

@@ -13,20 +13,39 @@ class ListCategoryScreen extends StatefulWidget {
 }
 
 class _ListCategoryScreenState extends State<ListCategoryScreen> {
+  final GlobalKey<CategoryListState> _categoryListKey = GlobalKey<CategoryListState>();
+
   void _showArchivedCategories() async {
-    try {
-      final archivedCategories = await CategoryService.getArchivedCategories();
+    List<Category> archivedCategories = [];
+    bool isLoading = true;
+    Future<void> loadArchived() async {
+      archivedCategories = await CategoryService.getArchivedCategories();
+      isLoading = false;
+      if (mounted) setState(() {});
+    }
 
-      if (!mounted) return;
+    await loadArchived();
+    if (!mounted) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF121217),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            Future<void> reloadModal() async {
+              isLoading = true;
+              setModalState(() {});
+              archivedCategories =
+                  await CategoryService.getArchivedCategories();
+              isLoading = false;
+              setModalState(() {});
+            }
 
-      showModalBottomSheet(
-        context: context,
-        backgroundColor: const Color(0xFF121217),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        builder:
-            (context) => ConstrainedBox(
+            return ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: MediaQuery.of(context).size.height * 0.8,
                 minHeight: MediaQuery.of(context).size.height * 0.3,
@@ -54,9 +73,14 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
                       ],
                     ),
                     const Divider(color: Colors.white24),
-                    if (archivedCategories.isEmpty)
+                    if (isLoading)
+                      const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    else if (archivedCategories.isEmpty)
                       SizedBox(
-                        height: 200, // Altura fixa para o container vazio
+                        height: 200,
                         child: Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -141,7 +165,6 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
                                             '${dotenv.env['API_URL']}/category/${category.id}/unarchive',
                                           ),
                                         );
-
                                         if (response.statusCode == 200) {
                                           if (!context.mounted) return;
                                           ScaffoldMessenger.of(
@@ -154,7 +177,8 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
                                               backgroundColor: Colors.green,
                                             ),
                                           );
-                                          _showArchivedCategories(); // Recarrega o modal
+                                          await reloadModal();
+                                          _categoryListKey.currentState?.loadCategories();
                                         } else {
                                           throw Exception(
                                             'Falha ao restaurar categoria',
@@ -187,7 +211,6 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
                                             '${dotenv.env['API_URL']}/category/${category.id}',
                                           ),
                                         );
-
                                         if (response.statusCode == 200) {
                                           if (!context.mounted) return;
                                           ScaffoldMessenger.of(
@@ -200,7 +223,8 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
                                               backgroundColor: Colors.green,
                                             ),
                                           );
-                                          _showArchivedCategories(); // Recarrega o modal
+                                          await reloadModal();
+                                          _categoryListKey.currentState?.loadCategories();
                                         } else {
                                           throw Exception(
                                             'Falha ao excluir categoria',
@@ -230,17 +254,11 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
                   ],
                 ),
               ),
-            ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erro ao carregar categorias arquivadas'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -268,7 +286,7 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
           ),
         ],
       ),
-      body: const CategoryList(),
+      body: CategoryList(key: _categoryListKey),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.pushNamed(context, '/cadastro_categoria'),
         backgroundColor: const Color(0xFF2B6BED),

@@ -92,6 +92,18 @@ class Category {
             return [];
         }
     }
+
+    async unarchive(id) {
+        try {
+            await knex("category")
+                .where({ id: id })
+                .update({ archived: false });
+            return true;
+        } catch (err) {
+            console.log("erro ao restaurar categoria", err);
+            return false;
+        }
+    }
 }
 
 module.exports = new Category()

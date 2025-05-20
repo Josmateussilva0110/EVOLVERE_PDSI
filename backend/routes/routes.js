@@ -21,5 +21,6 @@ router.get("/category/:id", CategoryController.findCategory)
 router.delete("/category/:id", CategoryController.delete)
 router.patch("/category/:id/archive", CategoryController.archiveCategory)
 router.get("/categories/archived", CategoryController.getArchivedCategories)
+router.patch("/category/:id/unarchive", CategoryController.unarchiveCategory)
 
 module.exports = router

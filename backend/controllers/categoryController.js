@@ -140,6 +140,28 @@ class CategoryController {
             });
         }
     }
+
+    async unarchiveCategory(request, response) {
+        try {
+            const id = request.params.id;
+            if (!id || isNaN(id)) {
+                return response.status(400).json({ err: "ID inválido" });
+            }
+            const category = await Category.findById(id);
+            if (!category) {
+                return response.status(404).json({ err: "Categoria não encontrada" });
+            }
+            const success = await Category.unarchive(id);
+            if (success) {
+                response.status(200).json({ message: "Categoria restaurada com sucesso" });
+            } else {
+                response.status(500).json({ err: "Erro ao restaurar categoria" });
+            }
+        } catch (error) {
+            console.error("Erro ao restaurar categoria:", error);
+            response.status(500).json({ err: "Erro interno ao restaurar categoria" });
+        }
+    }
 }
 
 module.exports = new CategoryController()
