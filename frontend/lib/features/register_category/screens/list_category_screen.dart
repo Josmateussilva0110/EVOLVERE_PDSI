@@ -205,6 +205,31 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
                                       color: Colors.red,
                                     ),
                                     onPressed: () async {
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          backgroundColor: const Color(0xFF121217),
+                                          title: const Text(
+                                            'Excluir categoria',
+                                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                          ),
+                                          content: const Text(
+                                            'Realmente deseja excluir?',
+                                            style: TextStyle(color: Colors.white70),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, false),
+                                              child: const Text('Cancelar', style: TextStyle(color: Colors.white70)),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, true),
+                                              child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirm != true) return;
                                       try {
                                         final response = await http.delete(
                                           Uri.parse(
@@ -213,32 +238,22 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
                                         );
                                         if (response.statusCode == 200) {
                                           if (!context.mounted) return;
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
+                                          ScaffoldMessenger.of(context).showSnackBar(
                                             const SnackBar(
-                                              content: Text(
-                                                'Categoria excluída permanentemente!',
-                                              ),
+                                              content: Text('Categoria excluída permanentemente!'),
                                               backgroundColor: Colors.green,
                                             ),
                                           );
                                           await reloadModal();
                                           _categoryListKey.currentState?.loadCategories();
                                         } else {
-                                          throw Exception(
-                                            'Falha ao excluir categoria',
-                                          );
+                                          throw Exception('Falha ao excluir categoria');
                                         }
                                       } catch (e) {
                                         if (!context.mounted) return;
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
+                                        ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(
-                                            content: Text(
-                                              'Erro ao excluir categoria',
-                                            ),
+                                            content: Text('Erro ao excluir categoria'),
                                             backgroundColor: Colors.red,
                                           ),
                                         );
