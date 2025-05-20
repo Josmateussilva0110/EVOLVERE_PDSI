@@ -5,7 +5,6 @@ class HabitController {
     async create(request, response) {
         var {name, description, category_id, frequency, start_date, end_date, priority, reminders} = request.body 
         if (!name || name.trim() === '') { //debug trim() remove os espaços em branco do incio e fim da string
-
             response.status(400)
             response.json({err: "nome invalido."})
             return
