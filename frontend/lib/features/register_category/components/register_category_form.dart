@@ -83,77 +83,104 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
         if (data.containsKey('err')) {
           errorMessage = data['err'];
         }
-      } catch (_) {}
+      } catch (_) {
+        if (_image != null) {
+          request.files.add(
+            await http.MultipartFile.fromPath('icon', _image!.path),
+          );
+        }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-      );
-    }
-  }
+        var response = await request.send();
 
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-    );
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Categoria cadastrada com sucesso!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pushReplacementNamed(context, '/');
+        } else {
+          String errorMessage = 'Erro ao cadastrar uma categoria.';
+          try {
+            final respStr = await response.stream.bytesToString();
+            final Map<String, dynamic> data = jsonDecode(respStr);
+            if (data.containsKey('err')) {
+              errorMessage = data['err'];
+            }
+          } catch (_) {}
 
-    if (pickedFile != null) {
-      setState(() {
-        _image = File(pickedFile.path);
-      });
-    }
-  }
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+          );
+        }
+      }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        FormContainer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CustomTextField(
-                label: "Nome da Categoria",
-                controller: _nameController,
-              ),
-              SizedBox(height: 20),
-              CustomTextField(
-                label: "Descrição",
-                maxLines: 5,
-                controller: _descriptionController,
-              ),
-              SizedBox(height: 20),
-              IconPicker(image: _image, onPickImage: _pickImage),
-              SizedBox(height: 20),
-              ColorSelector(
-                colors: _colorsAvailable,
-                selectedColor: _selectedColor,
-                onColorSelected: (color) {
-                  setState(() {
-                    _selectedColor = color;
-                  });
-                },
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 20),
-        SizedBox(
-          width: 200,
-          height: 52,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF2196F3),
-              foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+      Future<void> _pickImage() async {
+        final pickedFile = await ImagePicker().pickImage(
+          source: ImageSource.gallery,
+        );
+
+        if (pickedFile != null) {
+          setState(() {
+            _image = File(pickedFile.path);
+          });
+        }
+      }
+
+      @override
+      Widget build(BuildContext context) {
+        return Column(
+          children: [
+            FormContainer(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  CustomTextField(
+                    label: "Nome da Categoria",
+                    controller: _nameController,
+                  ),
+                  SizedBox(height: 20),
+                  CustomTextField(
+                    label: "Descrição",
+                    maxLines: 5,
+                    controller: _descriptionController,
+                  ),
+                  SizedBox(height: 20),
+                  IconPicker(image: _image, onPickImage: _pickImage),
+                  SizedBox(height: 20),
+                  ColorSelector(
+                    colors: _colorsAvailable,
+                    selectedColor: _selectedColor,
+                    onColorSelected: (color) {
+                      setState(() {
+                        _selectedColor = color;
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
-            onPressed: _submitCategory,
-            child: Text('Cadastrar', style: TextStyle(fontSize: 16)),
-          ),
-        ),
-      ],
-    );
+            SizedBox(height: 20),
+            SizedBox(
+              width: 200,
+              height: 52,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF2196F3),
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: _submitCategory,
+                child: Text('Cadastrar', style: TextStyle(fontSize: 16)),
+              ),
+            ),
+          ],
+        );
+      }
+    }
   }
 }

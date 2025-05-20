@@ -159,12 +159,10 @@ class _TermScreenState extends State<TermScreen> {
       selectedTime.hour,
       selectedTime.minute,
     );
-
     setState(() {
       habitData.reminders.add(reminder);
     });
   }
-
   void _removeReminder(DateTime reminder) {
     setState(() {
       habitData.reminders.remove(reminder);

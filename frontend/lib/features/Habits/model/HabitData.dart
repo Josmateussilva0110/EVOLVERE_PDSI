@@ -20,7 +20,6 @@ class HabitData {
   })  : frequencyData = frequencyData ?? {'option': 'todos_os_dias', 'value': null},
         reminders = reminders ?? [];
 
-
   HabitData copyWith({
     String? habitName,
     String? description,
@@ -42,4 +41,5 @@ class HabitData {
       priority: priority ?? this.priority,
     );
   }
+
 }

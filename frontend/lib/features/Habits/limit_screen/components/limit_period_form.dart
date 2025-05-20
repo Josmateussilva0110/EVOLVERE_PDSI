@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/option_button.dart';
 import 'package:intl/intl.dart';
 
-
 class LimitPeriodForm extends StatelessWidget {
   final VoidCallback onClearEndDate;
   final DateTime? endDate;
