@@ -16,6 +16,7 @@ class CategoryListState extends State<CategoryList> {
       []; // Nova lista para categorias arquivadas
   bool _isLoading = true;
 
+
   @override
   void initState() {
     super.initState();
