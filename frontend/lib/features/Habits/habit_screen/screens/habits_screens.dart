@@ -33,6 +33,7 @@ class _HabitScreenState extends State<HabitScreen> {
   }
 
   void _goToFrequency() {
+
     final updatedHabitData = widget.habitData.copyWith(
       habitName: habitName,
       description: description,
@@ -45,6 +46,7 @@ class _HabitScreenState extends State<HabitScreen> {
       arguments: updatedHabitData,
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

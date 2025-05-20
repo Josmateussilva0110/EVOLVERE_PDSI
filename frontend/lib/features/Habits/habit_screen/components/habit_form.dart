@@ -27,7 +27,7 @@ class HabitForm extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         HabitTextField(
-          label: 'Nome do Habito',
+          label: 'Nome do Habito*',
           hint: 'ex: Aprender um Idioma',
           onChanged: onNameChanged,
         ),

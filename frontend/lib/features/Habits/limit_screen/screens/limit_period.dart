@@ -344,11 +344,11 @@ class _TermScreenState extends State<TermScreen> {
               if (errorMessage == null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                      content: Text('Habito cadastrada com sucesso!'),
+                      content: Text('Hábito cadastrada com sucesso!'),
                       backgroundColor: Colors.green,
                   ),
                   );
-                Navigator.pushReplacementNamed(context, '/inicio');
+                Navigator.pushReplacementNamed(context, '/listar_habitos');
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

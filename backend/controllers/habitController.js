@@ -4,7 +4,7 @@ const Habit = require("../models/Habit")
 class HabitController {
     async create(request, response) {
         var {name, description, category_id, frequency, start_date, end_date, priority, reminders} = request.body 
-        if(name == undefined) {
+        if (!name || name.trim() === '') { //debug trim() remove os espaços em branco do incio e fim da string
             response.status(400)
             response.json({err: "nome invalido."})
             return
@@ -17,7 +17,7 @@ class HabitController {
 
         if(frequency == undefined) {
             response.status(400)
-            response.json({err: "adicione a frequência do habito."})
+            response.json({err: "adicione a frequência do hábito."})
             return
         }
 
