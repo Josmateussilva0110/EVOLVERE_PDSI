@@ -80,7 +80,6 @@ class LimitPeriodForm extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 12),
                     ...reminders.map((reminder) {
                       final formatted = DateFormat(
                         'dd/MM/yyyy - HH:mm',
@@ -123,11 +122,12 @@ class LimitPeriodForm extends StatelessWidget {
               ),
             ),
           ),
+          //const SizedBox(height: 24,),
 
         OptionButton(
           icon: Icons.sort,
           title: 'Prioridade',
-          subtitle: 'Selecione o nível de priority',
+          subtitle: 'Selecione o nível de prioridade',
           trailing: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(

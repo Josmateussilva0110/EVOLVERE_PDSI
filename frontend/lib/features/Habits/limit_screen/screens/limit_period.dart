@@ -108,6 +108,19 @@ class _TermScreenState extends State<TermScreen> {
       initialDate: DateTime.now(),
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: FrequencyTheme.accentColor,
+              onPrimary: FrequencyTheme.textColor,
+              surface: FrequencyTheme.cardColor,
+              onSurface: FrequencyTheme.textColor,
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (selectedDate == null) return;
@@ -115,7 +128,27 @@ class _TermScreenState extends State<TermScreen> {
     final selectedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: FrequencyTheme.accentColor,
+              onPrimary: FrequencyTheme.textColor,
+              surface: FrequencyTheme.cardColor,
+              onSurface: FrequencyTheme.textColor,
+            ),
+            timePickerTheme: const TimePickerThemeData(
+              backgroundColor: FrequencyTheme.cardColor,
+              hourMinuteTextColor: FrequencyTheme.textColor,
+              dialHandColor: FrequencyTheme.accentColor,
+              dialBackgroundColor: Color(0xFF1C1F26),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
+
 
     if (selectedTime == null) return;
 
@@ -306,15 +339,6 @@ class _TermScreenState extends State<TermScreen> {
                   '/cadastrar_frequencia',
                 ),
             onNext: () async {
-              print('chegou em limit: ');
-              print('Nome do hábito: ${habitData.habitName}');
-              print('Descrição: ${habitData.description}');
-              print('Categoria: ${habitData.selectedCategory}');
-              print('tipo: ${habitData.frequencyData}');
-              print('data inicio: ${habitData.startDate}');
-              print('data fim: ${habitData.endDate}');
-              print('lembrete: ${habitData.reminders}');
-              print('prioridade: ${habitData.priority}');
               //print('prioridade (label): ${getPriorityLabel(habitData.priority!)}');
               final errorMessage = await HabitService.createHabit(habitData);
               if (errorMessage == null) {

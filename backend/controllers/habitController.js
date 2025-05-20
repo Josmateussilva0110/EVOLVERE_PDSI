@@ -4,14 +4,6 @@ const Habit = require("../models/Habit")
 class HabitController {
     async create(request, response) {
         var {name, description, category_id, frequency, start_date, end_date, priority, reminders} = request.body 
-        console.log(name)
-        console.log(description)
-        console.log(category_id)
-        console.log(frequency)
-        console.log(start_date)
-        console.log(end_date)
-        console.log(priority)
-        console.log(reminders)
         if(name == undefined) {
             response.status(400)
             response.json({err: "nome invalido."})

@@ -18,11 +18,19 @@ class RepeatPickerWidget extends StatefulWidget {
 
 class _RepeatPickerWidgetState extends State<RepeatPickerWidget> {
   late int _days;
+  late TextEditingController _controller;
 
   @override
   void initState() {
     super.initState();
     _days = widget.days;
+    _controller = TextEditingController(text: _days.toString());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -82,7 +90,7 @@ class _RepeatPickerWidgetState extends State<RepeatPickerWidget> {
             ),
             child: Center(
               child: TextField(
-                controller: TextEditingController(text: _days.toString()),
+                controller: _controller,
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 style: GoogleFonts.inter(color: Colors.white, fontSize: 16),
