@@ -45,10 +45,10 @@ class CategoryService {
             .map((category) => Category.fromJson(category))
             .toList();
       } else {
-        throw Exception('Falha ao carregar categorias arquivadas');
+        return [];
       }
     } catch (e) {
-      throw Exception('Erro ao conectar com o servidor');
+      return [];
     }
   }
 }
