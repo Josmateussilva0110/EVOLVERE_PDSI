@@ -40,6 +40,7 @@ class _EditCategoryFormState extends State<EditCategoryForm> {
       _nameController.text = widget.category!.name;
       _descriptionController.text = widget.category!.description;
       _selectedColor = widget.category!.color;
+      // Se a categoria tiver um ícone, não carrega localmente, mas mostra opção de remover
     }
   }
 
@@ -60,7 +61,10 @@ class _EditCategoryFormState extends State<EditCategoryForm> {
           ..fields['description'] = _descriptionController.text
           ..fields['color'] = colorToHex(_selectedColor);
 
-    if (_image != null) {
+    // Se _image for File(''), sinaliza remoção da imagem
+    if (_image != null && _image!.path.isEmpty) {
+      request.fields['remove_icon'] = 'true';
+    } else if (_image != null && _image!.path.isNotEmpty) {
       request.files.add(
         await http.MultipartFile.fromPath('icon', _image!.path),
       );
@@ -123,7 +127,38 @@ class _EditCategoryFormState extends State<EditCategoryForm> {
                 controller: _descriptionController,
               ),
               SizedBox(height: 20),
-              IconPicker(image: _image, onPickImage: _pickImage),
+              // Ícone e botão de remover/modificar
+              if (widget.category != null && widget.category!.iconUrl.isNotEmpty && _image == null)
+                Column(
+                  children: [
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: ClipOval(
+                        child: Image.network(
+                          '${dotenv.env['API_URL']}${widget.category!.iconUrl}',
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _image = File(''); // Sinaliza remoção
+                        });
+                      },
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      label: Text('Remover foto', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              if (_image != null && _image!.path.isNotEmpty)
+                IconPicker(image: _image, onPickImage: _pickImage)
+              else if (_image == null && (widget.category == null || widget.category!.iconUrl.isEmpty))
+                IconPicker(image: null, onPickImage: _pickImage)
+              else if (_image != null && _image!.path.isEmpty)
+                IconPicker(image: null, onPickImage: _pickImage),
               SizedBox(height: 20),
               ColorSelector(
                 colors: _colorsAvailable,

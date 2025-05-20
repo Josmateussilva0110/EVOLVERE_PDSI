@@ -173,9 +173,9 @@ class CategoryController {
             if (!category) {
                 return response.status(404).json({ err: "Categoria não encontrada" });
             }
-            const { name, description, color } = request.body;
+            const { name, description, color, remove_icon } = request.body;
             let iconPath = undefined;
-            if (request.files && request.files.icon) {
+            if (request.files && request.files.icon && request.files.icon.size > 0) {
                 const imageFile = request.files.icon;
                 if (imageFile.size > 5 * 1024 * 1024) {
                     return response.status(400).json({ err: "A imagem deve ter no máximo 5MB!" });
@@ -189,6 +189,9 @@ class CategoryController {
                     console.error("Erro ao salvar a imagem:", err);
                     return response.status(500).json({ err: "Erro ao salvar a imagem." });
                 }
+            }
+            if (remove_icon === 'true' || (request.files && request.files.icon && request.files.icon.size === 0)) {
+                iconPath = null;
             }
             const success = await Category.update(id, name, description, color, iconPath);
             if (success) {
