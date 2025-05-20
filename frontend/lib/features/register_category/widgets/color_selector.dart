@@ -29,7 +29,7 @@ class ColorSelector extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: colors.map((cor) {
-            bool selecionada = cor == selectedColor;
+            bool selecionada = cor.value == selectedColor.value;
             return GestureDetector(
               onTap: () => onColorSelected(cor),
               child: Container(
@@ -45,6 +45,9 @@ class ColorSelector extends StatelessWidget {
                         )
                       : null,
                 ),
+                child: selecionada
+                    ? Icon(Icons.check, color: Colors.white, size: 24)
+                    : null,
               ),
             );
           }).toList(),
