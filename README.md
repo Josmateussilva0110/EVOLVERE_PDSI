@@ -24,6 +24,7 @@ evolvere
         migrations/
         models/
         public/
+            /uploads
         routes/
         index.js
         knexfile.js
@@ -43,7 +44,9 @@ npm install --save-dev knex
 ```javascript
 npx knex migrate:make nome_da_migration // nova migration
 npx knex migrate:latest // pegar a migration atual
-npx knex migrate:rollback // reverter a migration  
+npx knex migrate:rollback // reverter a ultima migration  
+npx knex migrate:up nome_arquivo.js // rodar uma migrate especifica
+npx knex migrate:down nome_arquivo.js // deletar uma tabela em especifica
 npx knex migrate:status // status 
 ```  
 
@@ -183,6 +186,6 @@ caso ocorra algum conflito resolva e depois:
 
 ```javascript
 git add .
-git commit
+git rebase --continue
 ``` 
-
+Repita ate o rebase termine.

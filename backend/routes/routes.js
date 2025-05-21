@@ -3,6 +3,7 @@ var router = express.Router()
 var HomeController = require("../controllers/HomeController")
 var UserController = require("../controllers/UserController")
 var CategoryController = require("../controllers/categoryController")
+var HabitController = require("../controllers/habitController")
 var AdminAuth = require("../middleware/AdminAuth")
 
 router.get('/', HomeController.index)
@@ -23,5 +24,7 @@ router.patch("/category/:id/archive", CategoryController.archiveCategory)
 router.get("/categories/archived", CategoryController.getArchivedCategories)
 router.patch("/category/:id/unarchive", CategoryController.unarchiveCategory)
 router.patch("/category/:id", CategoryController.updateCategory)
+router.post('/habit', HabitController.create)
+
 
 module.exports = router
