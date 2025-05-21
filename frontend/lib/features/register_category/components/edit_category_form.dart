@@ -8,16 +8,17 @@ import '../widgets/icon_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../models/category.dart';
 
-class RegisterFormCategory extends StatefulWidget {
-  final dynamic category;
-  RegisterFormCategory({this.category, Key? key}) : super(key: key);
+class EditCategoryForm extends StatefulWidget {
+  final Category? category;
+  EditCategoryForm({this.category, Key? key}) : super(key: key);
 
   @override
-  _RegisterFormCategoryState createState() => _RegisterFormCategoryState();
+  _EditCategoryFormState createState() => _EditCategoryFormState();
 }
 
-class _RegisterFormCategoryState extends State<RegisterFormCategory> {
+class _EditCategoryFormState extends State<EditCategoryForm> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final List<Color> _colorsAvailable = [
@@ -31,17 +32,16 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
 
   Color _selectedColor = Colors.red;
   File? _image;
+  String? _nameError;
 
   @override
   void initState() {
     super.initState();
     if (widget.category != null) {
-      _nameController.text = widget.category.name ?? '';
-      _descriptionController.text = widget.category.description ?? '';
-      if (widget.category.color != null) {
-        _selectedColor = widget.category.color;
-      }
-      // Imagem não é carregada localmente, só se o usuário escolher outra
+      _nameController.text = widget.category!.name;
+      _descriptionController.text = widget.category!.description;
+      _selectedColor = widget.category!.color;
+      // Se a categoria tiver um ícone, não carrega localmente, mas mostra opção de remover
     }
   }
 
@@ -49,17 +49,32 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
     return '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
   }
 
-  Future<void> _submitCategory() async {
+  Future<void> _submitEdit() async {
+    setState(() {
+      _nameError = null;
+    });
+    if (_nameController.text.trim().isEmpty) {
+      setState(() {
+        _nameError = 'O nome da categoria é obrigatório.';
+      });
+      return;
+    }
+    if (widget.category == null) return;
     var request =
         http.MultipartRequest(
-            'POST',
-            Uri.parse('${dotenv.env['API_URL']}/category'),
+            'PATCH',
+            Uri.parse(
+              '${dotenv.env['API_URL']}/category/${widget.category!.id}',
+            ),
           )
           ..fields['name'] = _nameController.text
           ..fields['description'] = _descriptionController.text
           ..fields['color'] = colorToHex(_selectedColor);
 
-    if (_image != null) {
+    // Se _image for File(''), sinaliza remoção da imagem
+    if (_image != null && _image!.path.isEmpty) {
+      request.fields['remove_icon'] = 'true';
+    } else if (_image != null && _image!.path.isNotEmpty) {
       request.files.add(
         await http.MultipartFile.fromPath('icon', _image!.path),
       );
@@ -70,13 +85,13 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Categoria cadastrada com sucesso!'),
+          content: Text('Categoria editada com sucesso!'),
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushReplacementNamed(context, '/');
+      Navigator.pop(context, true);
     } else {
-      String errorMessage = 'Erro ao cadastrar uma categoria.';
+      String errorMessage = 'Erro ao editar a categoria.';
       try {
         final respStr = await response.stream.bytesToString();
         final Map<String, dynamic> data = jsonDecode(respStr);
@@ -115,6 +130,14 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
                 label: "Nome da Categoria",
                 controller: _nameController,
               ),
+              if (_nameError != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4),
+                  child: Text(
+                    _nameError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 13),
+                  ),
+                ),
               SizedBox(height: 20),
               CustomTextField(
                 label: "Descrição",
@@ -122,7 +145,38 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
                 controller: _descriptionController,
               ),
               SizedBox(height: 20),
-              IconPicker(image: _image, onPickImage: _pickImage),
+              // Ícone e botão de remover/modificar
+              if (widget.category != null && widget.category!.iconUrl.isNotEmpty && _image == null)
+                Column(
+                  children: [
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: ClipOval(
+                        child: Image.network(
+                          '${dotenv.env['API_URL']}${widget.category!.iconUrl}',
+                          width: 70,
+                          height: 70,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _image = File(''); // Sinaliza remoção
+                        });
+                      },
+                      icon: Icon(Icons.delete, color: Colors.red),
+                      label: Text('Remover foto', style: TextStyle(color: Colors.red)),
+                    ),
+                  ],
+                ),
+              if (_image != null && _image!.path.isNotEmpty)
+                IconPicker(image: _image, onPickImage: _pickImage)
+              else if (_image == null && (widget.category == null || widget.category!.iconUrl.isEmpty))
+                IconPicker(image: null, onPickImage: _pickImage)
+              else if (_image != null && _image!.path.isEmpty)
+                IconPicker(image: null, onPickImage: _pickImage),
               SizedBox(height: 20),
               ColorSelector(
                 colors: _colorsAvailable,
@@ -149,8 +203,8 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: _submitCategory,
-            child: Text('Cadastrar', style: TextStyle(fontSize: 16)),
+            onPressed: _submitEdit,
+            child: Text('Salvar', style: TextStyle(fontSize: 16)),
           ),
         ),
       ],

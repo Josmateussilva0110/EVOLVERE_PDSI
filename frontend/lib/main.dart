@@ -11,6 +11,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'features/Habits/frequency_screen/screens/frequency_screen.dart';
 import 'features/home/home_screen.dart';
 import 'features/listHabits/pages/habits_list_page.dart';
+import 'features/register_category/screens/edit_category_screen.dart';
 import 'features/Habits/model/HabitData.dart';
 
 void main() async {
@@ -50,6 +51,7 @@ class _MyAppState extends State<MyApp> {
         '/cadastro_categoria': (context) => RegisterCategoryScreen(),
         '/listar_categorias': (context) => ListCategoryScreen(),
         '/listar_habitos': (context) => HabitsListPage(),
+        '/editar_categoria': (context) => EditCategoryScreen(),
       },
 
       onGenerateRoute: (settings) {

@@ -1,12 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../models/category.dart';
 
 class CategoryListItem extends StatelessWidget {
   final Category category;
+  final VoidCallback? onCategoryDeleted;
+  final Future<void> Function()? onEdit;
 
-  const CategoryListItem({super.key, required this.category});
+  const CategoryListItem({
+    Key? key,
+    required this.category,
+    this.onCategoryDeleted,
+    this.onEdit,
+  }) : super(key: key);
+
+  Future<void> _deleteCategory(BuildContext context) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('${dotenv.env['API_URL']}/category/${category.id}'),
+      );
+
+      if (response.statusCode == 200) {
+        // Fecha o dialog
+        Navigator.pop(context);
+
+        // Mostra mensagem de sucesso
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Categoria excluída com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Atualiza a lista de categorias
+        // Você pode implementar um callback para atualizar a lista
+        if (onCategoryDeleted != null) {
+          onCategoryDeleted!();
+        }
+      } else {
+        throw Exception('Falha ao excluir categoria');
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao excluir categoria'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _archiveCategory(BuildContext context) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('${dotenv.env['API_URL']}/category/${category.id}/archive'),
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Categoria arquivada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        if (onCategoryDeleted != null) {
+          onCategoryDeleted!();
+        }
+      } else {
+        throw Exception('Falha ao arquivar categoria');
+      }
+    } catch (e) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao arquivar categoria'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,13 +113,17 @@ class CategoryListItem extends StatelessWidget {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      onTap: () {
+                      onTap: () async {
                         Navigator.pop(context);
-                        Navigator.pushNamed(
-                          context,
-                          '/editar_categoria',
-                          arguments: category,
-                        );
+                        if (onEdit != null) {
+                          await onEdit!();
+                        } else {
+                          await Navigator.pushNamed(
+                            context,
+                            '/editar_categoria',
+                            arguments: category,
+                          );
+                        }
                       },
                     ),
                     ListTile(
@@ -84,10 +167,7 @@ class CategoryListItem extends StatelessWidget {
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed: () {
-                                      // Implementar lógica de arquivamento
-                                      Navigator.pop(context);
-                                    },
+                                    onPressed: () => _archiveCategory(context),
                                     child: Text(
                                       'Arquivar',
                                       style: GoogleFonts.inter(
@@ -145,8 +225,7 @@ class CategoryListItem extends StatelessWidget {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // Implementar lógica de exclusão
-                                      Navigator.pop(context);
+                                      _deleteCategory(context);
                                     },
                                     child: Text(
                                       'Excluir',
@@ -205,16 +284,21 @@ class CategoryListItem extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 24),
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'Fechar',
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
-                              color: Colors.blue,
-                              fontWeight: FontWeight.w500,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text(
+                                'Fechar',
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ],
                     ),

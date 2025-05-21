@@ -19,6 +19,12 @@ router.post("/login", UserController.login)
 router.post("/category", CategoryController.create)
 router.get("/categories", CategoryController.getCategories)
 router.get("/category/:id", CategoryController.findCategory)
+router.delete("/category/:id", CategoryController.delete)
+router.patch("/category/:id/archive", CategoryController.archiveCategory)
+router.get("/categories/archived", CategoryController.getArchivedCategories)
+router.patch("/category/:id/unarchive", CategoryController.unarchiveCategory)
+router.patch("/category/:id", CategoryController.updateCategory)
 router.post('/habit', HabitController.create)
+
 
 module.exports = router
