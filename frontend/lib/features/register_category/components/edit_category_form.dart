@@ -32,6 +32,7 @@ class _EditCategoryFormState extends State<EditCategoryForm> {
 
   Color _selectedColor = Colors.red;
   File? _image;
+  String? _nameError;
 
   @override
   void initState() {
@@ -49,6 +50,15 @@ class _EditCategoryFormState extends State<EditCategoryForm> {
   }
 
   Future<void> _submitEdit() async {
+    setState(() {
+      _nameError = null;
+    });
+    if (_nameController.text.trim().isEmpty) {
+      setState(() {
+        _nameError = 'O nome da categoria é obrigatório.';
+      });
+      return;
+    }
     if (widget.category == null) return;
     var request =
         http.MultipartRequest(
@@ -120,6 +130,14 @@ class _EditCategoryFormState extends State<EditCategoryForm> {
                 label: "Nome da Categoria",
                 controller: _nameController,
               ),
+              if (_nameError != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4),
+                  child: Text(
+                    _nameError!,
+                    style: const TextStyle(color: Colors.red, fontSize: 13),
+                  ),
+                ),
               SizedBox(height: 20),
               CustomTextField(
                 label: "Descrição",
