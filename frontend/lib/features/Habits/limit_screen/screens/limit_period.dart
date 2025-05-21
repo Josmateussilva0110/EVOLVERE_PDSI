@@ -45,7 +45,7 @@ class _TermScreenState extends State<TermScreen> {
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
@@ -103,11 +103,15 @@ class _TermScreenState extends State<TermScreen> {
   }
 
   Future<void> _addReminder(BuildContext context) async {
+    final now = DateTime.now();
+    final startDate = habitData.startDate ?? now;
+    final endDate = habitData.endDate ?? DateTime(2100); 
+
     final selectedDate = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
+      initialDate: startDate,
+      firstDate: startDate,
+      lastDate: endDate,
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
@@ -149,7 +153,6 @@ class _TermScreenState extends State<TermScreen> {
       },
     );
 
-
     if (selectedTime == null) return;
 
     final reminder = DateTime(
@@ -160,13 +163,21 @@ class _TermScreenState extends State<TermScreen> {
       selectedTime.minute,
     );
 
-    habitData.reminders.add(reminder);
-    setState(() {}); 
+    setState(() {
+      habitData.reminders.add(reminder);
+    });
   }
 
+
   void _removeReminder(DateTime reminder) {
+    setState(() {
+      habitData.reminders.remove(reminder);
+    });
+  }
+
+  void _clearEndDate() {
   setState(() {
-    habitData.reminders.remove(reminder);
+    habitData.endDate = null;
   });
 }
 
@@ -302,6 +313,7 @@ class _TermScreenState extends State<TermScreen> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -320,10 +332,10 @@ class _TermScreenState extends State<TermScreen> {
                   LimitPeriodForm(
                     priority: getPriorityLabel(priority),
                     reminders: habitData.reminders,
-                    onSelectedStartDate:
-                        () => _selectDate((date) => habitData.startDate = date),
-                    onSelectedEndDate:
-                        () => _selectDate((date) => habitData.endDate = date),
+                    endDate: habitData.endDate,
+                    onSelectedStartDate: () => _selectDate((date) => habitData.startDate = date),
+                    onSelectedEndDate: () => _selectDate((date) => habitData.endDate = date),
+                    onClearEndDate: _clearEndDate,
                     onSelectedReminders: () => _addReminder(context),
                     onSelectedPriority: _selectPriority,
                     onRemoveReminder: _removeReminder,

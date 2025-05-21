@@ -4,7 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/option_button.dart';
 import 'package:intl/intl.dart';
 
+
 class LimitPeriodForm extends StatelessWidget {
+  final VoidCallback onClearEndDate;
+  final DateTime? endDate;
   final String priority;
   final List<DateTime> reminders;
   final VoidCallback onSelectedStartDate;
@@ -17,8 +20,10 @@ class LimitPeriodForm extends StatelessWidget {
     super.key,
     required this.priority,
     required this.reminders,
+    required this.endDate,
     required this.onSelectedStartDate,
     required this.onSelectedEndDate,
+    required this.onClearEndDate,
     required this.onSelectedReminders,
     required this.onSelectedPriority,
     required this.onRemoveReminder,
@@ -52,6 +57,17 @@ class LimitPeriodForm extends StatelessWidget {
           subtitle: 'Selecione a data de fim da tarefa',
           onTap: onSelectedEndDate,
         ),
+
+        if (endDate != null)
+          TextButton(
+            onPressed: onClearEndDate,
+            child: Text(
+              'Remover data final',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+
+
         OptionButton(
           icon: Icons.notifications_outlined,
           title: 'Horário e lembretes',

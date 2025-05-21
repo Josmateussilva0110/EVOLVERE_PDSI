@@ -74,7 +74,69 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushReplacementNamed(context, '/inicio');
+      Navigator.pop(context);
+    } else {
+      String errorMessage = 'Erro ao cadastrar uma categoria.';
+      try {
+        final respStr = await response.stream.bytesToString();
+        final Map<String, dynamic> data = jsonDecode(respStr);
+        if (data.containsKey('err')) {
+          errorMessage = data['err'];
+        }
+      } catch (_) {}
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        FormContainer(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              CustomTextField(
+                label: "Nome da Categoria",
+                controller: _nameController,
+              ),
+              SizedBox(height: 20),
+              CustomTextField(
+                label: "Descrição",
+                maxLines: 5,
+                controller: _descriptionController,
+              ),
+              SizedBox(height: 20),
+              IconPicker(image: _image, onPickImage: _pickImage),
+              SizedBox(height: 20),
+              ColorSelector(
+                colors: _colorsAvailable,
+                selectedColor: _selectedColor,
+                onColorSelected: (color) {
+                  setState(() {
+                    _selectedColor = color;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+      );
     } else {
       String errorMessage = 'Erro ao cadastrar uma categoria.';
       try {
@@ -183,4 +245,3 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
       }
     }
   }
-}
