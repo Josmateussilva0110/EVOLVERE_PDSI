@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'features/initial/widgets/widgets.dart';
 import 'features/user/tela_login/screens/login_screen.dart';
 import 'features/user/register_user/screens/user_screen.dart';
@@ -15,15 +14,10 @@ import 'features/listHabits/pages/habits_list_page.dart';
 import 'features/register_category/screens/edit_category_screen.dart';
 import 'features/Habits/model/HabitData.dart';
 
+
 void main() async {
   await dotenv.load(fileName: ".env");
-
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => HabitData(),
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {

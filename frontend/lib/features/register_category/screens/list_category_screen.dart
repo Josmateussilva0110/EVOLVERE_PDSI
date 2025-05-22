@@ -14,6 +14,7 @@ class ListCategoryScreen extends StatefulWidget {
 
 class _ListCategoryScreenState extends State<ListCategoryScreen> {
   final GlobalKey<CategoryListState> _categoryListKey = GlobalKey<CategoryListState>();
+  
 
   void _showArchivedCategories() async {
     List<Category> archivedCategories = [];
@@ -133,9 +134,7 @@ class _ListCategoryScreenState extends State<ListCategoryScreen> {
                                   color: category.color,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child:
-                                    category.iconUrl != null &&
-                                            category.iconUrl.isNotEmpty
+                                child: category.iconUrl.isNotEmpty
                                         ? Image.network(
                                           '${dotenv.env['API_URL']}${category.iconUrl}',
                                           errorBuilder:
