@@ -161,26 +161,13 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            SizedBox(
-              width: 200,
-              height: 52,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF2196F3),
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: _submitCategory,
-                child: Text('Cadastrar', style: TextStyle(fontSize: 16)),
-              ),
-            ),
-          ],
-        );
-      }
-    }
+            onPressed: _submitCategory,
+            child: Text('Cadastrar', style: TextStyle(fontSize: 16)),
+          ),
+        ),
+      ],
+    );
+  }
+}
   }
 }
