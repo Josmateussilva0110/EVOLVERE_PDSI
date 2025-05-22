@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'category_button.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/category_service.dart';
 
 class CategoryGrid extends StatefulWidget {
   final String selectedCategory;
@@ -30,45 +28,29 @@ class _CategoryGridState extends State<CategoryGrid> {
   }
 
   Future<void> _fetchCategories() async {
-    try {
-      final response = await http.get(
-        Uri.parse('${dotenv.env['API_URL']}/categories'),
-      );
+  try {
+    List<Map<String, dynamic>> loadedCategories =
+        await CategoryService.fetchCategories();
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonBody = json.decode(response.body);
-        final List<dynamic> data = jsonBody['categories'];
+    loadedCategories.add({
+      'icon': Icons.add,
+      'label': 'Mais',
+      'category': 'mais',
+    });
 
-        setState(() {
-          categories =
-              data
-                  .map<Map<String, dynamic>>(
-                    (item) => {
-                      'icon':
-                          item['icon'] != null
-                              ? '${dotenv.env['API_URL']}${item['icon']}'
-                              : '',
-                      'label': item['name'] ?? 'Sem nome',
-                      'category': item['id']?.toString() ?? '',
-                      'description': item['description'] ?? '',
-                      'color': _parseColor(item['color']),
-                    },
-                  )
-                  .toList();
-
-          categories.add({
-            'icon': Icons.add,
-            'label': 'Mais',
-            'category': 'mais',
-          });
-        });
-      } else {
-        print('Erro ao carregar categorias: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Erro na requisição: $e');
-    }
+    setState(() {
+      categories = loadedCategories;
+    });
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(e.toString()),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -97,30 +79,34 @@ class _CategoryGridState extends State<CategoryGrid> {
   }
 
   Widget _buildIcon(dynamic icon) {
+    const double iconSize = 32;
+
     if (icon is IconData) {
-      return Icon(icon, color: Colors.white);
+      return Icon(icon, color: Colors.white, size: iconSize);
     }
 
     if (icon == null || icon.isEmpty) {
-      return Icon(Icons.category, color: Colors.white);
+      return Icon(Icons.category, color: Colors.white, size: iconSize);
     }
 
     Uri? uri = Uri.tryParse(icon);
     if (uri != null && uri.hasAbsolutePath) {
-      return ClipOval(
-        child: Image.network(
-          icon,
-          width: 32,
-          height: 32,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Icon(Icons.broken_image);
-          },
+      return SizedBox(
+        width: iconSize,
+        height: iconSize,
+        child: ClipOval(
+          child: Image.network(
+            icon,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return Icon(Icons.broken_image, size: iconSize);
+            },
+          ),
         ),
       );
     }
 
-    return Icon(_mapIcon(icon));
+    return Icon(_mapIcon(icon), color: Colors.white, size: iconSize);
   }
 
   IconData _mapIcon(String iconName) {
@@ -137,16 +123,6 @@ class _CategoryGridState extends State<CategoryGrid> {
         return Icons.favorite;
       default:
         return Icons.category; // retorna um ícone padrão
-    }
-  }
-
-  Color? _parseColor(String? hexColor) {
-    if (hexColor == null || hexColor.isEmpty) return null;
-    try {
-      final hex = hexColor.replaceAll('#', '');
-      return Color(int.parse('FF$hex', radix: 16));
-    } catch (_) {
-      return null;
     }
   }
 }

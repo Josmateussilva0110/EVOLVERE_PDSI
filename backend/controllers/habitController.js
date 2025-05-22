@@ -3,8 +3,8 @@ const Habit = require("../models/Habit")
 
 class HabitController {
     async create(request, response) {
-        var {name, description, category_id, frequency, start_date, end_date, priority} = request.body 
-        if(name == undefined) {
+        var {name, description, category_id, frequency, start_date, end_date, priority, reminders} = request.body 
+        if (!name || name.trim() === '') { //debug trim() remove os espaços em branco do incio e fim da string
             response.status(400)
             response.json({err: "nome invalido."})
             return
@@ -17,16 +17,21 @@ class HabitController {
 
         if(frequency == undefined) {
             response.status(400)
-            response.json({err: "adicione a frequência do habito."})
+            response.json({err: "adicione a frequência do hábito."})
             return
         }
+
+        if (category_id === '' || category_id === undefined) {
+            category_id = null;
+        }   
+
         var valid = await Habit.findName(name) 
         if(valid) {
             response.status(406)
             response.json({err: "habito já existe."})
             return 
         }
-        var done = await Habit.new(name, description, category_id, frequency, start_date, end_date, priority)
+        var done = await Habit.new(name, description, category_id, frequency, start_date, end_date, priority, reminders)
         if(done) {
             response.status(200)
             response.send('Cadastro realizado com sucesso.')

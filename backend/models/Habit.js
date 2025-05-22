@@ -17,9 +17,9 @@ class Habit {
         }
     }
 
-    async new(name, description, category_id, frequency, start_date, end_date, priority) {
+    async new(name, description, category_id, frequency, start_date, end_date, priority, reminders) {
         try {
-            await knex.insert({name, description, category_id, frequency, start_date, end_date, priority}).table("habits")
+            await knex.insert({name, description, category_id, frequency, start_date, end_date, priority, reminders: reminders ? JSON.stringify(reminders) : null}).table("habits")
             return true
         } catch(err) {
             console.log('erro em cadastrar habito: ', err)

@@ -179,7 +179,9 @@ quando fazer o push vai abrir um link no terminal copia e cole no seu navegador,
 para pegar as atualizações da main **dentro de sua branch**
 
 ```javascript
-git fetch origin
+git checkout main
+git pull
+git checkout sua_branch
 git rebase origin/main
 ``` 
 caso ocorra algum conflito resolva e depois:

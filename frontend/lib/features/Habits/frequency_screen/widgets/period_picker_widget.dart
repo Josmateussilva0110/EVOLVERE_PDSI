@@ -21,6 +21,7 @@ class PeriodPickerWidget extends StatefulWidget {
 class _PeriodPickerWidgetState extends State<PeriodPickerWidget> {
   late int _times;
   late String _period;
+  late TextEditingController _timesController;
   final List<String> _periods = ['DIA', 'SEMANA', 'MÊS', 'ANO'];
 
   @override
@@ -28,7 +29,15 @@ class _PeriodPickerWidgetState extends State<PeriodPickerWidget> {
     super.initState();
     _times = widget.times;
     _period = widget.period;
+    _timesController = TextEditingController(text: _times.toString());
   }
+
+  @override
+  void dispose() {
+    _timesController.dispose();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +105,7 @@ class _PeriodPickerWidgetState extends State<PeriodPickerWidget> {
       ),
       child: Center(
         child: TextField(
-          controller: TextEditingController(text: _times.toString()),
+          controller: _timesController,
           textAlign: TextAlign.center,
           keyboardType: TextInputType.number,
           style: GoogleFonts.inter(color: Colors.white, fontSize: 16),

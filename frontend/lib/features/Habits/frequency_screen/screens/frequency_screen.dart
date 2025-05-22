@@ -26,6 +26,41 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
     frequencyData = Map<String, dynamic>.from(habitData.frequencyData);
   }
 
+  bool _isFrequencyValid(Map<String, dynamic> data) {
+    final option = data['option'];
+    final value = data['value'];
+
+    if (option == 'todos_os_dias') return true;
+
+    if (option == 'alguns_dias_semana' && value is List<String> && value.isNotEmpty) {
+      return true;
+    }
+
+    if (option == 'dias_especificos_mes' && value is List<int> && value.isNotEmpty) {
+      return true;
+    }
+
+    if (option == 'dias_especificos_ano' && value is List<DateTime> && value.isNotEmpty) {
+      return true;
+    }
+
+    if (option == 'algumas_vezes_periodo' &&
+        value is Map &&
+        value['vezes'] is int &&
+        value['vezes'] > 0 &&
+        value['periodo'] is String &&
+        (value['periodo'] as String).isNotEmpty) {
+      return true;
+    }
+
+    if (option == 'repetir' && value is int && value > 0) {
+      return true;
+    }
+
+    return false;
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,9 +93,20 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
                   '/cadastrar_habito',
                 ),
             onNext: () {
+              if (!_isFrequencyValid(frequencyData)) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Por favor, preencha os valores da frequência antes de continuar.'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+                return;
+              }
+
               final updatedHabitData = habitData.copyWith(
                 frequencyData: frequencyData,
               );
+
               Navigator.pushReplacementNamed(
                 context,
                 '/prazo',

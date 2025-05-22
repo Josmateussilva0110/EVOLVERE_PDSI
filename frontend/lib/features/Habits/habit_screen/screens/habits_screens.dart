@@ -33,6 +33,16 @@ class _HabitScreenState extends State<HabitScreen> {
   }
 
   void _goToFrequency() {
+    if (habitName.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('O nome do hábito é obrigatório.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     final updatedHabitData = widget.habitData.copyWith(
       habitName: habitName,
       description: description,
@@ -45,6 +55,7 @@ class _HabitScreenState extends State<HabitScreen> {
       arguments: updatedHabitData,
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

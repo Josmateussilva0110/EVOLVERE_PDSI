@@ -74,7 +74,7 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pushReplacementNamed(context, '/');
+      Navigator.pop(context);
     } else {
       String errorMessage = 'Erro ao cadastrar uma categoria.';
       try {

@@ -14,6 +14,7 @@ import 'features/listHabits/pages/habits_list_page.dart';
 import 'features/register_category/screens/edit_category_screen.dart';
 import 'features/Habits/model/HabitData.dart';
 
+
 void main() async {
   await dotenv.load(fileName: ".env");
   runApp(const MyApp());

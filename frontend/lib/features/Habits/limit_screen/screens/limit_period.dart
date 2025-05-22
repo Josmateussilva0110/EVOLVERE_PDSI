@@ -5,11 +5,13 @@ import '../../components/navigation.dart';
 import '../components/limit_period_form.dart';
 import '../../model/HabitData.dart';
 import '../../frequency_screen/themes/frequency_theme.dart';
+import '../../services/habit_service.dart';
 
 class TermScreen extends StatefulWidget {
   final HabitData habitData;
 
   const TermScreen({Key? key, required this.habitData}) : super(key: key);
+
 
   @override
   _TermScreenState createState() => _TermScreenState();
@@ -27,24 +29,23 @@ class _TermScreenState extends State<TermScreen> {
   }
 
   String getPriorityLabel(int value) {
-  switch (value) {
-    case 1:
-      return 'Alta';
-    case 2:
-      return 'Normal';
-    case 3:
-      return 'Baixa';
-    default:
-      return 'Desconhecida';
+    switch (value) {
+      case 1:
+        return 'Alta';
+      case 2:
+        return 'Normal';
+      case 3:
+        return 'Baixa';
+      default:
+        return 'Desconhecida';
+    }
   }
-}
-
 
   void _selectDate(Function(DateTime) onDateSelected) async {
     DateTime? date = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
@@ -69,45 +70,48 @@ class _TermScreenState extends State<TermScreen> {
   }
 
   void _selectPriority() {
-  final options = {
-    1: 'Alta',
-    2: 'Normal',
-    3: 'Baixa',
-  };
+    final options = {1: 'Alta', 2: 'Normal', 3: 'Baixa'};
 
-  showModalBottomSheet(
-    context: context,
-    backgroundColor: const Color(0xFF1C1F26),
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-    ),
-    builder: (context) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: options.entries.map((entry) {
-          return ListTile(
-            title: Text(entry.value, style: TextStyle(color: Colors.white)),
-            onTap: () {
-              setState(() {
-                priority = entry.key;
-                habitData.priority = entry.key;
-              });
-              Navigator.pop(context);
-            },
-          );
-        }).toList(),
-      );
-    },
-  );
-}
-
-
-  void _selectReminder() async {
-    DateTime? date = await showDatePicker(
+    showModalBottomSheet(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      backgroundColor: const Color(0xFF1C1F26),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children:
+              options.entries.map((entry) {
+                return ListTile(
+                  title: Text(
+                    entry.value,
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onTap: () {
+                    setState(() {
+                      priority = entry.key;
+                      habitData.priority = entry.key;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              }).toList(),
+        );
+      },
+    );
+  }
+
+  Future<void> _addReminder(BuildContext context) async {
+    final now = DateTime.now();
+    final startDate = habitData.startDate ?? now;
+    final endDate = habitData.endDate ?? DateTime(2100); 
+
+    final selectedDate = await showDatePicker(
+      context: context,
+      initialDate: startDate,
+      firstDate: startDate,
+      lastDate: endDate,
       builder: (context, child) {
         return Theme(
           data: ThemeData.dark().copyWith(
@@ -123,9 +127,9 @@ class _TermScreenState extends State<TermScreen> {
       },
     );
 
-    if (date == null) return;
+    if (selectedDate == null) return;
 
-    TimeOfDay? time = await showTimePicker(
+    final selectedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
       builder: (context, child) {
@@ -137,24 +141,46 @@ class _TermScreenState extends State<TermScreen> {
               surface: FrequencyTheme.cardColor,
               onSurface: FrequencyTheme.textColor,
             ),
+            timePickerTheme: const TimePickerThemeData(
+              backgroundColor: FrequencyTheme.cardColor,
+              hourMinuteTextColor: FrequencyTheme.textColor,
+              dialHandColor: FrequencyTheme.accentColor,
+              dialBackgroundColor: Color(0xFF1C1F26),
+            ),
           ),
           child: child!,
         );
       },
     );
 
-    if (time != null) {
-      setState(() {
-        habitData.reminderDateTime = DateTime(
-          date.year,
-          date.month,
-          date.day,
-          time.hour,
-          time.minute,
-        );
-      });
-    }
+    if (selectedTime == null) return;
+
+    final reminder = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
+
+    setState(() {
+      habitData.reminders.add(reminder);
+    });
   }
+
+
+  void _removeReminder(DateTime reminder) {
+    setState(() {
+      habitData.reminders.remove(reminder);
+    });
+  }
+
+  void _clearEndDate() {
+  setState(() {
+    habitData.endDate = null;
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -173,12 +199,14 @@ class _TermScreenState extends State<TermScreen> {
                   SizedBox(height: 24),
                   LimitPeriodForm(
                     priority: getPriorityLabel(priority),
-                    onSelectedStartDate:
-                        () => _selectDate((date) => habitData.startDate = date),
-                    onSelectedEndDate:
-                        () => _selectDate((date) => habitData.endDate = date),
-                    onSelectedReminders: _selectReminder,
+                    reminders: habitData.reminders,
+                    endDate: habitData.endDate,
+                    onSelectedStartDate: () => _selectDate((date) => habitData.startDate = date),
+                    onSelectedEndDate: () => _selectDate((date) => habitData.endDate = date),
+                    onClearEndDate: _clearEndDate,
+                    onSelectedReminders: () => _addReminder(context),
                     onSelectedPriority: _selectPriority,
+                    onRemoveReminder: _removeReminder,
                   ),
                 ],
               ),
@@ -190,18 +218,25 @@ class _TermScreenState extends State<TermScreen> {
                   context,
                   '/cadastrar_frequencia',
                 ),
-            onNext: () {
-              print('chegou em limit: ');
-              print('Nome do hábito: ${habitData.habitName}');
-              print('Descrição: ${habitData.description}');
-              print('Categoria: ${habitData.selectedCategory}');
-              print('tipo: ${habitData.frequencyData}');
-              print('data inicio: ${habitData.startDate}');
-              print('data fim: ${habitData.endDate}');
-              print('lembrete: ${habitData.reminderDateTime}');
-              print('prioridade: ${habitData.priority}');
+            onNext: () async {
               //print('prioridade (label): ${getPriorityLabel(habitData.priority!)}');
-              Navigator.pushReplacementNamed(context, '/inicio');
+              final errorMessage = await HabitService.createHabit(habitData);
+              if (errorMessage == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                      content: Text('Hábito cadastrada com sucesso!'),
+                      backgroundColor: Colors.green,
+                  ),
+                  );
+                Navigator.pushReplacementNamed(context, '/listar_habitos');
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(errorMessage),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             previousLabel: 'Anterior',
             nextLabel: 'Criar Hábito',

@@ -12,6 +12,7 @@ exports.up = function(knex) {
     table.date('start_date').notNullable();
     table.date('end_date').nullable();
     table.integer('priority').defaultTo(2);
+    table.json('reminders').nullable();
     table.timestamps(true, true); // created_at e updated_at automáticos
   })
 };
