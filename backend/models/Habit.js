@@ -26,6 +26,21 @@ class Habit {
             return false
         }
     }
+
+    async findAll() {
+        try {
+            var result = await knex.select("*").table("habits")
+            if(result.length > 0) {
+                return result
+            }
+            else {
+                return undefined
+            }
+        } catch(err) {
+            console.log('erro em findall habitos: ', err)
+            return undefined
+        }
+    }
 }
 
 module.exports = new Habit()

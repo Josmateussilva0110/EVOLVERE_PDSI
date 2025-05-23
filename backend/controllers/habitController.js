@@ -41,6 +41,18 @@ class HabitController {
             response.json({err: "erro ao cadastrar habito."})
         }
     }
+
+    async getAllHabits(request, response) {
+        var habits = await Habit.findAll()
+        if(habits) {
+            response.status(200)
+            response.json({habits})
+        }
+        else {
+            response.status(404)
+            response.json({err: "Nenhum hábito encontrado."})
+        }
+    }
 }
 
 module.exports = new HabitController()

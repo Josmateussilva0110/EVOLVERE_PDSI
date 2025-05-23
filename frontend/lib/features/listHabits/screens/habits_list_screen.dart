@@ -1,9 +1,31 @@
 import 'package:flutter/material.dart';
 import '../widgets/filter_chips.dart';
 import '../widgets/search_bar.dart';
+import '../services/list_habits_service.dart';
+import '../model/HabitModel.dart';
 
-class HabitsListPage extends StatelessWidget {
+class HabitsListPage extends StatefulWidget {
   const HabitsListPage({Key? key}) : super(key: key);
+
+  @override
+  State<HabitsListPage> createState() => _HabitsListPageState();
+}
+
+class _HabitsListPageState extends State<HabitsListPage> {
+  late Future<List<Habit>> _habitsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _habitsFuture = HabitService.fetchHabits();
+    _habitsFuture.then((habits) {
+      for (var habit in habits) {
+        print('Nome: ${habit.name}, Descrição: ${habit.description}, Prioridade: ${habit.priority}');
+      }
+    }).catchError((error) {
+      print('Erro ao buscar hábitos: $error');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +39,7 @@ class HabitsListPage extends StatelessWidget {
           centerTitle: true,
         ),
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color(0xFF1A237E),
+          seedColor: const Color(0xFF1A237E),
           brightness: Brightness.dark,
         ),
         textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.white)),
@@ -41,20 +63,41 @@ class HabitsListPage extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const FilterChipsWidget(),
               const SizedBox(height: 12),
               const SearchBarWidget(),
               const SizedBox(height: 16),
               Expanded(
-                child: Center(
-                  child: Text(
-                    'Nenhum hábito cadastrado.',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
-                  ),
+                child: FutureBuilder<List<Habit>>(
+                  future: _habitsFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Erro: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                        child: Text(
+                          'Nenhum hábito cadastrado.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      );
+                    } else {
+                      final habits = snapshot.data!;
+                      return ListView.builder(
+                        itemCount: habits.length,
+                        itemBuilder: (context, index) {
+                          final habit = habits[index];
+                          return ListTile(
+                            title: Text(habit.name),
+                            subtitle: Text(habit.description),
+                            trailing: Text('Prioridade: ${habit.priority}'),
+                          );
+                        },
+                      );
+                    }
+                  },
                 ),
               ),
             ],
