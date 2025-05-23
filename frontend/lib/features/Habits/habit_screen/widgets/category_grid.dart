@@ -3,8 +3,8 @@ import 'category_button.dart';
 import '../../services/category_service.dart';
 
 class CategoryGrid extends StatefulWidget {
-  final String selectedCategory;
-  final Function(String) onCategorySelected;
+  final int? selectedCategory;
+  final Function(int) onCategorySelected;
   final VoidCallback? onAddCategory;
 
   const CategoryGrid({
@@ -29,13 +29,27 @@ class _CategoryGridState extends State<CategoryGrid> {
 
   Future<void> _fetchCategories() async {
   try {
-    List<Map<String, dynamic>> loadedCategories =
-        await CategoryService.fetchCategories();
+    List<Map<String, dynamic>> loadedCategories = await CategoryService.fetchCategories();
+
+    // Exemplo: converter a chave 'category' para int se possível
+    loadedCategories = loadedCategories.map((cat) {
+      final catValue = cat['category'];
+      int? catInt;
+      if (catValue is int) {
+        catInt = catValue;
+      } else if (catValue is String) {
+        catInt = int.tryParse(catValue);
+      }
+      return {
+        ...cat,
+        'category': catInt ?? catValue, // se não converter, mantem original
+      };
+    }).toList();
 
     loadedCategories.add({
       'icon': Icons.add,
       'label': 'Mais',
-      'category': 'mais',
+      'category': 'mais', // string especial para o botão adicionar
     });
 
     setState(() {
@@ -52,6 +66,7 @@ class _CategoryGridState extends State<CategoryGrid> {
 }
 
 
+
   @override
   Widget build(BuildContext context) {
     return Wrap(
@@ -62,18 +77,22 @@ class _CategoryGridState extends State<CategoryGrid> {
             final isAddButton = category['category'] == 'mais';
 
             return CategoryButton(
-              icon: _buildIcon(category['icon']),
-              label: category['label'] as String,
-              category: category['category'] as String,
-              isSelected: widget.selectedCategory == category['category'],
-              onSelect: (selected) {
-                if (isAddButton && widget.onAddCategory != null) {
-                  widget.onAddCategory!();
-                } else {
-                  widget.onCategorySelected(selected);
-                }
-              },
-            );
+                icon: _buildIcon(category['icon']),
+                label: category['label'] as String,
+                category: category['category'],  // <-- aqui sem cast para String
+                isSelected: widget.selectedCategory != null &&
+                            widget.selectedCategory == category['category'],
+                onSelect: (selected) {
+                  if (isAddButton && widget.onAddCategory != null) {
+                    widget.onAddCategory!();
+                  } else {
+                    if (selected is int) {
+                      widget.onCategorySelected(selected);
+                    }
+                  }
+                },
+              );
+
           }).toList(),
     );
   }

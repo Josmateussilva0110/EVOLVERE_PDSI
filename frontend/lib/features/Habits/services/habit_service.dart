@@ -25,13 +25,17 @@ class HabitService {
     final body = {
       'name': habitData.habitName,
       'description': habitData.description,
-      'category_id': habitData.selectedCategory,
       'frequency': serializeFrequency(habitData.frequencyData),
       'start_date': habitData.startDate?.toIso8601String(),
       'end_date': habitData.endDate?.toIso8601String(),
       'reminders': habitData.reminders.map((r) => r.toIso8601String()).toList(),
       'priority': habitData.priority,
+      if (habitData.selectedCategory != null)
+        'category_id': habitData.selectedCategory,
     };
+
+
+
 
     try {
       final response = await http.post(

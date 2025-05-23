@@ -6,10 +6,10 @@ import '../widgets/category_grid.dart';
 class HabitForm extends StatelessWidget {
   final String habitName;
   final String description;
-  final String selectedCategory;
+  final int? selectedCategory; 
   final ValueChanged<String> onNameChanged;
   final ValueChanged<String> onDescriptionChanged;
-  final Function(String) onCategorySelected;
+  final ValueChanged<int> onCategorySelected;
 
   const HabitForm({
     Key? key,

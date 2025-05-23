@@ -10,7 +10,7 @@ import 'features/register_category/screens/list_category_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'features/Habits/frequency_screen/screens/frequency_screen.dart';
 import 'features/home/home_screen.dart';
-import 'features/listHabits/pages/habits_list_page.dart';
+import 'features/listHabits/screens/habits_list_screen.dart';
 import 'features/register_category/screens/edit_category_screen.dart';
 import 'features/Habits/model/HabitData.dart';
 
