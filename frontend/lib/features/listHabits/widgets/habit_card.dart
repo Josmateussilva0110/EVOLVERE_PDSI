@@ -47,14 +47,39 @@ class HabitCardWidget extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              habit.name,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+            Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      habit.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _getPrioridadeColor(habit.priority).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(
+                      _getPrioridadeTexto(habit.priority),
+                      style: TextStyle(
+                        color: _getPrioridadeColor(habit.priority),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
+
             const SizedBox(height: 6),
             if (habit.description.isNotEmpty)
               Text(
@@ -62,32 +87,6 @@ class HabitCardWidget extends StatelessWidget {
                 style: const TextStyle(color: Colors.white70),
               ),
             const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _getPrioridadeColor(habit.priority).withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    _getPrioridadeTexto(habit.priority),
-                    style: TextStyle(
-                      color: _getPrioridadeColor(habit.priority),
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-
-                if (habit.categoryName != null)
-                  Text(
-                    'Categoria: ${habit.categoryName}',
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-              ],
-            ),
           ],
         ),
       ),
