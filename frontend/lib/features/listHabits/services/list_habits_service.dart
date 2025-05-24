@@ -23,7 +23,7 @@ class HabitService {
 
       return habitsList.map((json) => Habit.fromJson(json)).toList();
     } else {
-      throw Exception('Erro ao carregar hábitos');
+      return [];
     }
   }
 }

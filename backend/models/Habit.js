@@ -29,18 +29,37 @@ class Habit {
 
     async findAll() {
         try {
-            var result = await knex.select("*").table("habits")
-            if(result.length > 0) {
-                return result
-            }
-            else {
-                return undefined
-            }
-        } catch(err) {
-            console.log('erro em findall habitos: ', err)
-            return undefined
+            const result = await knex('habits as h')
+            .leftJoin('category as c', 'h.category_id', 'c.id')
+            .select(
+                'h.id',
+                'h.name',
+                'h.description',
+                'c.name as categoria',
+                'h.frequency',
+                'h.start_date',
+                'h.end_date',
+                'h.priority',
+                'h.reminders',
+                'h.status',
+            );
+
+            const habits = result.map(habit => ({
+            ...habit,
+            reminders: Array.isArray(habit.reminders) ? habit.reminders : [],
+            }));
+
+            if(habits)
+                return habits;
+            else 
+                return undefined;
+        } catch (err) {
+            console.error('Erro em findAll hábitos:', err);
+            return undefined;
         }
     }
+
+
 }
 
 module.exports = new Habit()

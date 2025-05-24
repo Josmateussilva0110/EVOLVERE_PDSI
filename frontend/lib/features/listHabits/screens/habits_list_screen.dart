@@ -3,6 +3,7 @@ import '../widgets/filter_chips.dart';
 import '../widgets/search_bar.dart';
 import '../services/list_habits_service.dart';
 import '../model/HabitModel.dart';
+import '../widgets/habit_card.dart';
 
 class HabitsListPage extends StatefulWidget {
   const HabitsListPage({Key? key}) : super(key: key);
@@ -18,13 +19,6 @@ class _HabitsListPageState extends State<HabitsListPage> {
   void initState() {
     super.initState();
     _habitsFuture = HabitService.fetchHabits();
-    _habitsFuture.then((habits) {
-      for (var habit in habits) {
-        print('Nome: ${habit.name}, Descrição: ${habit.description}, Prioridade: ${habit.priority}');
-      }
-    }).catchError((error) {
-      print('Erro ao buscar hábitos: $error');
-    });
   }
 
   @override
@@ -89,11 +83,7 @@ class _HabitsListPageState extends State<HabitsListPage> {
                         itemCount: habits.length,
                         itemBuilder: (context, index) {
                           final habit = habits[index];
-                          return ListTile(
-                            title: Text(habit.name),
-                            subtitle: Text(habit.description),
-                            trailing: Text('Prioridade: ${habit.priority}'),
-                          );
+                          return HabitCardWidget(habit: habit);
                         },
                       );
                     }

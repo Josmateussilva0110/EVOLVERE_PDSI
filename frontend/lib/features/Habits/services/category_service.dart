@@ -16,20 +16,26 @@ class CategoryService {
         final Map<String, dynamic> jsonBody = json.decode(response.body);
         final List<dynamic> data = jsonBody['categories'];
 
-        loadedCategories = data.map<Map<String, dynamic>>((item) => {
-          'icon': item['icon'] != null
-              ? '${dotenv.env['API_URL']}${item['icon']}'
-              : '',
-          'label': item['name'] ?? 'Sem nome',
-          'category': item['id']?.toString() ?? '',
-          'description': item['description'] ?? '',
-          'color': _parseColor(item['color']),
-        }).toList();
+        loadedCategories =
+            data
+                .map<Map<String, dynamic>>(
+                  (item) => {
+                    'icon':
+                        item['icon'] != null
+                            ? '${dotenv.env['API_URL']}${item['icon']}'
+                            : '',
+                    'label': item['name'] ?? 'Sem nome',
+                    'category': item['id']?.toString() ?? '',
+                    'description': item['description'] ?? '',
+                    'color': _parseColor(item['color']),
+                  },
+                )
+                .toList();
       } else {
-        throw Exception('Erro ao carregar categorias: ${response.statusCode}');
+        return [];
       }
     } catch (e) {
-      throw Exception('Erro na requisição: $e');
+      return [];
     }
 
     return loadedCategories;

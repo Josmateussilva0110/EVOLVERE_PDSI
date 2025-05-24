@@ -43,16 +43,16 @@ class HabitController {
     }
 
     async getAllHabits(request, response) {
-        var habits = await Habit.findAll()
-        if(habits) {
-            response.status(200)
-            response.json({habits})
-        }
-        else {
-            response.status(404)
-            response.json({err: "Nenhum hábito encontrado."})
+        const habits = await Habit.findAll();
+
+        if (habits && habits.length > 0) {
+            response.status(200).json({ habits });
+        } else {
+            response.status(404).json({ err: "Nenhum hábito encontrado." });
         }
     }
+
+
 }
 
 module.exports = new HabitController()
