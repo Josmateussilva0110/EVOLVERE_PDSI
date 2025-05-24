@@ -30,31 +30,32 @@ class _CategoryGridState extends State<CategoryGrid> {
   Future<void> _fetchCategories() async {
   try {
     List<Map<String, dynamic>> loadedCategories = await CategoryService.fetchCategories();
-
-    // Exemplo: converter a chave 'category' para int se possível
     loadedCategories = loadedCategories.map((cat) {
-      final catValue = cat['category'];
-      int? catInt;
-      if (catValue is int) {
-        catInt = catValue;
-      } else if (catValue is String) {
-        catInt = int.tryParse(catValue);
-      }
-      return {
-        ...cat,
-        'category': catInt ?? catValue, // se não converter, mantem original
-      };
-    }).toList();
+    final catValue = cat['category'];
+    int? catInt;
+    if (catValue is int) {
+      catInt = catValue;
+    } else if (catValue is String) {
+      catInt = int.tryParse(catValue);
+    }
+    return {
+      ...cat,
+      'category': catInt ?? catValue, 
+    };
+  }).toList();
 
-    loadedCategories.add({
-      'icon': Icons.add,
-      'label': 'Mais',
-      'category': 'mais', // string especial para o botão adicionar
-    });
+  final addCategoryButton = {
+    'icon': Icons.add,
+    'label': 'Mais',
+    'category': 'mais',
+  };
 
-    setState(() {
-      categories = loadedCategories;
-    });
+  setState(() {
+    categories = [...loadedCategories, addCategoryButton];
+  });
+
+
+
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -79,7 +80,7 @@ class _CategoryGridState extends State<CategoryGrid> {
             return CategoryButton(
                 icon: _buildIcon(category['icon']),
                 label: category['label'] as String,
-                category: category['category'],  // <-- aqui sem cast para String
+                category: category['category'],  
                 isSelected: widget.selectedCategory != null &&
                             widget.selectedCategory == category['category'],
                 onSelect: (selected) {
