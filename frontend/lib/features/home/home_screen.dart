@@ -56,9 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   SizedBox(height: 20),
                   Row(
                     children: [
-                      _statCard('Sequência Diária', '3'),
-                      SizedBox(width: 10),
-                      _statCard('Hábitos Completados', '6'),
+                      Expanded(child: _statCard('Sequência Diária', '3', height: 100, topPadding: 21)),
+                      SizedBox(width: 15),
+                      Expanded(child: _statCard('Hábitos Completados', '6')),
                     ],
                   ),
                   SizedBox(height: 10),
@@ -168,9 +168,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _statCard(String title, String value, {double width = 160}) {
+  Widget _statCard(String title, String value, {double width = 160, double? height, double topPadding = 0}) {
     return Container(
       width: width,
+      height: height,
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.white24),
@@ -180,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: TextStyle(color: Colors.white70)),
-          SizedBox(height: 5),
+          SizedBox(height: topPadding),
           Text(value, style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
         ],
       ),
