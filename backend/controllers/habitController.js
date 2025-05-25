@@ -53,6 +53,25 @@ class HabitController {
     }
 
 
+
+    async remove(request, response) {
+        const id = request.params.id
+        if (!id || isNaN(id)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+        const habit = await Habit.findById(id)
+        if(!habit) {
+            return response.status(404).json({ err: "habito não encontrada" });
+        }
+        var result = await Habit.delete(id)
+        if(result) {
+            response.status(200)
+            response.json({message: "Habito removido com sucesso"})
+        }
+        else {
+            response.status(500).json({ err: "Erro ao excluir habito" });
+        }
+    }
 }
 
 module.exports = new HabitController()

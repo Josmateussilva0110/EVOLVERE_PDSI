@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../model/HabitModel.dart';
-import '../../register_category/widgets/habit_options_menu.dart';
+import 'habit_options_menu.dart';
 
 class HabitCardWidget extends StatelessWidget {
   final Habit habit;
@@ -57,14 +57,7 @@ class HabitCardWidget extends StatelessWidget {
               title: 'Excluir hábito',
               message: 'Deseja excluir este hábito?',
               onConfirm: () {
-                if (onHabitDeleted != null) onHabitDeleted!();
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Hábito excluído com sucesso!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
+                
               },
             );
           },
