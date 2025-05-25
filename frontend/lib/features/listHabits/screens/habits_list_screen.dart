@@ -80,12 +80,20 @@ class _HabitsListPageState extends State<HabitsListPage> {
                     } else {
                       final habits = snapshot.data!;
                       return ListView.builder(
-                        itemCount: habits.length,
-                        itemBuilder: (context, index) {
-                          final habit = habits[index];
-                          return HabitCardWidget(habit: habit);
-                        },
-                      );
+                      itemCount: habits.length,
+                      itemBuilder: (context, index) {
+                        final habit = habits[index];
+                        return HabitCardWidget(
+                          habit: habit,
+                          onHabitDeleted: () {
+                            setState(() {
+                              _habitsFuture = HabitService.fetchHabits();
+                            });
+                          },
+                        );
+                      },
+                    );
+
                     }
                   },
                 ),

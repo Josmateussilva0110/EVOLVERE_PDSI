@@ -28,10 +28,14 @@ class HabitService {
   }
 
 
-  static Future<void> deleteHabit(int habitId) async {
-    final response = await http.delete(Uri.parse('http://seu-endpoint/habitos/$habitId'));
-    if (response.statusCode != 200) {
-      throw Exception('Falha ao excluir hábito');
+  static Future<bool> deleteHabit(int habitId) async {
+    final response = await http.delete(
+      Uri.parse('${dotenv.env['API_URL']}/habit/$habitId'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
     }
   }
 }
