@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../model/HabitModel.dart';
 import 'habit_options_menu.dart';
+import '../services/list_habits_service.dart';
 
 class HabitCardWidget extends StatelessWidget {
   final Habit habit;
@@ -32,66 +33,65 @@ class HabitCardWidget extends StatelessWidget {
             );
             if (onHabitUpdated != null) onHabitUpdated!();
           },
-          onArchive: () {
-            Navigator.pop(context);
-            _confirmAction(
-              context,
-              title: 'Arquivar hábito',
-              message: 'Deseja arquivar este hábito?',
-              onConfirm: () {
-                Navigator.pop(context);
-                // TODO: lógica para arquivar hábito
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Hábito arquivado com sucesso!'),
-                    backgroundColor: Colors.green,
+          onArchive: () {},
+          onDelete: () async {
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    backgroundColor: const Color(0xFF121217),
+                    title: const Text(
+                      'Excluir habito',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    content: const Text(
+                      'Deseja excluir?',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text(
+                          'Excluir',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
                   ),
-                );
-              },
             );
-          },
-          onDelete: () {
-            Navigator.pop(context);
-            _confirmAction(
-              context,
-              title: 'Excluir hábito',
-              message: 'Deseja excluir este hábito?',
-              onConfirm: () {
-                
-              },
-            );
+            if (confirm != true) return;
+            final result = await HabitService.deleteHabit(habit.id);
+            if(result) {
+              Navigator.pop(context);
+              if (onHabitDeleted != null) onHabitDeleted!();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Hábito removido com sucesso!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+            else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Erro ao remover habito!'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
           },
         );
       },
-    );
-  }
-
-  void _confirmAction(
-    BuildContext context, {
-    required String title,
-    required String message,
-    required VoidCallback onConfirm,
-  }) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF121217),
-        title: Text(title, style: const TextStyle(color: Colors.white)),
-        content: Text(
-          message,
-          style: const TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar', style: TextStyle(color: Colors.white70)),
-          ),
-          TextButton(
-            onPressed: onConfirm,
-            child: const Text('Confirmar', style: TextStyle(color: Colors.amber)),
-          ),
-        ],
-      ),
     );
   }
 
@@ -125,9 +125,14 @@ class HabitCardWidget extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: _getPrioridadeColor(habit.priority).withOpacity(0.2),
+                      color: _getPrioridadeColor(
+                        habit.priority,
+                      ).withOpacity(0.2),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
