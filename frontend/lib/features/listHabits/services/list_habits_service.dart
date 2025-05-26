@@ -9,17 +9,9 @@ class HabitService {
       Uri.parse('${dotenv.env['API_URL']}/habits'),
     );
 
-    print('Status code: ${response.statusCode}');
-    print('Response body: ${response.body}');
-
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       final List<dynamic> habitsList = decoded['habits'];
-
-      print('Lista de hábitos recebida:');
-      for (var habit in habitsList) {
-        print(habit);
-      }
 
       return habitsList.map((json) => Habit.fromJson(json)).toList();
     } else {
