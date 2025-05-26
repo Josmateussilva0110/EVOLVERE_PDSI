@@ -26,6 +26,61 @@ class Habit {
             return false
         }
     }
+
+    async findAll() {
+        try {
+            const result = await knex('habits as h')
+            .leftJoin('category as c', 'h.category_id', 'c.id')
+            .select(
+                'h.id',
+                'h.name',
+                'h.description',
+                'c.name as categoria',
+                'h.frequency',
+                'h.start_date',
+                'h.end_date',
+                'h.priority',
+                'h.reminders',
+                'h.status',
+            );
+
+            const habits = result.map(habit => ({
+            ...habit,
+            reminders: Array.isArray(habit.reminders) ? habit.reminders : [],
+            }));
+
+            if(habits)
+                return habits;
+            else 
+                return undefined;
+        } catch (err) {
+            console.error('Erro em findAll hábitos:', err);
+            return undefined;
+        }
+    }
+
+    async findById(id) {
+        try {
+            var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status"]).where({id: id}).table("habits")
+            if(result.length > 0) 
+                return result[0]
+            else 
+                return undefined
+        } catch(err) {
+            console.log('erro no findById', err)
+            return undefined
+        }
+    }
+
+    async delete(id) {
+        try {
+            await knex("habits").where({id: id}).del()
+            return true
+        } catch(err) {
+            console.log('erro ao deletar habito: ', err)
+            return false
+        }
+    }
 }
 
 module.exports = new Habit()

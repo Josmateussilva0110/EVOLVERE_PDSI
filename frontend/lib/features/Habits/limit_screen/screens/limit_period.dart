@@ -71,7 +71,6 @@ class _TermScreenState extends State<TermScreen> {
 
   void _selectPriority() {
     final options = {1: 'Alta', 2: 'Normal', 3: 'Baixa'};
-
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1C1F26),
@@ -128,7 +127,6 @@ class _TermScreenState extends State<TermScreen> {
     );
 
     if (selectedDate == null) return;
-
     final selectedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
@@ -152,7 +150,6 @@ class _TermScreenState extends State<TermScreen> {
         );
       },
     );
-
     if (selectedTime == null) return;
 
     final reminder = DateTime(
@@ -162,13 +159,10 @@ class _TermScreenState extends State<TermScreen> {
       selectedTime.hour,
       selectedTime.minute,
     );
-
     setState(() {
       habitData.reminders.add(reminder);
     });
   }
-
-
   void _removeReminder(DateTime reminder) {
     setState(() {
       habitData.reminders.remove(reminder);
@@ -180,8 +174,6 @@ class _TermScreenState extends State<TermScreen> {
     habitData.endDate = null;
   });
 }
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

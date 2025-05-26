@@ -5,9 +5,9 @@ import '../themes/habits_theme.dart';
 class CategoryButton extends StatelessWidget {
   final Widget icon; 
   final String label;
-  final String category;
+  final dynamic category;
   final bool isSelected;
-  final Function(String) onSelect;
+  final void Function(dynamic) onSelect;
 
   const CategoryButton({
     Key? key,

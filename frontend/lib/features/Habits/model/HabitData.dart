@@ -1,7 +1,7 @@
 class HabitData {
   String habitName;
   String description;
-  String selectedCategory;
+  int? selectedCategory; 
   Map<String, dynamic> frequencyData;
   DateTime? startDate;
   DateTime? endDate;
@@ -11,7 +11,7 @@ class HabitData {
   HabitData({
     this.habitName = '',
     this.description = '',
-    this.selectedCategory = '',
+    this.selectedCategory, 
     Map<String, dynamic>? frequencyData,
     this.startDate,
     this.endDate,
@@ -23,7 +23,7 @@ class HabitData {
   HabitData copyWith({
     String? habitName,
     String? description,
-    String? selectedCategory,
+    int? selectedCategory, 
     Map<String, dynamic>? frequencyData,
     DateTime? startDate,
     DateTime? endDate,
@@ -33,7 +33,7 @@ class HabitData {
     return HabitData(
       habitName: habitName ?? this.habitName,
       description: description ?? this.description,
-      selectedCategory: selectedCategory ?? this.selectedCategory,
+      selectedCategory: selectedCategory ?? this.selectedCategory, 
       frequencyData: frequencyData ?? this.frequencyData,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
@@ -42,3 +42,4 @@ class HabitData {
     );
   }
 }
+

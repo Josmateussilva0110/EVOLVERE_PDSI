@@ -41,6 +41,37 @@ class HabitController {
             response.json({err: "erro ao cadastrar habito."})
         }
     }
+
+    async getAllHabits(request, response) {
+        const habits = await Habit.findAll();
+
+        if (habits && habits.length > 0) {
+            response.status(200).json({ habits });
+        } else {
+            response.status(404).json({ err: "Nenhum hábito encontrado." });
+        }
+    }
+
+
+
+    async remove(request, response) {
+        const id = request.params.id
+        if (!id || isNaN(id)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+        const habit = await Habit.findById(id)
+        if(!habit) {
+            return response.status(404).json({ err: "habito não encontrada" });
+        }
+        var result = await Habit.delete(id)
+        if(result) {
+            response.status(200)
+            response.json({message: "Habito removido com sucesso"})
+        }
+        else {
+            response.status(500).json({ err: "Erro ao excluir habito" });
+        }
+    }
 }
 
 module.exports = new HabitController()

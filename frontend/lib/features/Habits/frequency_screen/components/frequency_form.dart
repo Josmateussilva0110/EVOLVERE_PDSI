@@ -19,14 +19,12 @@ class FrequencyForm extends StatelessWidget {
         final days = (raw is List && raw.isNotEmpty && raw.first is String)
             ? List<String>.from(raw)
             : <String>[];
-
         FrequencyPickers.showWeekDaysPicker(
           context,
           days,
           (days) => onFrequencyDataChanged({'option': type, 'value': days}),
         );
         break;
-
       case 'dias_especificos_mes':
         final raw = frequencyData['value'];
         final days = (raw is List && raw.isNotEmpty && raw.first is int)

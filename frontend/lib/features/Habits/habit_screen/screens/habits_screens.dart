@@ -16,19 +16,19 @@ class HabitScreen extends StatefulWidget {
 class _HabitScreenState extends State<HabitScreen> {
   String habitName = '';
   String description = '';
-  String selectedCategory = '';
+  int? selectedCategory;
 
   @override
   void initState() {
     super.initState();
     habitName = widget.habitData.habitName;
     description = widget.habitData.description;
-    selectedCategory = widget.habitData.selectedCategory;
+    selectedCategory = widget.habitData.selectedCategory; 
   }
 
-  void _onCategorySelected(String category) {
+  void _onCategorySelected(int category) {
     setState(() {
-      selectedCategory = selectedCategory == category ? '' : category;
+      selectedCategory = selectedCategory == category ? null : category;
     });
   }
 
@@ -57,7 +57,7 @@ class _HabitScreenState extends State<HabitScreen> {
   }
 
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HabitsTheme.backgroundColor,
@@ -70,18 +70,16 @@ class _HabitScreenState extends State<HabitScreen> {
               child: HabitForm(
                 habitName: habitName,
                 description: description,
-                selectedCategory: selectedCategory,
+                selectedCategory: selectedCategory, 
                 onNameChanged: (value) => setState(() => habitName = value),
-                onDescriptionChanged:
-                    (value) => setState(() => description = value),
+                onDescriptionChanged: (value) => setState(() => description = value),
                 onCategorySelected: _onCategorySelected,
               ),
             ),
           ),
           BottomNavigation(
             nextRoute: '/cadastrar_frequencia',
-            onNext:
-                _goToFrequency, // Chama a função que passa os dados atualizados
+            onNext: _goToFrequency,
           ),
         ],
       ),
