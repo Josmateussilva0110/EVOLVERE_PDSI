@@ -138,7 +138,29 @@ class CategoryController {
     async getArchivedCategories(request, response) {
         try {
             const categories = await Category.findArchived();
-            response.status(200).json({ categories: categories });
+            if(categories)
+                response.status(200).json({ categories: categories });
+            else {
+                response.status(404)
+                response.json({err: 'Nenhuma categoria encontrada.'})
+            }
+        } catch (err) {
+            response.status(500).json({ 
+                err: "Erro interno ao buscar categorias arquivadas",
+                categories: [] 
+            });
+        }
+    }
+
+    async getNotArchivedCategories(request, response) {
+        try {
+            const categories = await Category.findNotArchived()
+            if(categories)
+                response.status(200).json({ categories: categories })
+            else {
+                response.status(404)
+                response.json({err: 'Nenhuma categoria encontrada.'})
+            }
         } catch (err) {
             response.status(500).json({ 
                 err: "Erro interno ao buscar categorias arquivadas",

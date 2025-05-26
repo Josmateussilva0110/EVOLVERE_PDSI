@@ -86,7 +86,29 @@ class Category {
                 "color",
                 "icon"
             ]).where('archived', true).from("category");
-            return result;
+            if(result.length > 0)
+                return result;
+            else 
+                return [];
+        } catch(err) {
+            console.log(err);
+            return [];
+        }
+    }
+
+    async findNotArchived() {
+        try {
+            const result = await knex.select([
+                "id",
+                "name",
+                "description",
+                "color",
+                "icon"
+            ]).where('archived', false).from("category");
+            if(result.length > 0)
+                return result;
+            else 
+                return []
         } catch(err) {
             console.log(err);
             return [];
