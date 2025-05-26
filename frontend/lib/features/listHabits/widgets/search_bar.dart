@@ -3,7 +3,9 @@ import '../services/list_categories_service.dart';
 import '../model/CategoryModel.dart';
 
 class SearchBarWidget extends StatefulWidget {
-  const SearchBarWidget({Key? key}) : super(key: key);
+  final void Function(String)? onCategorySelected;
+
+  const SearchBarWidget({Key? key, this.onCategorySelected}) : super(key: key);
 
   @override
   State<SearchBarWidget> createState() => _SearchBarWidgetState();
@@ -64,6 +66,9 @@ class _SearchBarWidgetState extends State<SearchBarWidget> {
                           ),
                           onTap: () {
                             Navigator.pop(context);
+                            if (widget.onCategorySelected != null) {
+                              widget.onCategorySelected!(category.name);
+                            }
                           },
                         );
                       },
