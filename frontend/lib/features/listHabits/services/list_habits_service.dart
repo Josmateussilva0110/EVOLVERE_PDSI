@@ -6,7 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class HabitService {
   static Future<List<Habit>> fetchHabits() async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/habits'),
+      Uri.parse('${dotenv.env['API_URL']}/habits/not_archived'),
     );
 
     if (response.statusCode == 200) {
