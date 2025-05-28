@@ -4,6 +4,7 @@ import '../widgets/search_bar.dart';
 import '../services/list_habits_service.dart';
 import '../model/HabitModel.dart';
 import '../widgets/habit_card.dart';
+import '../widgets/archived_habits.dart';
 
 class HabitsListPage extends StatefulWidget {
   const HabitsListPage({Key? key}) : super(key: key);
@@ -16,19 +17,27 @@ class _HabitsListPageState extends State<HabitsListPage> {
   late Future<List<Habit>> _habitsFuture;
   String? _selectedCategory;
 
-
   Future<void> _loadHabits() async {
-  final allHabits = await HabitService.fetchHabits();
-  setState(() {
-    if (_selectedCategory != null) {
-      _habitsFuture = Future.value(
-        allHabits.where((h) => h.categoryName == _selectedCategory).toList(),
-      );
-    } else {
-      _habitsFuture = Future.value(allHabits);
-    }
-  });
-}
+    final allHabits = await HabitService.fetchHabits();
+    setState(() {
+      if (_selectedCategory != null) {
+        _habitsFuture = Future.value(
+          allHabits.where((h) => h.categoryName == _selectedCategory).toList(),
+        );
+      } else {
+        _habitsFuture = Future.value(allHabits);
+      }
+    });
+  }
+
+  void _showArchivedHabits() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const ArchivedHabitsModal(),
+    );
+  }
 
 
   @override
@@ -66,7 +75,7 @@ class _HabitsListPageState extends State<HabitsListPage> {
           actions: [
             IconButton(
               icon: const Icon(Icons.calendar_today_outlined),
-              onPressed: () {},
+              onPressed: _showArchivedHabits,
             ),
           ],
         ),
@@ -120,20 +129,19 @@ class _HabitsListPageState extends State<HabitsListPage> {
                     } else {
                       final habits = snapshot.data!;
                       return ListView.builder(
-                      itemCount: habits.length,
-                      itemBuilder: (context, index) {
-                        final habit = habits[index];
-                        return HabitCardWidget(
-                          habit: habit,
-                          onHabitDeleted: () {
-                            setState(() {
-                              _habitsFuture = HabitService.fetchHabits();
-                            });
-                          },
-                        );
-                      },
-                    );
-
+                        itemCount: habits.length,
+                        itemBuilder: (context, index) {
+                          final habit = habits[index];
+                          return HabitCardWidget(
+                            habit: habit,
+                            onHabitDeleted: () {
+                              setState(() {
+                                _habitsFuture = HabitService.fetchHabits();
+                              });
+                            },
+                          );
+                        },
+                      );
                     }
                   },
                 ),

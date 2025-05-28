@@ -107,6 +107,39 @@ class Habit {
         }
     }
 
+    async findArchived() {
+        try {
+            const result = await knex('habits as h')
+            .leftJoin('category as c', 'h.category_id', 'c.id')
+            .where('h.status', '=', 3)
+            .select(
+                'h.id',
+                'h.name',
+                'h.description',
+                'c.name as categoria',
+                'h.frequency',
+                'h.start_date',
+                'h.end_date',
+                'h.priority',
+                'h.reminders',
+                'h.status',
+            );
+
+            const habits = result.map(habit => ({
+            ...habit,
+            reminders: Array.isArray(habit.reminders) ? habit.reminders : [],
+            }));
+
+            if(habits)
+                return habits;
+            else 
+                return undefined;
+        } catch (err) {
+            console.error('Erro em findAll hábitos:', err);
+            return undefined;
+        }
+    }
+
     async findById(id) {
         try {
             var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status"]).where({id: id}).table("habits")

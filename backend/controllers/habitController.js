@@ -62,6 +62,16 @@ class HabitController {
         }
     }
 
+    async getHabitsArchived(request, response) {
+        const habits = await Habit.findArchived()
+
+        if (habits && habits.length > 0) {
+            response.status(200).json({ habits })
+        } else {
+            response.status(404).json({ err: "Nenhum hábito arquivado encontrado." })
+        }
+    }
+
 
 
     async remove(request, response) {

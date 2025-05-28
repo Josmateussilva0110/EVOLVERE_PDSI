@@ -30,4 +30,19 @@ class HabitService {
       return false;
     }
   }
+
+  static Future<List<Habit>> fetchHabitsArchived() async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/habits/archived'),
+    );
+
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      final List<dynamic> habitsList = decoded['habits'];
+
+      return habitsList.map((json) => Habit.fromJson(json)).toList();
+    } else {
+      return [];
+    }
+  }
 }
