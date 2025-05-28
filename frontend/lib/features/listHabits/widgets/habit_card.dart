@@ -33,7 +33,61 @@ class HabitCardWidget extends StatelessWidget {
             );
             if (onHabitUpdated != null) onHabitUpdated!();
           },
-          onArchive: () {},
+          onArchive: () async {
+            final confirm = await showDialog<bool>(
+              context: context,
+              builder:
+                  (context) => AlertDialog(
+                    backgroundColor: const Color(0xFF121217),
+                    title: const Text(
+                      'Arquivar habito',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    content: const Text(
+                      'Deseja arquivar?',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text(
+                          'Cancelar',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text(
+                          'Arquivar',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
+            );
+            if (confirm != true) return;
+            final result = await HabitService.archiveHabit(habit.id);
+            if(result) {
+              Navigator.pop(context);
+              if (onHabitDeleted != null) onHabitDeleted!();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Hábito arquivado com sucesso!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+            else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Erro ao remover habito!'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }},
           onDelete: () async {
             final confirm = await showDialog<bool>(
               context: context,

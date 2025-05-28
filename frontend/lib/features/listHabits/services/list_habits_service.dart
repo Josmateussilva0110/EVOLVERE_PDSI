@@ -31,6 +31,28 @@ class HabitService {
     }
   }
 
+  static Future<bool> archiveHabit(int habitId) async {
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/habit/archive/$habitId'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<bool> activeHabit(int habitId) async {
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/habit/active/$habitId'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   static Future<List<Habit>> fetchHabitsArchived() async {
     final response = await http.get(
       Uri.parse('${dotenv.env['API_URL']}/habits/archived'),

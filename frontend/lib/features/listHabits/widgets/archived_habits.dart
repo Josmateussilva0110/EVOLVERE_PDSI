@@ -79,8 +79,26 @@ class _ArchivedHabitsModalState extends State<ArchivedHabitsModal> {
                         style: const TextStyle(color: Colors.white),
                       ),
                       trailing: const Icon(Icons.restore, color: Colors.green),
-                      onTap: () {
-                        // lógica de restaurar hábito
+                      onTap: () async {
+                        final success = await HabitService.activeHabit(habit.id);
+                        if (success) {
+                          setState(() {
+                            archivedHabits.removeAt(index);
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Hábito restaurado com sucesso!'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Erro ao restaurar hábito.'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
                     );
                   },
