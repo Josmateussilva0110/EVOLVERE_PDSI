@@ -27,7 +27,11 @@ router.patch("/category/:id/unarchive", CategoryController.unarchiveCategory)
 router.patch("/category/:id", CategoryController.updateCategory)
 router.post('/habit', HabitController.create)
 router.get("/habits", HabitController.getAllHabits)
+router.get("/habits/not_archived", HabitController.getHabitsNotArchived)
+router.get("/habits/archived", HabitController.getHabitsArchived)
 router.delete("/habit/:id", HabitController.remove)
+router.post("/habit/archive/:id", HabitController.archiveHabit)
+router.post("/habit/active/:id", HabitController.setHabitToActive)
 
 
 module.exports = router

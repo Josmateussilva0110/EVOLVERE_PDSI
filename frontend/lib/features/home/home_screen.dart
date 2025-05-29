@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
 
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: HomeScreen());
-  }
-}
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -64,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       SizedBox(width: 15),
-                      Expanded(child: _statCard('Hábitos Completados', '6')),
+                      Expanded(child: _statCard('Hábitos Completados', '3', height: 100, topPadding: 21)),
                     ],
                   ),
                   SizedBox(height: 10),
@@ -263,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onTap();
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
         child: Row(
           children: [
             Icon(icon, color: Colors.white),
