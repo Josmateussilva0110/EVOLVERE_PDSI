@@ -74,6 +74,7 @@ class Habit {
         }
     }
 
+
     async findNotArchived() {
         try {
             const result = await knex('habits as h')

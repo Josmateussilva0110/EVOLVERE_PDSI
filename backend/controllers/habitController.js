@@ -132,7 +132,6 @@ class HabitController {
             response.json({err: "Erro ao atualizar habito para ativo."})
         }
     }
-
 }
 
 module.exports = new HabitController()
