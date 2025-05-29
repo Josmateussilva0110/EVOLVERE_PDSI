@@ -30,16 +30,6 @@ class _HabitsListPageState extends State<HabitsListPage> {
     });
   }
 
-  void _showArchivedHabits() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) => const ArchivedHabitsModal(),
-    );
-  }
-
-
   @override
   void initState() {
     super.initState();
@@ -74,8 +64,20 @@ class _HabitsListPageState extends State<HabitsListPage> {
           title: const Text('Hábitos'),
           actions: [
             IconButton(
-              icon: const Icon(Icons.calendar_today_outlined),
-              onPressed: _showArchivedHabits,
+              icon: const Icon(Icons.archive),
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  builder:
+                      (_) => ArchivedHabitsModal(
+                        onHabitRestored: () {
+                          _loadHabits();
+                        },
+                      ),
+                );
+              },
             ),
           ],
         ),
@@ -90,7 +92,7 @@ class _HabitsListPageState extends State<HabitsListPage> {
                   setState(() {
                     _selectedCategory = category;
                   });
-                  _loadHabits(); // recarrega a lista com filtro aplicado
+                  _loadHabits();
                 },
               ),
 
@@ -102,7 +104,7 @@ class _HabitsListPageState extends State<HabitsListPage> {
                       setState(() {
                         _selectedCategory = null;
                       });
-                      _loadHabits(); // recarrega todos os hábitos
+                      _loadHabits(); 
                     },
                     child: const Text(
                       'Limpar Filtro',
@@ -134,6 +136,11 @@ class _HabitsListPageState extends State<HabitsListPage> {
                           final habit = habits[index];
                           return HabitCardWidget(
                             habit: habit,
+                            onHabitArchived: () {
+                              setState(() {
+                                _habitsFuture = HabitService.fetchHabits();
+                              });
+                            },
                             onHabitDeleted: () {
                               setState(() {
                                 _habitsFuture = HabitService.fetchHabits();

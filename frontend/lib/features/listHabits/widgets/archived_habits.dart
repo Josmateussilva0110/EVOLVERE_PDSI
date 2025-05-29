@@ -3,7 +3,8 @@ import '../services/list_habits_service.dart';
 import '../model/HabitModel.dart';
 
 class ArchivedHabitsModal extends StatefulWidget {
-  const ArchivedHabitsModal({super.key});
+  final VoidCallback? onHabitRestored;
+  const ArchivedHabitsModal({super.key, this.onHabitRestored});
 
   @override
   State<ArchivedHabitsModal> createState() => _ArchivedHabitsModalState();
@@ -80,11 +81,16 @@ class _ArchivedHabitsModalState extends State<ArchivedHabitsModal> {
                       ),
                       trailing: const Icon(Icons.restore, color: Colors.green),
                       onTap: () async {
-                        final success = await HabitService.activeHabit(habit.id);
+                        final success = await HabitService.activeHabit(
+                          habit.id,
+                        );
                         if (success) {
                           setState(() {
                             archivedHabits.removeAt(index);
                           });
+                          if (widget.onHabitRestored != null) {
+                            widget.onHabitRestored!();
+                          }
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Hábito restaurado com sucesso!'),
