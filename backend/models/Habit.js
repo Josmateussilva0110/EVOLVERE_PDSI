@@ -182,6 +182,35 @@ class Habit {
             return false
         }
     }
+
+    async uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders) {
+        try {
+            const updates = {
+                name,
+                description,
+                category_id,
+                frequency,
+                start_date,
+                end_date,
+                priority,
+                reminders
+            }
+
+            // Remove valor undefined ou null
+            Object.keys(updates).forEach(key => {
+                if (updates[key] === undefined || updates[key] === null) {
+                    delete updates[key]
+                }
+            })
+
+            await knex.table("habits").where({ id }).update(updates)
+            return true
+        } catch (err) {
+            console.log('erro em editar habito: ', err)
+            return false
+        }
+    }
+
 }
 
 module.exports = new Habit()

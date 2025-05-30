@@ -32,6 +32,7 @@ router.get("/habits/archived", HabitController.getHabitsArchived)
 router.delete("/habit/:id", HabitController.remove)
 router.post("/habit/archive/:id", HabitController.archiveHabit)
 router.post("/habit/active/:id", HabitController.setHabitToActive)
+router.patch("/habit/:id", HabitController.editHabit)
 
 
 module.exports = router
