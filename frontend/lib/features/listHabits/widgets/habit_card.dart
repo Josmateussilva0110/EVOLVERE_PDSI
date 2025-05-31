@@ -3,6 +3,7 @@ import '../model/HabitModel.dart';
 import 'habit_options_menu.dart';
 import '../services/list_habits_service.dart';
 import 'confirm_action_dialog.dart';
+import '../../Habits/model/HabitData.dart';
 
 class HabitCardWidget extends StatelessWidget {
   final Habit habit;
@@ -31,11 +32,24 @@ class HabitCardWidget extends StatelessWidget {
             Navigator.pop(context);
             await Navigator.pushNamed(
               context,
-              '/editar_habito',
-              arguments: habit,
+              '/cadastrar_habito',
+              arguments: HabitData(
+                habitName: habit.name,
+                description: habit.description,
+                frequencyData: {
+                  'option': habit.frequency.option,
+                  'value': habit.frequency.value,
+                },
+                startDate: habit.startDate,
+                endDate: habit.endDate,
+                reminders: habit.reminders ?? [],
+                priority: habit.priority,
+              ),
             );
+
             if (onHabitUpdated != null) onHabitUpdated!();
           },
+
           onArchive: () async {
             final confirm = await showConfirmActionDialog(
               context: context,
