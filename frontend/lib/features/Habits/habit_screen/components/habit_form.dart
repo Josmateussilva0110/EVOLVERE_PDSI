@@ -34,11 +34,6 @@ class _HabitFormState extends State<HabitForm> {
     super.initState();
     _nameController = TextEditingController(text: widget.habitName);
     _descriptionController = TextEditingController(text: widget.description);
-
-    // Prints de depuração
-    print('📝 Nome do hábito recebido: ${widget.habitName}');
-    print('📄 Descrição recebida: ${widget.description}');
-    print('📂 Categoria selecionada: ${widget.selectedCategory}');
   }
 
 

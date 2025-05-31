@@ -25,6 +25,7 @@ router.get("/categories/not_archived", CategoryController.getNotArchivedCategori
 router.get("/categories/archived", CategoryController.getArchivedCategories)
 router.patch("/category/:id/unarchive", CategoryController.unarchiveCategory)
 router.patch("/category/:id", CategoryController.updateCategory)
+router.get("/category/get_id/:name", CategoryController.getIdByName)
 router.post('/habit', HabitController.create)
 router.get("/habits", HabitController.getAllHabits)
 router.get("/habits/not_archived", HabitController.getHabitsNotArchived)

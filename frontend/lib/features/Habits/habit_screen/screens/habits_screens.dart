@@ -23,7 +23,10 @@ class _HabitScreenState extends State<HabitScreen> {
     super.initState();
     habitName = widget.habitData.habitName;
     description = widget.habitData.description;
-    selectedCategory = widget.habitData.selectedCategory; 
+    selectedCategory = widget.habitData.selectedCategory;
+    print(habitName);
+    print(description);
+    print(selectedCategory);
   }
 
   void _onCategorySelected(int category) {
@@ -56,8 +59,7 @@ class _HabitScreenState extends State<HabitScreen> {
     );
   }
 
-
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HabitsTheme.backgroundColor,
@@ -70,9 +72,10 @@ class _HabitScreenState extends State<HabitScreen> {
               child: HabitForm(
                 habitName: habitName,
                 description: description,
-                selectedCategory: selectedCategory, 
+                selectedCategory: selectedCategory,
                 onNameChanged: (value) => setState(() => habitName = value),
-                onDescriptionChanged: (value) => setState(() => description = value),
+                onDescriptionChanged:
+                    (value) => setState(() => description = value),
                 onCategorySelected: _onCategorySelected,
               ),
             ),

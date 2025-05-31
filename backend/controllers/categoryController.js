@@ -11,7 +11,7 @@ class CategoryController {
             return
         }
 
-        var valid = await Category.findCategoryName(name)
+        var valid = await Category.findCategoryByName(name)
         if(valid) {
             response.status(406)
             response.json({err: "categoria já existe."})
@@ -230,6 +230,17 @@ class CategoryController {
         } catch (error) {
             console.error("Erro ao atualizar categoria:", error);
             response.status(500).json({ err: "Erro interno ao atualizar categoria" });
+        }
+    }
+
+    async getIdByName(request, response) {
+        const name = request.params.name
+        var category_id = await Category.getIdByName(name)
+        if(category_id) {
+            response.status(200).json({ category_id })
+        }
+        else {
+            response.status(404).json({err: "Categoria não encontrada."})
         }
     }
 }

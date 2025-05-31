@@ -18,7 +18,7 @@ class Category {
         }
     }
     
-    async findCategoryName(name) {
+    async findCategoryByName(name) {
         try {
             var result = await knex.select("*").from("category").where({name: name})
             if(result.length > 0) {
@@ -30,6 +30,21 @@ class Category {
         } catch(err) {
             console.log('erro em buscar categoria: ', err)
             return false
+        }
+    }
+
+    async getIdByName(name) {
+        try {
+            var result = await knex.select(["id"]).from("category").where({name: name})
+            if(result.length > 0) {
+                return result[0].id
+            }
+            else {
+                return undefined
+            }
+        } catch(err) {
+            console.log('erro em buscar categoria: ', err)
+            return undefined
         }
     }
 
