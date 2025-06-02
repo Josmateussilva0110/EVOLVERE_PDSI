@@ -9,6 +9,8 @@ class HabitService {
       Uri.parse('${dotenv.env['API_URL']}/habits/not_archived'),
     );
 
+    print('RESPONSE BODY: ${response.body}');
+    
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       final List<dynamic> habitsList = decoded['habits'];

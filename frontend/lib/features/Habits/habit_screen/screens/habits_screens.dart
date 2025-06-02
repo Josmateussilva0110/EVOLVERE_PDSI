@@ -50,7 +50,9 @@ class _HabitScreenState extends State<HabitScreen> {
       habitName: habitName,
       description: description,
       selectedCategory: selectedCategory,
+      frequencyData: widget.habitData.frequencyData, 
     );
+
 
     Navigator.pushReplacementNamed(
       context,
