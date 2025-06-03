@@ -41,5 +41,22 @@ class HabitData {
       priority: priority ?? this.priority,
     );
   }
+
+  @override
+  String toString() {
+    return '''
+  HabitData(
+    habitName: $habitName,
+    description: $description,
+    selectedCategory: $selectedCategory,
+    frequencyData: $frequencyData,
+    startDate: $startDate,
+    endDate: $endDate,
+    reminders: ${reminders.map((d) => d.toIso8601String()).toList()},
+    priority: $priority
+  )
+  ''';
+  }
+
 }
 

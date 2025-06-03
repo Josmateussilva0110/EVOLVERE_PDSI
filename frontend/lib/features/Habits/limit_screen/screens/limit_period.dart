@@ -12,7 +12,6 @@ class TermScreen extends StatefulWidget {
 
   const TermScreen({Key? key, required this.habitData}) : super(key: key);
 
-
   @override
   _TermScreenState createState() => _TermScreenState();
 }
@@ -26,6 +25,8 @@ class _TermScreenState extends State<TermScreen> {
   void initState() {
     super.initState();
     habitData = widget.habitData;
+    priority = habitData.priority ?? 2;
+    print('Hábito final: $habitData');
   }
 
   String getPriorityLabel(int value) {
@@ -41,11 +42,19 @@ class _TermScreenState extends State<TermScreen> {
     }
   }
 
-  void _selectDate(Function(DateTime) onDateSelected) async {
+  void _selectDate({
+    required DateTime? initial,
+    required Function(DateTime) onDateSelected,
+  }) async {
+    final now = DateTime.now();
+    final initialDate = initial ?? now;
+
+    final firstDate = initialDate.isBefore(now) ? initialDate : now;
+
     DateTime? date = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now(),
+      initialDate: initialDate,
+      firstDate: firstDate,
       lastDate: DateTime(2100),
       builder: (context, child) {
         return Theme(
@@ -68,6 +77,7 @@ class _TermScreenState extends State<TermScreen> {
       });
     }
   }
+
 
   void _selectPriority() {
     final options = {1: 'Alta', 2: 'Normal', 3: 'Baixa'};
@@ -104,7 +114,7 @@ class _TermScreenState extends State<TermScreen> {
   Future<void> _addReminder(BuildContext context) async {
     final now = DateTime.now();
     final startDate = habitData.startDate ?? now;
-    final endDate = habitData.endDate ?? DateTime(2100); 
+    final endDate = habitData.endDate ?? DateTime(2100);
 
     final selectedDate = await showDatePicker(
       context: context,
@@ -163,6 +173,7 @@ class _TermScreenState extends State<TermScreen> {
       habitData.reminders.add(reminder);
     });
   }
+
   void _removeReminder(DateTime reminder) {
     setState(() {
       habitData.reminders.remove(reminder);
@@ -170,10 +181,11 @@ class _TermScreenState extends State<TermScreen> {
   }
 
   void _clearEndDate() {
-  setState(() {
-    habitData.endDate = null;
-  });
-}
+    setState(() {
+      habitData.endDate = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -190,11 +202,20 @@ class _TermScreenState extends State<TermScreen> {
                   Appbody(title: 'Quando você quer fazer isso ?'),
                   SizedBox(height: 24),
                   LimitPeriodForm(
+                    startDate: habitData.startDate,
                     priority: getPriorityLabel(priority),
                     reminders: habitData.reminders,
                     endDate: habitData.endDate,
-                    onSelectedStartDate: () => _selectDate((date) => habitData.startDate = date),
-                    onSelectedEndDate: () => _selectDate((date) => habitData.endDate = date),
+                    onSelectedStartDate:
+                        () => _selectDate(
+                          initial: habitData.startDate,
+                          onDateSelected: (date) => habitData.startDate = date,
+                        ),
+                    onSelectedEndDate:
+                        () => _selectDate(
+                          initial: habitData.endDate,
+                          onDateSelected: (date) => habitData.endDate = date,
+                        ),
                     onClearEndDate: _clearEndDate,
                     onSelectedReminders: () => _addReminder(context),
                     onSelectedPriority: _selectPriority,
@@ -214,12 +235,12 @@ class _TermScreenState extends State<TermScreen> {
               //print('prioridade (label): ${getPriorityLabel(habitData.priority!)}');
               final errorMessage = await HabitService.createHabit(habitData);
               if (errorMessage == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                      content: Text('Hábito cadastrada com sucesso!'),
-                      backgroundColor: Colors.green,
+                    content: Text('Hábito cadastrada com sucesso!'),
+                    backgroundColor: Colors.green,
                   ),
-                  );
+                );
                 Navigator.pushReplacementNamed(context, '/listar_habitos');
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
