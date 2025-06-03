@@ -39,6 +39,7 @@ class HabitCardWidget extends StatelessWidget {
               context,
               '/cadastrar_habito',
               arguments: HabitData(
+                habitId: habit.id,
                 habitName: habit.name,
                 description: habit.description,
                 selectedCategory: categoryId,

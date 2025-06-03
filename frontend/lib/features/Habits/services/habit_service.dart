@@ -33,10 +33,6 @@ class HabitService {
       if (habitData.selectedCategory != null)
         'category_id': habitData.selectedCategory,
     };
-
-
-
-
     try {
       final response = await http.post(
         url,
@@ -54,4 +50,6 @@ class HabitService {
       return 'Erro de conexão: $e';
     }
   }
+
+
 }

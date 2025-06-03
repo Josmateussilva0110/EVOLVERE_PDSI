@@ -14,6 +14,7 @@ class HabitScreen extends StatefulWidget {
 }
 
 class _HabitScreenState extends State<HabitScreen> {
+  int? habitId;
   String habitName = '';
   String description = '';
   int? selectedCategory;
@@ -22,10 +23,12 @@ class _HabitScreenState extends State<HabitScreen> {
   @override
   void initState() {
     super.initState();
+    habitId = widget.habitData.habitId;
     habitName = widget.habitData.habitName;
     description = widget.habitData.description;
     selectedCategory = widget.habitData.selectedCategory;
     frequencyData = Map.from(widget.habitData.frequencyData);
+    print(habitId);
     print(habitName);
     print(description);
     print(selectedCategory);
@@ -56,6 +59,7 @@ class _HabitScreenState extends State<HabitScreen> {
     }
 
     final updatedHabitData = widget.habitData.copyWith(
+      habitId: habitId,
       habitName: habitName,
       description: description,
       selectedCategory: selectedCategory,
@@ -82,6 +86,7 @@ class _HabitScreenState extends State<HabitScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: HabitForm(
+                habitId: habitId,
                 habitName: habitName,
                 description: description,
                 selectedCategory: selectedCategory,

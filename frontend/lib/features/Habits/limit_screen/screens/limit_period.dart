@@ -78,7 +78,6 @@ class _TermScreenState extends State<TermScreen> {
     }
   }
 
-
   void _selectPriority() {
     final options = {1: 'Alta', 2: 'Normal', 3: 'Baixa'};
     showModalBottomSheet(
@@ -232,6 +231,7 @@ class _TermScreenState extends State<TermScreen> {
                   '/cadastrar_frequencia',
                 ),
             onNext: () async {
+              print('push: ${habitData.toString()}');
               //print('prioridade (label): ${getPriorityLabel(habitData.priority!)}');
               final errorMessage = await HabitService.createHabit(habitData);
               if (errorMessage == null) {

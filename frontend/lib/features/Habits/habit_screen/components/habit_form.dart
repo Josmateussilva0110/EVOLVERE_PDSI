@@ -4,6 +4,7 @@ import '../widgets/habit_text_field.dart';
 import '../widgets/category_grid.dart';
 
 class HabitForm extends StatefulWidget {
+  final int? habitId;
   final String habitName;
   final String description;
   final int? selectedCategory;
@@ -14,13 +15,14 @@ class HabitForm extends StatefulWidget {
 
   const HabitForm({
     Key? key,
+    required this.habitId,
     required this.habitName,
     required this.description,
     required this.selectedCategory,
     required this.onNameChanged,
     required this.onDescriptionChanged,
     required this.onCategorySelected,
-    required this.onFrequencyDataChanged
+    required this.onFrequencyDataChanged,
   }) : super(key: key);
 
   @override
@@ -37,7 +39,6 @@ class _HabitFormState extends State<HabitForm> {
     _nameController = TextEditingController(text: widget.habitName);
     _descriptionController = TextEditingController(text: widget.description);
   }
-
 
   @override
   void dispose() {

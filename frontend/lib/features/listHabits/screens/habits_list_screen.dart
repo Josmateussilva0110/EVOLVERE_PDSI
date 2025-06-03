@@ -130,7 +130,6 @@ class _HabitsListPageState extends State<HabitsListPage> {
                       );
                     } else {
                       final habits = snapshot.data!;
-                      print('habits: ${habits}');
                       return ListView.builder(
                         itemCount: habits.length,
                         itemBuilder: (context, index) {
