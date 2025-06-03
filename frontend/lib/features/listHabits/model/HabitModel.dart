@@ -52,17 +52,18 @@ class Frequency {
   Frequency({required this.value, required this.option});
 
   factory Frequency.fromJson(Map<String, dynamic> json) {
-    final value = json['value'];
-    dynamic parsedValue;
+  final value = json['value'];
+  dynamic parsedValue;
 
-    if (value is List) {
-      parsedValue = value;
-    } else if (value is Map) {
-      parsedValue = Map<String, dynamic>.from(value);
-    } else {
-      parsedValue = null;
-    }
-
-    return Frequency(value: parsedValue, option: json['option']);
+  if (value is List) {
+    parsedValue = value;
+  } else if (value is Map) {
+    parsedValue = Map<String, dynamic>.from(value);
+  } else {
+    parsedValue = value; 
   }
+
+  return Frequency(value: parsedValue, option: json['option']);
+}
+
 }

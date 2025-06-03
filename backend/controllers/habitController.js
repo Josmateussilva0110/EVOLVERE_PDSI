@@ -56,7 +56,6 @@ class HabitController {
         const habits = await Habit.findNotArchived()
 
         if (habits && habits.length > 0) {
-            console.log(habits)
             response.status(200).json({ habits })
         } else {
             response.status(404).json({ err: "Nenhum hábito encontrado." })

@@ -54,17 +54,21 @@ class _FrequencyFormState extends State<FrequencyForm> {
 
       case 'dias_especificos_ano':
         final raw = widget.frequencyData['value'];
-        final dates =
-            (raw is List && raw.isNotEmpty)
-                ? raw
-                    .map((e) => e is String ? DateTime.parse(e) : e as DateTime)
-                    .toList()
-                : <DateTime>[];
+        final dates = (raw is List)
+            ? raw
+                .map((e) {
+                  if (e is DateTime) return e;
+                  if (e is String) return DateTime.tryParse(e);
+                  return null;
+                })
+                .whereType<DateTime>()
+                .toList()
+            : <DateTime>[];
+
         FrequencyPickers.showYearDaysPicker(
           context,
           dates,
-          (dates) =>
-              widget.onFrequencyDataChanged({'option': type, 'value': dates}),
+          (dates) => widget.onFrequencyDataChanged({'option': type, 'value': dates}),
         );
         break;
 
@@ -140,11 +144,17 @@ class _FrequencyFormState extends State<FrequencyForm> {
                 if (value == 'repetir') {
                   // Se já existe um valor válido, mantém ele
                   final currentValue = widget.frequencyData['value'];
-                  print('current value: ${currentValue}');
-                  final validValue =
-                      (currentValue is int && currentValue > 0)
-                          ? currentValue
-                          : 1;
+                  int validValue = 1;
+
+                  if (currentValue is int && currentValue > 0) {
+                    validValue = currentValue;
+                  } else if (currentValue is String) {
+                    final parsed = int.tryParse(currentValue);
+                    if (parsed != null && parsed > 0) {
+                      validValue = parsed;
+                    }
+                  }
+
                   print('VALID VALUE: ${validValue}');
 
                   widget.onFrequencyDataChanged({

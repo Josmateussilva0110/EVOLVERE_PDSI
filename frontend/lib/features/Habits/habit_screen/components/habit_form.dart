@@ -10,6 +10,7 @@ class HabitForm extends StatefulWidget {
   final ValueChanged<String> onNameChanged;
   final ValueChanged<String> onDescriptionChanged;
   final ValueChanged<int> onCategorySelected;
+  final ValueChanged<Map<String, dynamic>> onFrequencyDataChanged;
 
   const HabitForm({
     Key? key,
@@ -19,6 +20,7 @@ class HabitForm extends StatefulWidget {
     required this.onNameChanged,
     required this.onDescriptionChanged,
     required this.onCategorySelected,
+    required this.onFrequencyDataChanged
   }) : super(key: key);
 
   @override
