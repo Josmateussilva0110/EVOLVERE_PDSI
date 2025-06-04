@@ -1,4 +1,8 @@
 var knex = require("../database/connection")
+const formatDateForMySQL = require("../utils/format_date")
+
+
+
 
 class Habit {
 
@@ -189,11 +193,11 @@ class Habit {
                 name,
                 description,
                 category_id,
-                frequency,
-                start_date,
-                end_date,
+                frequency: frequency ? JSON.stringify(frequency) : undefined,
+                start_date: start_date ? formatDateForMySQL(start_date) : undefined,
+                end_date: end_date ? formatDateForMySQL(end_date) : undefined,
                 priority,
-                reminders
+                reminders: reminders ? JSON.stringify(reminders) : undefined
             }
 
             // Remove valor undefined ou null

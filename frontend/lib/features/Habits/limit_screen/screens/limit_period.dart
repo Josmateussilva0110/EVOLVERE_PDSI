@@ -231,26 +231,29 @@ class _TermScreenState extends State<TermScreen> {
                   '/cadastrar_frequencia',
                 ),
             onNext: () async {
-              print('push: ${habitData.toString()}');
-              //print('prioridade (label): ${getPriorityLabel(habitData.priority!)}');
-              final errorMessage = await HabitService.createHabit(habitData);
-              if (errorMessage == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Hábito cadastrada com sucesso!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                Navigator.pushReplacementNamed(context, '/listar_habitos');
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(errorMessage),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
+            final isEditing = habitData.habitId != null;
+
+            final errorMessage = isEditing
+                ? await HabitService.editHabit(habitData)
+                : await HabitService.createHabit(habitData);
+
+            if (errorMessage == null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(isEditing ? 'Hábito editado com sucesso!' : 'Hábito cadastrado com sucesso!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              Navigator.pushReplacementNamed(context, '/listar_habitos');
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(errorMessage),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          },
             previousLabel: 'Anterior',
             nextLabel: 'Criar Hábito',
             currentIndex: 2,
