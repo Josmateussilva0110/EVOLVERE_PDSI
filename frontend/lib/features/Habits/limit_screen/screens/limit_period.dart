@@ -26,7 +26,6 @@ class _TermScreenState extends State<TermScreen> {
     super.initState();
     habitData = widget.habitData;
     priority = habitData.priority ?? 2;
-    print('Hábito final: $habitData');
   }
 
   String getPriorityLabel(int value) {
@@ -187,6 +186,7 @@ class _TermScreenState extends State<TermScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = habitData.habitId != null;
     return Scaffold(
       backgroundColor: const Color(0xFF121217),
       appBar: HeaderAppBar(title: 'Definir Prazo'),
@@ -229,9 +229,9 @@ class _TermScreenState extends State<TermScreen> {
                 () => Navigator.pushReplacementNamed(
                   context,
                   '/cadastrar_frequencia',
+                  arguments: habitData,
                 ),
             onNext: () async {
-            final isEditing = habitData.habitId != null;
 
             final errorMessage = isEditing
                 ? await HabitService.editHabit(habitData)
@@ -255,7 +255,7 @@ class _TermScreenState extends State<TermScreen> {
             }
           },
             previousLabel: 'Anterior',
-            nextLabel: 'Criar Hábito',
+            nextLabel: isEditing ? 'Editar Hábito' : 'Criar Hábito',
             currentIndex: 2,
           ),
         ],

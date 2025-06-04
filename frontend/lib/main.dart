@@ -42,7 +42,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'App com Rotas',
       initialRoute: '/',
-      // Você pode manter o routes para as rotas simples
       routes: {
         '/': (context) => WelcomeScreen(),
         '/inicio': (context) => HomeScreen(),
@@ -59,13 +58,10 @@ class _MyAppState extends State<MyApp> {
         switch (settings.name) {
           case '/cadastrar_habito':
             final args = settings.arguments;
-            print('📦 Argumentos recebidos em /cadastrar_habito: $args');
             if (args is HabitData) {
               return MaterialPageRoute(
                 builder: (_) => HabitScreen(habitData: args),
               );
-            } else {
-              print('⚠️ Argumento não é do tipo HabitData!');
             }
             return MaterialPageRoute(
               builder: (_) => HabitScreen(habitData: HabitData()),

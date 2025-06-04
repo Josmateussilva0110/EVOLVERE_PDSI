@@ -27,7 +27,9 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
         return value is int ? value : int.tryParse(value.toString()) ?? 1;
 
       case 'algumas_vezes_periodo':
-        if (value is Map && value['vezes'] != null && value['periodo'] != null) {
+        if (value is Map &&
+            value['vezes'] != null &&
+            value['periodo'] != null) {
           return {
             'vezes': int.tryParse(value['vezes'].toString()) ?? 1,
             'periodo': value['periodo'].toString().toUpperCase(),
@@ -37,11 +39,14 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
 
       case 'dias_especificos_ano':
         if (value is List) {
-          return value.map((e) {
-            if (e is DateTime) return e;
-            if (e is String) return DateTime.tryParse(e);
-            return null;
-          }).where((e) => e != null).toList();
+          return value
+              .map((e) {
+                if (e is DateTime) return e;
+                if (e is String) return DateTime.tryParse(e);
+                return null;
+              })
+              .where((e) => e != null)
+              .toList();
         }
         return [];
 
@@ -54,7 +59,6 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
     }
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -63,22 +67,17 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
 
     // Clonar e normalizar o frequencyData
     final raw = habitData.frequencyData;
-    final normalizedValue = _normalizeFrequencyValue(raw['option'], raw['value']);
+    final normalizedValue = _normalizeFrequencyValue(
+      raw['option'],
+      raw['value'],
+    );
 
-    frequencyData = {
-      'option': raw['option'],
-      'value': normalizedValue,
-    };
-
-    print('INIT frequencyData: $frequencyData');
+    frequencyData = {'option': raw['option'], 'value': normalizedValue};
   }
-
 
   bool _isFrequencyValid(Map<String, dynamic> data) {
     final option = data['option'];
     final value = data['value'];
-    print('OPTION: ${option}');
-    print('VALUE: ${value}');
 
     if (option == null) return false;
 
@@ -93,7 +92,8 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
         return value is List &&
             value.isNotEmpty &&
             (value.first is DateTime ||
-            (value.first is String && DateTime.tryParse(value.first) != null));
+                (value.first is String &&
+                    DateTime.tryParse(value.first) != null));
 
       case 'algumas_vezes_periodo':
         return value is Map &&
@@ -132,15 +132,15 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
             ),
           ),
           FrequencyBottomNavigation(
-            onPrevious:
-                () => Navigator.pushReplacementNamed(
-                  context,
-                  '/cadastrar_habito',
-                ),
+            onPrevious: () {
+              Navigator.pushReplacementNamed(
+                context,
+                '/cadastrar_habito',
+                arguments: habitData,
+              );
+            },
             onNext: () {
-              print('FREQUENCY: ${frequencyData}');
               final valid = _isFrequencyValid(frequencyData);
-              print('VALID: ${valid}');
               if (!valid) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

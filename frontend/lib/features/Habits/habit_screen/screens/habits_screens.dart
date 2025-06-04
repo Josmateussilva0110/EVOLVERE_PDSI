@@ -28,11 +28,6 @@ class _HabitScreenState extends State<HabitScreen> {
     description = widget.habitData.description;
     selectedCategory = widget.habitData.selectedCategory;
     frequencyData = Map.from(widget.habitData.frequencyData);
-    print(habitId);
-    print(habitName);
-    print(description);
-    print(selectedCategory);
-    print(frequencyData);
   }
 
   void _onFrequencyDataChanged(Map<String, dynamic> newData) {
@@ -65,8 +60,6 @@ class _HabitScreenState extends State<HabitScreen> {
       selectedCategory: selectedCategory,
       frequencyData: frequencyData,
     );
-
-    print('Value: ${updatedHabitData.frequencyData['value']}');
 
     Navigator.pushReplacementNamed(
       context,

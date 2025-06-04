@@ -54,21 +54,23 @@ class _FrequencyFormState extends State<FrequencyForm> {
 
       case 'dias_especificos_ano':
         final raw = widget.frequencyData['value'];
-        final dates = (raw is List)
-            ? raw
-                .map((e) {
-                  if (e is DateTime) return e;
-                  if (e is String) return DateTime.tryParse(e);
-                  return null;
-                })
-                .whereType<DateTime>()
-                .toList()
-            : <DateTime>[];
+        final dates =
+            (raw is List)
+                ? raw
+                    .map((e) {
+                      if (e is DateTime) return e;
+                      if (e is String) return DateTime.tryParse(e);
+                      return null;
+                    })
+                    .whereType<DateTime>()
+                    .toList()
+                : <DateTime>[];
 
         FrequencyPickers.showYearDaysPicker(
           context,
           dates,
-          (dates) => widget.onFrequencyDataChanged({'option': type, 'value': dates}),
+          (dates) =>
+              widget.onFrequencyDataChanged({'option': type, 'value': dates}),
         );
         break;
 
@@ -94,9 +96,8 @@ class _FrequencyFormState extends State<FrequencyForm> {
 
       case 'repetir':
         var raw = widget.frequencyData['value'];
-        print('RAW: $raw');
 
-        // Tenta converter para int, se possível
+        // converter para int
         int vezes = 1;
         if (raw is int && raw > 0) {
           vezes = raw;
@@ -104,18 +105,12 @@ class _FrequencyFormState extends State<FrequencyForm> {
           vezes = int.tryParse(raw) ?? 1;
         }
 
-        // Agora exibe o seletor com valor seguro
-        FrequencyPickers.showRepeatPicker(
-          context,
-          vezes,
-          (novoValor) {
-            if (novoValor > 0) {
-              widget.onFrequencyDataChanged({'option': type, 'value': novoValor});
-            }
-          },
-        );
+        FrequencyPickers.showRepeatPicker(context, vezes, (novoValor) {
+          if (novoValor > 0) {
+            widget.onFrequencyDataChanged({'option': type, 'value': novoValor});
+          }
+        });
         break;
-
 
       default:
         widget.onFrequencyDataChanged({'option': type, 'value': null});
@@ -154,8 +149,6 @@ class _FrequencyFormState extends State<FrequencyForm> {
                       validValue = parsed;
                     }
                   }
-
-                  print('VALID VALUE: ${validValue}');
 
                   widget.onFrequencyDataChanged({
                     'option': value,
