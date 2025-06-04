@@ -5,7 +5,7 @@ import '../../services/category_service.dart';
 class CategoryGrid extends StatefulWidget {
   final int? selectedCategory;
   final Function(int) onCategorySelected;
-  final VoidCallback? onAddCategory;
+  final Future<bool> Function()? onAddCategory;
 
   const CategoryGrid({
     Key? key,
@@ -83,15 +83,19 @@ class _CategoryGridState extends State<CategoryGrid> {
                 category: category['category'],  
                 isSelected: widget.selectedCategory != null &&
                             widget.selectedCategory == category['category'],
-                onSelect: (selected) {
-                  if (isAddButton && widget.onAddCategory != null) {
-                    widget.onAddCategory!();
-                  } else {
-                    if (selected is int) {
-                      widget.onCategorySelected(selected);
-                    }
+                onSelect: (selected) async {
+                if (isAddButton && widget.onAddCategory != null) {
+                  final result = await widget.onAddCategory!(); 
+                  if (result == true) {
+                    _fetchCategories(); 
                   }
-                },
+                } else {
+                  if (selected is int) {
+                    widget.onCategorySelected(selected);
+                  }
+                }
+              },
+
               );
 
           }).toList(),

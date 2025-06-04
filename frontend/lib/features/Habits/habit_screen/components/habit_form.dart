@@ -71,9 +71,11 @@ class _HabitFormState extends State<HabitForm> {
         CategoryGrid(
           selectedCategory: widget.selectedCategory,
           onCategorySelected: widget.onCategorySelected,
-          onAddCategory: () {
-            Navigator.pushNamed(context, '/cadastro_categoria');
+          onAddCategory: () async {
+            final result = await Navigator.pushNamed(context, '/cadastro_categoria');
+            return result == true;
           },
+
         ),
       ],
     );
