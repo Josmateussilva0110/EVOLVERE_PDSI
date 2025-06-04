@@ -28,6 +28,12 @@ class _HabitScreenState extends State<HabitScreen> {
     description = widget.habitData.description;
     selectedCategory = widget.habitData.selectedCategory;
     frequencyData = Map.from(widget.habitData.frequencyData);
+    if (selectedCategory is String) {
+      selectedCategory = int.tryParse(selectedCategory as String);
+    }
+    print(
+      'selectedCategory: $selectedCategory, type: ${selectedCategory.runtimeType}',
+    );
   }
 
   void _onFrequencyDataChanged(Map<String, dynamic> newData) {
@@ -36,13 +42,18 @@ class _HabitScreenState extends State<HabitScreen> {
     });
   }
 
-  void _onCategorySelected(int category) {
+  void _onCategorySelected(int? category) {
     setState(() {
-      selectedCategory = selectedCategory == category ? null : category;
+      if (selectedCategory == category) {
+        selectedCategory = null;
+      } else {
+        selectedCategory = category;
+      }
     });
   }
 
   void _goToFrequency() {
+    print('category: ${selectedCategory}');
     if (habitName.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

@@ -4,7 +4,7 @@ import '../../services/category_service.dart';
 
 class CategoryGrid extends StatefulWidget {
   final int? selectedCategory;
-  final Function(int) onCategorySelected;
+  final ValueChanged<int?> onCategorySelected;
   final Future<bool> Function()? onAddCategory;
 
   const CategoryGrid({
@@ -40,14 +40,14 @@ class _CategoryGridState extends State<CategoryGrid> {
     }
     return {
       ...cat,
-      'category': catInt ?? catValue, 
+      'category': catInt,
     };
   }).toList();
 
   final addCategoryButton = {
     'icon': Icons.add,
     'label': 'Mais',
-    'category': 'mais',
+    'category': null,
   };
 
   setState(() {
@@ -75,19 +75,19 @@ class _CategoryGridState extends State<CategoryGrid> {
       runSpacing: 8,
       children:
           categories.map((category) {
-            final isAddButton = category['category'] == 'mais';
+            final isAddButton = category['category'] == null;
 
             return CategoryButton(
-                icon: _buildIcon(category['icon']),
-                label: category['label'] as String,
-                category: category['category'],  
-                isSelected: widget.selectedCategory != null &&
-                            widget.selectedCategory == category['category'],
-                onSelect: (selected) async {
+              icon: _buildIcon(category['icon']),
+              label: category['label'] as String,
+              category: category['category'],  
+              isSelected: widget.selectedCategory != null &&
+                          widget.selectedCategory == category['category'],
+              onSelect: (selected) async {
                 if (isAddButton && widget.onAddCategory != null) {
-                  final result = await widget.onAddCategory!(); 
+                  final result = await widget.onAddCategory!();
                   if (result == true) {
-                    _fetchCategories(); 
+                    _fetchCategories();
                   }
                 } else {
                   if (selected is int) {
@@ -95,8 +95,8 @@ class _CategoryGridState extends State<CategoryGrid> {
                   }
                 }
               },
+            );
 
-              );
 
           }).toList(),
     );

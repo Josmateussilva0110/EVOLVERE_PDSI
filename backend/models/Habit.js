@@ -197,7 +197,8 @@ class Habit {
                 start_date: start_date ? formatDateForMySQL(start_date) : undefined,
                 end_date: end_date ? formatDateForMySQL(end_date) : undefined,
                 priority,
-                reminders: reminders ? JSON.stringify(reminders) : undefined
+                reminders: reminders ? JSON.stringify(reminders) : undefined,
+                updated_at: knex.fn.now()
             }
 
             // Remove valor undefined ou null

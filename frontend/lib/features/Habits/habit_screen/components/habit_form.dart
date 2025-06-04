@@ -10,7 +10,7 @@ class HabitForm extends StatefulWidget {
   final int? selectedCategory;
   final ValueChanged<String> onNameChanged;
   final ValueChanged<String> onDescriptionChanged;
-  final ValueChanged<int> onCategorySelected;
+  final ValueChanged<int?> onCategorySelected;
   final ValueChanged<Map<String, dynamic>> onFrequencyDataChanged;
 
   const HabitForm({
