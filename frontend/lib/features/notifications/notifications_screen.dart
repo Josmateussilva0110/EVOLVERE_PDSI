@@ -113,7 +113,7 @@ class NotificationsScreen extends StatelessWidget {
       ),
     );
   }
-
+     
   Widget _buildNotificationItem(
     String title,
     String subtitle,
