@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MaterialApp(
-    home: TelaPerfil(),
-    debugShowCheckedModeBanner: false,
-  ));
+  runApp(
+    const MaterialApp(home: TelaPerfil(), debugShowCheckedModeBanner: false),
+  );
 }
 
 class TelaPerfil extends StatelessWidget {
@@ -17,10 +16,13 @@ class TelaPerfil extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        actions: const [
+        actions: [
           Padding(
             padding: EdgeInsets.only(right: 16.0),
-            child: Icon(Icons.settings, color: Colors.white),
+            child: IconButton(
+              icon: Icon(Icons.settings, color: Colors.white),
+              onPressed: () => _mostrarOpcoesPerfil(context),
+            ),
           ),
         ],
       ),
@@ -34,9 +36,9 @@ class TelaPerfil extends StatelessWidget {
                 radius: 70, // Aumente este valor para um círculo maior (era 40)
                 backgroundColor: Color(0xFF2C2C2C),
                 child: Icon(
-                  Icons.person, 
+                  Icons.person,
                   size: 100, // Aumente este valor para um ícone maior (era 40)
-                  color: Colors.white
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: 20),
@@ -45,7 +47,7 @@ class TelaPerfil extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 60,
-                  fontWeight: FontWeight.bold
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               const Text(
@@ -97,6 +99,29 @@ class TelaPerfil extends StatelessWidget {
       ),
     );
   }
+
+  void _mostrarOpcoesPerfil(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return Container(
+          color: const Color(0xFF1C1F26), // Cor de fundo do modal
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.edit, color: Colors.white),
+                title: Text(
+                  'Editar Perfil',
+                  style: TextStyle(color: Colors.white),
+                ),
+                onTap: () => {},
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class CardInfo extends StatelessWidget {
@@ -106,8 +131,8 @@ class CardInfo extends StatelessWidget {
   final Color iconColor;
 
   const CardInfo({
-    super.key, 
-    required this.title, 
+    super.key,
+    required this.title,
     required this.value,
     this.icon,
     this.iconColor = Colors.white,
@@ -128,19 +153,14 @@ class CardInfo extends StatelessWidget {
           // Ícone e número na mesma linha
           Row(
             children: [
-              if (icon != null)
-                Icon(
-                  icon,
-                  color: iconColor,
-                  size: 24,
-                ),
+              if (icon != null) Icon(icon, color: iconColor, size: 24),
               const SizedBox(width: 8),
               Text(
                 value,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 24,
-                  fontWeight: FontWeight.bold
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
@@ -149,10 +169,7 @@ class CardInfo extends StatelessWidget {
           // Título abaixo
           Text(
             title,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-            ),
+            style: const TextStyle(color: Colors.white70, fontSize: 13),
           ),
         ],
       ),

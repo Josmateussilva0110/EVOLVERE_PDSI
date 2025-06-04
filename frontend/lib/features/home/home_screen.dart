@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../notifications/notifications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -8,11 +8,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _showDrawer = false;
+  int _selectedIndex = 0;
 
   void _toggleDrawer() {
     setState(() {
       _showDrawer = !_showDrawer;
     });
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => NotificationsScreen()),
+      );
+    }
   }
 
   @override
@@ -56,7 +69,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       SizedBox(width: 15),
-                      Expanded(child: _statCard('Hábitos Completados', '3', height: 100, topPadding: 21)),
+                      Expanded(
+                        child: _statCard(
+                          'Hábitos Completados',
+                          '3',
+                          height: 100,
+                          topPadding: 21,
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 10),
@@ -151,14 +171,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         Divider(color: Colors.white24),
                         _drawerItem(Icons.person, 'Conta', () {
-                          Navigator.pushNamedAndRemoveUntil(context, '/perfil', ModalRoute.withName('/inicio'));
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/perfil',
+                            ModalRoute.withName('/inicio'),
+                          );
                         }),
                         _drawerItem(Icons.category, 'Categorias', () {
-                          Navigator.pushNamedAndRemoveUntil(context, '/listar_categorias', ModalRoute.withName('/inicio'));
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/listar_categorias',
+                            ModalRoute.withName('/inicio'),
+                          );
                         }),
 
                         _drawerItem(Icons.check_box, 'Hábitos', () {
-                          Navigator.pushNamedAndRemoveUntil(context, '/listar_habitos', ModalRoute.withName('/inicio'));
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/listar_habitos',
+                            ModalRoute.withName('/inicio'),
+                          );
                         }),
                         _drawerItem(Icons.settings, 'Configurações', () {
                           //tela não criada
@@ -175,10 +207,11 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor:
-            Colors.grey[900], // tom de cinza escuro como no exemplo enviado
+        backgroundColor: Colors.grey[900],
         selectedItemColor: Colors.white,
         unselectedItemColor: Colors.grey[400],
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.menu), label: 'Menu'),
           BottomNavigationBarItem(
