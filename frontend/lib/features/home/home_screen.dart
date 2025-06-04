@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../notifications/notifications_screen.dart';
+import 'notifications_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override

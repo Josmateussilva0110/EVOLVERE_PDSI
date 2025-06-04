@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../user/screens/edit_profile_screen.dart';
 
 void main() {
   runApp(
@@ -114,7 +115,16 @@ class TelaPerfil extends StatelessWidget {
                   'Editar Perfil',
                   style: TextStyle(color: Colors.white),
                 ),
-                onTap: () => {},
+                onTap: () {
+                  Navigator.pop(context); // Fechar o modal bottom sheet
+                  Navigator.push(
+                    // Navegar para a tela de edição
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditProfileScreen(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
