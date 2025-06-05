@@ -155,6 +155,7 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
 
               final updatedHabitData = habitData.copyWith(
                 frequencyData: frequencyData,
+                selectedCategory: habitData.selectedCategory,
               );
 
               Navigator.pushReplacementNamed(

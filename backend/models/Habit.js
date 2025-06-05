@@ -203,11 +203,10 @@ class Habit {
 
             // Remove valor undefined ou null
             Object.keys(updates).forEach(key => {
-                if (updates[key] === undefined || updates[key] === null) {
+                if (updates[key] === undefined) {
                     delete updates[key]
                 }
             })
-
             await knex.table("habits").where({ id }).update(updates)
             return true
         } catch (err) {

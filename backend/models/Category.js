@@ -144,7 +144,7 @@ class Category {
 
     async update(id, name, description, color, icon) {
         try {
-            const updateData = { name, description, color };
+            const updateData = { name, description, color, updated_at: knex.fn.now()};
             if (icon !== undefined) {
                 updateData.icon = icon;
             }

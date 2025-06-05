@@ -84,17 +84,22 @@ class _CategoryGridState extends State<CategoryGrid> {
               isSelected: widget.selectedCategory != null &&
                           widget.selectedCategory == category['category'],
               onSelect: (selected) async {
-                if (isAddButton && widget.onAddCategory != null) {
-                  final result = await widget.onAddCategory!();
-                  if (result == true) {
-                    _fetchCategories();
-                  }
-                } else {
-                  if (selected is int) {
-                    widget.onCategorySelected(selected);
+              if (isAddButton && widget.onAddCategory != null) {
+                final result = await widget.onAddCategory!();
+                if (result == true) {
+                  _fetchCategories();
+                }
+              } else {
+                if (selected is int) {
+                  if (widget.selectedCategory == selected) {
+                    widget.onCategorySelected(null); // desmarcar
+                  } else {
+                    widget.onCategorySelected(selected); // selecionar nova
                   }
                 }
-              },
+              }
+            },
+
             );
 
 
