@@ -10,6 +10,9 @@ void main() {
 class TelaPerfil extends StatelessWidget {
   const TelaPerfil({super.key});
 
+  // TODO: Obter o ID do usuário logado dinamicamente
+  final int _loggedInUserId = 1; // Placeholder para o ID do usuário logado
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,10 +121,12 @@ class TelaPerfil extends StatelessWidget {
                 onTap: () {
                   Navigator.pop(context); // Fechar o modal bottom sheet
                   Navigator.push(
-                    // Navegar para a tela de edição
                     context,
                     MaterialPageRoute(
-                      builder: (context) => EditProfileScreen(),
+                      builder:
+                          (context) => EditProfileScreen(
+                            userId: _loggedInUserId,
+                          ), // Passar o ID para a tela de edição
                     ),
                   );
                 },

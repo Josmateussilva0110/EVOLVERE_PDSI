@@ -70,40 +70,31 @@ class User {
     }
 
     async update(id, username, email) {
-        var user = await this.findById(id)
-        if(user != undefined) {
-            var editUser = {}
-            if(email != undefined) {
-                if(email != user.email) {
-                    var result = await this.findEmail(email)
-                    if(result == false) {
-                        editUser.email = email
-                    }
-                    else {
-                        return {status: false, err: 'email já existe.'}
-                    }
+        const user = await this.findById(id);
+        if (user) {
+            const editUser = {};
+            if (email && email !== user.email) {
+                const emailExists = await this.findEmail(email);
+                if (emailExists) {
+                    return { status: false, err: "Email já existe" };
                 }
+                editUser.email = email;
             }
-            if(username != undefined) {
-                editUser.username = username
+            if (username) {
+                editUser.username = username;
             }
-
 
             try {
-                await knex.update(editUser).where({id: id}).table("users")
-                return {status: true}
-            } catch(err) {
-                console.log('erro em update', err)
-                return {status: false, err: err}
+                await knex.update(editUser).where({ id }).table("users");
+                return { status: true };
+            } catch (err) {
+                console.error("Erro ao atualizar usuário:", err);
+                return { status: false, err };
             }
-
-
+        } else {
+            return { status: false, err: "Usuário não encontrado" };
         }
-        else {
-            return {status: false, err: 'Usuário já existe.'}
-        }
-
-   }
+    }
 
    async delete(id) {
         var user = await this.findById(id) 

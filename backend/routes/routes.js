@@ -11,7 +11,6 @@ router.post('/user', UserController.create)
 router.get("/users", AdminAuth, UserController.index)
 router.get("/user/:id", UserController.findUser)
 router.get("/user/email/:email", UserController.findEmailUser)
-router.put("/user", UserController.edit)
 router.delete("/user/:id", AdminAuth, UserController.remove)
 router.post("/recoverpassword", UserController.recoverPassword)
 router.post("/changepassword", UserController.changePassword)
@@ -32,6 +31,6 @@ router.get("/habits/archived", HabitController.getHabitsArchived)
 router.delete("/habit/:id", HabitController.remove)
 router.post("/habit/archive/:id", HabitController.archiveHabit)
 router.post("/habit/active/:id", HabitController.setHabitToActive)
-
+router.put('/user/edit/:id', UserController.editProfile)
 
 module.exports = router

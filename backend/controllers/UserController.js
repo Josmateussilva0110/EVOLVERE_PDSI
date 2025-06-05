@@ -191,6 +191,40 @@ class UserController {
             response.json({err: 'Usuário não encontrado.'})
         }
    }
+
+   async editProfile(request, response) {
+        const userId = request.params.id;
+        const { username, email } = request.body;
+
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
+        if (!username || username.trim() === "") {
+            return response.status(400).json({ err: "Nome de usuário inválido" });
+        }
+
+        if (!email || email.trim() === "") {
+            return response.status(400).json({ err: "Email inválido" });
+        }
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return response.status(404).json({ err: "Usuário não encontrado" });
+            }
+
+            const result = await User.update(userId, username, email);
+            if (result.status) {
+                response.status(200).json({ message: "Perfil atualizado com sucesso" });
+            } else {
+                response.status(406).json({ err: result.err });
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar perfil:", error);
+            response.status(500).json({ err: "Erro interno ao atualizar perfil" });
+        }
+    }
 }
 
 module.exports = new UserController()
