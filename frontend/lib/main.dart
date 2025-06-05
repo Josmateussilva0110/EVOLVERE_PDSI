@@ -42,7 +42,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'App com Rotas',
       initialRoute: '/',
-      // Você pode manter o routes para as rotas simples
       routes: {
         '/': (context) => WelcomeScreen(),
         '/inicio': (context) => HomeScreen(),

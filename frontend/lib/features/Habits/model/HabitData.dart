@@ -1,4 +1,5 @@
 class HabitData {
+  int? habitId;
   String habitName;
   String description;
   int? selectedCategory; 
@@ -9,6 +10,7 @@ class HabitData {
   int? priority; // 1 = alta, 2 = normal, 3 = baixa
 
   HabitData({
+    this.habitId,
     this.habitName = '',
     this.description = '',
     this.selectedCategory, 
@@ -21,9 +23,10 @@ class HabitData {
         reminders = reminders ?? [];
 
   HabitData copyWith({
+    int? habitId,
     String? habitName,
     String? description,
-    int? selectedCategory, 
+    int? selectedCategory,
     Map<String, dynamic>? frequencyData,
     DateTime? startDate,
     DateTime? endDate,
@@ -31,9 +34,10 @@ class HabitData {
     int? priority,
   }) {
     return HabitData(
+      habitId: habitId ?? this.habitId,
       habitName: habitName ?? this.habitName,
       description: description ?? this.description,
-      selectedCategory: selectedCategory ?? this.selectedCategory, 
+      selectedCategory: selectedCategory,
       frequencyData: frequencyData ?? this.frequencyData,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
@@ -41,5 +45,23 @@ class HabitData {
       priority: priority ?? this.priority,
     );
   }
+
+  @override
+  String toString() {
+    return '''
+  HabitData(
+    habitId: $habitId,
+    habitName: $habitName,
+    description: $description,
+    selectedCategory: $selectedCategory,
+    frequencyData: $frequencyData,
+    startDate: $startDate,
+    endDate: $endDate,
+    reminders: ${reminders.map((d) => d.toIso8601String()).toList()},
+    priority: $priority
+  )
+  ''';
+  }
+
 }
 

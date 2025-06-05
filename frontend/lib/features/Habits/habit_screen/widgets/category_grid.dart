@@ -4,8 +4,8 @@ import '../../services/category_service.dart';
 
 class CategoryGrid extends StatefulWidget {
   final int? selectedCategory;
-  final Function(int) onCategorySelected;
-  final VoidCallback? onAddCategory;
+  final ValueChanged<int?> onCategorySelected;
+  final Future<bool> Function()? onAddCategory;
 
   const CategoryGrid({
     Key? key,
@@ -40,14 +40,14 @@ class _CategoryGridState extends State<CategoryGrid> {
     }
     return {
       ...cat,
-      'category': catInt ?? catValue, 
+      'category': catInt,
     };
   }).toList();
 
   final addCategoryButton = {
     'icon': Icons.add,
     'label': 'Mais',
-    'category': 'mais',
+    'category': null,
   };
 
   setState(() {
@@ -75,25 +75,31 @@ class _CategoryGridState extends State<CategoryGrid> {
       runSpacing: 8,
       children:
           categories.map((category) {
-            final isAddButton = category['category'] == 'mais';
+            final isAddButton = category['category'] == null;
 
             return CategoryButton(
-                icon: _buildIcon(category['icon']),
-                label: category['label'] as String,
-                category: category['category'],  
-                isSelected: widget.selectedCategory != null &&
-                            widget.selectedCategory == category['category'],
-                onSelect: (selected) {
-                  if (isAddButton && widget.onAddCategory != null) {
-                    widget.onAddCategory!();
+              icon: _buildIcon(category['icon']),
+              label: category['label'] as String,
+              category: category['category'],  
+              isSelected: widget.selectedCategory != null &&
+                          widget.selectedCategory == category['category'],
+              onSelect: (selected) async {
+              if (isAddButton && widget.onAddCategory != null) {
+                final result = await widget.onAddCategory!();
+                if (result == true) {
+                  _fetchCategories();
+                }
+              } else {
+                if (selected is int) {
+                  if (widget.selectedCategory == selected) {
+                    widget.onCategorySelected(null); // desmarcar
                   } else {
-                    if (selected is int) {
-                      widget.onCategorySelected(selected);
-                    }
+                    widget.onCategorySelected(selected); // selecionar nova
                   }
-                },
-              );
-
+                }
+              }
+            },
+            );
           }).toList(),
     );
   }

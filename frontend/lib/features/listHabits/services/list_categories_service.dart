@@ -12,11 +12,22 @@ class CategoryService {
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       final List<dynamic> categoryList = decoded['categories'];
-      print('categories: ${categoryList}');
-
       return categoryList.map((json) => Category.fromJson(json)).toList();
     } else {
       return [];
+    }
+  }
+
+  static Future<int?> fetchCategoryIdByName(String name) async {
+    final response = await http.get(
+      Uri.parse('${dotenv.env['API_URL']}/category/get_id/$name'),
+    );
+
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      return decoded['category_id'];
+    } else {
+      return null;
     }
   }
 }
