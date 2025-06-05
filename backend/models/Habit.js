@@ -157,6 +157,19 @@ class Habit {
         }
     }
 
+    async findByName(name) {
+        try {
+            var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status"]).where({name: name}).table("habits")
+            if(result.length > 0) 
+                return result[0]
+            else 
+                return undefined
+        } catch(err) {
+            console.log('erro no findById', err)
+            return undefined
+        }
+    }
+
     async delete(id) {
         try {
             await knex("habits").where({id: id}).del()

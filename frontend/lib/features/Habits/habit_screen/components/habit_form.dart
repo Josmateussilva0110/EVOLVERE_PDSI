@@ -56,7 +56,9 @@ class _HabitFormState extends State<HabitForm> {
           label: 'Nome do Hábito*',
           hint: 'ex: Aprender um Idioma',
           controller: _nameController,
-          onChanged: widget.onNameChanged,
+          onChanged: (value) {
+            widget.onNameChanged(value.trim());
+          },
         ),
         const SizedBox(height: 24),
         HabitTextField(

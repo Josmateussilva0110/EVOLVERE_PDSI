@@ -141,7 +141,11 @@ class HabitController {
         }
         var habit = await Habit.habitExist(id)
         if(!habit) {
-            return response.status(404).json({ err: "habito não encontrada" })
+            return response.status(404).json({ err: "habito não encontrada." })
+        }
+        var nameExists = await Habit.findByName(name)
+        if(nameExists && nameExists.id !== Number(id)) {
+            return response.status(409).json({err: "nome de habito já existe."})
         }
         var result = await Habit.uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders)
         if(result) {
