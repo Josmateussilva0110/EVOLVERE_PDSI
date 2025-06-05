@@ -65,5 +65,4 @@ class Frequency {
 
   return Frequency(value: parsedValue, option: json['option']);
 }
-
 }

@@ -37,7 +37,6 @@ class _FrequencyFormState extends State<FrequencyForm> {
               widget.onFrequencyDataChanged({'option': type, 'value': days}),
         );
         break;
-
       case 'dias_especificos_mes':
         final raw = widget.frequencyData['value'];
         final days =

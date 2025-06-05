@@ -74,7 +74,6 @@ class _HabitScreenState extends State<HabitScreen> {
       arguments: updatedHabitData,
     );
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,10 +88,9 @@ class _HabitScreenState extends State<HabitScreen> {
                 habitId: habitId,
                 habitName: habitName,
                 description: description,
-                selectedCategory: selectedCategory,
+                selectedCategory: selectedCategory, 
                 onNameChanged: (value) => setState(() => habitName = value),
-                onDescriptionChanged:
-                    (value) => setState(() => description = value),
+                onDescriptionChanged: (value) => setState(() => description = value),
                 onCategorySelected: _onCategorySelected,
                 onFrequencyDataChanged: _onFrequencyDataChanged,
               ),

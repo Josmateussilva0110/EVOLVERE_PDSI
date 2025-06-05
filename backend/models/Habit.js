@@ -77,7 +77,6 @@ class Habit {
             return undefined;
         }
     }
-
     async findNotArchived() {
         try {
             const result = await knex('habits as h')
@@ -156,7 +155,6 @@ class Habit {
             return undefined
         }
     }
-
     async findByName(name) {
         try {
             var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status"]).where({name: name}).table("habits")
@@ -169,7 +167,6 @@ class Habit {
             return undefined
         }
     }
-
     async delete(id) {
         try {
             await knex("habits").where({id: id}).del()
@@ -199,7 +196,6 @@ class Habit {
             return false
         }
     }
-
     async uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders) {
         try {
             const updates = {
@@ -227,7 +223,6 @@ class Habit {
             return false
         }
     }
-
 }
 
 module.exports = new Habit()

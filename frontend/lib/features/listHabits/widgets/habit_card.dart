@@ -56,7 +56,6 @@ class HabitCardWidget extends StatelessWidget {
 
             if (onHabitUpdated != null) onHabitUpdated!();
           },
-
           onArchive: () async {
             final confirm = await showConfirmActionDialog(
               context: context,

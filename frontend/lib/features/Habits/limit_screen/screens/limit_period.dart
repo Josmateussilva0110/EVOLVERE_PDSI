@@ -171,7 +171,6 @@ class _TermScreenState extends State<TermScreen> {
       habitData.reminders.add(reminder);
     });
   }
-
   void _removeReminder(DateTime reminder) {
     setState(() {
       habitData.reminders.remove(reminder);
@@ -183,7 +182,6 @@ class _TermScreenState extends State<TermScreen> {
       habitData.endDate = null;
     });
   }
-
   @override
   Widget build(BuildContext context) {
     final isEditing = habitData.habitId != null;

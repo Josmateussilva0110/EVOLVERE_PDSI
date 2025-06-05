@@ -6,6 +6,7 @@ import '../model/HabitModel.dart';
 import '../widgets/habit_card.dart';
 import '../widgets/archived_habits.dart';
 
+
 class HabitsListPage extends StatefulWidget {
   const HabitsListPage({Key? key}) : super(key: key);
 
@@ -95,7 +96,6 @@ class _HabitsListPageState extends State<HabitsListPage> {
                   _loadHabits();
                 },
               ),
-
               if (selectedCategory != null)
                 Align(
                   alignment: Alignment.centerRight,

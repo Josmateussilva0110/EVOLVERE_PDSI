@@ -99,10 +99,7 @@ class _CategoryGridState extends State<CategoryGrid> {
                 }
               }
             },
-
             );
-
-
           }).toList(),
     );
   }
