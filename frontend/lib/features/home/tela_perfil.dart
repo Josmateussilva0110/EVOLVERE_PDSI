@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../user/screens/edit_profile_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class User {
   final String name;
@@ -39,29 +40,43 @@ class TelaPerfil extends StatefulWidget {
 }
 
 class _TelaPerfilState extends State<TelaPerfil> {
-  // TODO: Obter o ID do usuário logado dinamicamente
-  final int _loggedInUserId = 1; // ID do usuário raileal777888
+  int? _loggedInUserId; // Agora pode ser nulo no início
   User? _user;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    print('Inicializando TelaPerfil com ID: $_loggedInUserId');
-    _fetchUserData();
+    _loadAndFetchUserData(); // Nova função para carregar ID e buscar dados
   }
 
-  Future<void> _fetchUserData() async {
+  Future<void> _loadAndFetchUserData() async {
     setState(() {
       _isLoading = true;
     });
 
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    _loggedInUserId = prefs.getInt('loggedInUserId'); // Recupera o ID
+
+    if (_loggedInUserId == null) {
+      print('Erro: ID do usuário logado não encontrado.');
+      setState(() {
+        _isLoading = false;
+      });
+      // Opcional: Navegar para a tela de login se o ID não for encontrado
+      // Navigator.pushReplacementNamed(context, '/login');
+      return;
+    }
+
+    print('Inicializando TelaPerfil com ID: $_loggedInUserId');
+    await _fetchUserData(_loggedInUserId!); // Passa o ID para a função de busca
+  }
+
+  Future<void> _fetchUserData(int userId) async {
     try {
-      print('Iniciando busca do usuário com ID: $_loggedInUserId');
+      print('Iniciando busca do usuário com ID: $userId');
       final response = await http.get(
-        Uri.parse(
-          'http://192.168.2.107:8080/user/profile/$_loggedInUserId',
-        ), // *** SUBSTITUA 'SEU_IP_AQUI' PELO SEU IP REAL ***
+        Uri.parse('http://192.168.2.107:8080/user/profile/$userId'),
       );
 
       print('Resposta da API: ${response.statusCode}');
@@ -90,7 +105,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121217), // Cor de fundo padrão do app
+      backgroundColor: const Color(0xFF121217),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -106,7 +121,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
       ),
       body: SafeArea(
         child:
-            _isLoading
+            _isLoading || _loggedInUserId == null
                 ? const Center(child: CircularProgressIndicator())
                 : Padding(
                   padding: const EdgeInsets.all(20),
@@ -114,13 +129,11 @@ class _TelaPerfilState extends State<TelaPerfil> {
                     children: [
                       const SizedBox(height: 2),
                       const CircleAvatar(
-                        radius:
-                            70, // Aumente este valor para um círculo maior (era 40)
+                        radius: 70,
                         backgroundColor: Color(0xFF2C2C2C),
                         child: Icon(
                           Icons.person,
-                          size:
-                              100, // Aumente este valor para um ícone maior (era 40)
+                          size: 100,
                           color: Colors.white,
                         ),
                       ),
@@ -139,9 +152,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
                       ),
                       Text(
                         "Desde ${_user?.createdAt ?? ""}",
-                        style: const TextStyle(
-                          color: Color(0xFFFFBE47),
-                        ), // Cor accent padrão
+                        style: const TextStyle(color: Color(0xFFFFBE47)),
                       ),
                       const SizedBox(height: 30),
                       Expanded(
@@ -206,7 +217,7 @@ class _TelaPerfilState extends State<TelaPerfil> {
                     MaterialPageRoute(
                       builder:
                           (context) => EditProfileScreen(
-                            userId: _loggedInUserId,
+                            userId: _loggedInUserId!,
                           ), // Passar o ID para a tela de edição
                     ),
                   );
