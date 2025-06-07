@@ -62,7 +62,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         final Map<String, dynamic> data = jsonDecode(response.body);
         // Assumindo que a rota /user/:id retorna o objeto do usuário diretamente
         setState(() {
-          name = data['name'] ?? 'Nome não encontrado';
+          name = data['username'] ?? 'Nome não encontrado';
           email = data['email'] ?? 'Email não encontrado';
           createdAt = data['createdAt'] ?? 'Data não encontrada';
           _usernameController.text = name;
