@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 
 class LimitPeriodForm extends StatelessWidget {
   final VoidCallback onClearEndDate;
+  final DateTime? startDate;
   final DateTime? endDate;
   final String priority;
   final List<DateTime> reminders;
@@ -20,6 +21,7 @@ class LimitPeriodForm extends StatelessWidget {
     super.key,
     required this.priority,
     required this.reminders,
+    required this.startDate,
     required this.endDate,
     required this.onSelectedStartDate,
     required this.onSelectedEndDate,
@@ -48,15 +50,20 @@ class LimitPeriodForm extends StatelessWidget {
         OptionButton(
           icon: Icons.calendar_today,
           title: 'Data de início',
-          subtitle: 'Selecione a data de início da tarefa',
+          subtitle: startDate != null
+              ? DateFormat('dd/MM/yyyy').format(startDate!)
+              : 'Selecione a data de início da tarefa',
           onTap: onSelectedStartDate,
         ),
         OptionButton(
           icon: Icons.calendar_month,
           title: 'Data Fim',
-          subtitle: 'Selecione a data de fim da tarefa',
+          subtitle: endDate != null
+              ? DateFormat('dd/MM/yyyy').format(endDate!)
+              : 'Selecione a data de fim da tarefa',
           onTap: onSelectedEndDate,
         ),
+
 
         if (endDate != null)
           TextButton(

@@ -6,12 +6,14 @@ class HabitTextField extends StatelessWidget {
   final String label;
   final String hint;
   final Function(String) onChanged;
+  final TextEditingController controller;
 
   const HabitTextField({
     Key? key,
     required this.label,
     required this.hint,
     required this.onChanged,
+    required this.controller,
   }) : super(key: key);
 
   @override
@@ -35,12 +37,13 @@ class HabitTextField extends StatelessWidget {
             border: Border.all(color: HabitsTheme.borderColor),
           ),
           child: TextField(
+            controller: controller,
+            onChanged: onChanged,
             style: GoogleFonts.inter(
               color: HabitsTheme.textColor,
               fontSize: 16,
               fontWeight: FontWeight.w500,
             ),
-            onChanged: onChanged,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(color: HabitsTheme.secondaryTextColor),

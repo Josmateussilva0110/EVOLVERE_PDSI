@@ -8,7 +8,6 @@ class HabitService {
     final response = await http.get(
       Uri.parse('${dotenv.env['API_URL']}/habits/not_archived'),
     );
-
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       final List<dynamic> habitsList = decoded['habits'];

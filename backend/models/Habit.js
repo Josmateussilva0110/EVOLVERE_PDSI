@@ -1,4 +1,8 @@
 var knex = require("../database/connection")
+const formatDateForMySQL = require("../utils/format_date")
+
+
+
 
 class Habit {
 
@@ -73,8 +77,6 @@ class Habit {
             return undefined;
         }
     }
-
-
     async findNotArchived() {
         try {
             const result = await knex('habits as h')
@@ -153,7 +155,18 @@ class Habit {
             return undefined
         }
     }
-
+    async findByName(name) {
+        try {
+            var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status"]).where({name: name}).table("habits")
+            if(result.length > 0) 
+                return result[0]
+            else 
+                return undefined
+        } catch(err) {
+            console.log('erro no findById', err)
+            return undefined
+        }
+    }
     async delete(id) {
         try {
             await knex("habits").where({id: id}).del()
@@ -180,6 +193,33 @@ class Habit {
             return true
         } catch(err) {
             console.log('erro ao arquivar habito: ', err)
+            return false
+        }
+    }
+    async uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders) {
+        try {
+            const updates = {
+                name,
+                description,
+                category_id,
+                frequency: frequency ? JSON.stringify(frequency) : undefined,
+                start_date: start_date ? formatDateForMySQL(start_date) : undefined,
+                end_date: end_date ? formatDateForMySQL(end_date) : undefined,
+                priority,
+                reminders: reminders ? JSON.stringify(reminders) : undefined,
+                updated_at: knex.fn.now()
+            }
+
+            // Remove valor undefined ou null
+            Object.keys(updates).forEach(key => {
+                if (updates[key] === undefined) {
+                    delete updates[key]
+                }
+            })
+            await knex.table("habits").where({ id }).update(updates)
+            return true
+        } catch (err) {
+            console.log('erro em editar habito: ', err)
             return false
         }
     }

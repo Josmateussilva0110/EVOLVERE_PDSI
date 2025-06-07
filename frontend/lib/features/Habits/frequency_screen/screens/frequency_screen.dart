@@ -19,47 +19,92 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
   late HabitData habitData;
   late Map<String, dynamic> frequencyData;
 
+  dynamic _normalizeFrequencyValue(String? option, dynamic value) {
+    if (option == null) return null;
+
+    switch (option) {
+      case 'repetir':
+        return value is int ? value : int.tryParse(value.toString()) ?? 1;
+
+      case 'algumas_vezes_periodo':
+        if (value is Map &&
+            value['vezes'] != null &&
+            value['periodo'] != null) {
+          return {
+            'vezes': int.tryParse(value['vezes'].toString()) ?? 1,
+            'periodo': value['periodo'].toString().toUpperCase(),
+          };
+        }
+        return {'vezes': 1, 'periodo': 'SEMANA'};
+
+      case 'dias_especificos_ano':
+        if (value is List) {
+          return value
+              .map((e) {
+                if (e is DateTime) return e;
+                if (e is String) return DateTime.tryParse(e);
+                return null;
+              })
+              .where((e) => e != null)
+              .toList();
+        }
+        return [];
+
+      case 'dias_especificos_mes':
+      case 'alguns_dias_semana':
+        return value is List ? value : [];
+
+      default:
+        return value;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
     habitData = widget.habitData;
-    frequencyData = Map<String, dynamic>.from(habitData.frequencyData);
+
+    // Clonar e normalizar o frequencyData
+    final raw = habitData.frequencyData;
+    final normalizedValue = _normalizeFrequencyValue(
+      raw['option'],
+      raw['value'],
+    );
+
+    frequencyData = {'option': raw['option'], 'value': normalizedValue};
   }
 
   bool _isFrequencyValid(Map<String, dynamic> data) {
     final option = data['option'];
     final value = data['value'];
 
-    if (option == 'todos_os_dias') return true;
+    if (option == null) return false;
 
-    if (option == 'alguns_dias_semana' && value is List<String> && value.isNotEmpty) {
-      return true;
+    switch (option) {
+      case 'todos_os_dias':
+        return true;
+      case 'alguns_dias_semana':
+        return value is List && value.isNotEmpty && value.first is String;
+      case 'dias_especificos_mes':
+        return value is List && value.isNotEmpty && value.first is int;
+      case 'dias_especificos_ano':
+        return value is List &&
+            value.isNotEmpty &&
+            (value.first is DateTime ||
+                (value.first is String &&
+                    DateTime.tryParse(value.first) != null));
+
+      case 'algumas_vezes_periodo':
+        return value is Map &&
+            value['vezes'] is int &&
+            value['periodo'] is String;
+      case 'repetir':
+        return value is int && value > 0;
+      default:
+        return false;
     }
-
-    if (option == 'dias_especificos_mes' && value is List<int> && value.isNotEmpty) {
-      return true;
-    }
-
-    if (option == 'dias_especificos_ano' && value is List<DateTime> && value.isNotEmpty) {
-      return true;
-    }
-
-    if (option == 'algumas_vezes_periodo' &&
-        value is Map &&
-        value['vezes'] is int &&
-        value['vezes'] > 0 &&
-        value['periodo'] is String &&
-        (value['periodo'] as String).isNotEmpty) {
-      return true;
-    }
-
-    if (option == 'repetir' && value is int && value > 0) {
-      return true;
-    }
-
-    return false;
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -87,16 +132,21 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
             ),
           ),
           FrequencyBottomNavigation(
-            onPrevious:
-                () => Navigator.pushReplacementNamed(
-                  context,
-                  '/cadastrar_habito',
-                ),
+            onPrevious: () {
+              Navigator.pushReplacementNamed(
+                context,
+                '/cadastrar_habito',
+                arguments: habitData,
+              );
+            },
             onNext: () {
-              if (!_isFrequencyValid(frequencyData)) {
+              final valid = _isFrequencyValid(frequencyData);
+              if (!valid) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Por favor, preencha os valores da frequência antes de continuar.'),
+                    content: Text(
+                      'Por favor, preencha os valores da frequência antes de continuar.',
+                    ),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -105,6 +155,7 @@ class _FrequencyScreenState extends State<FrequencyScreen> {
 
               final updatedHabitData = habitData.copyWith(
                 frequencyData: frequencyData,
+                selectedCategory: habitData.selectedCategory,
               );
 
               Navigator.pushReplacementNamed(

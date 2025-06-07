@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import '../model/HabitModel.dart';
 import 'habit_options_menu.dart';
 import '../services/list_habits_service.dart';
+import '../services/list_categories_service.dart';
 import 'confirm_action_dialog.dart';
+import '../../Habits/model/HabitData.dart';
 
 class HabitCardWidget extends StatelessWidget {
   final Habit habit;
@@ -29,11 +31,29 @@ class HabitCardWidget extends StatelessWidget {
         return HabitOptionsMenu(
           onEdit: () async {
             Navigator.pop(context);
+            int? categoryId;
+              if (habit.categoryName != null) {
+                categoryId = await CategoryService.fetchCategoryIdByName(habit.categoryName!);
+              }
             await Navigator.pushNamed(
               context,
-              '/editar_habito',
-              arguments: habit,
+              '/cadastrar_habito',
+              arguments: HabitData(
+                habitId: habit.id,
+                habitName: habit.name,
+                description: habit.description,
+                selectedCategory: categoryId,
+                frequencyData: {
+                  'option': habit.frequency.option,
+                  'value': habit.frequency.value,
+                },
+                startDate: habit.startDate,
+                endDate: habit.endDate,
+                reminders: habit.reminders ?? [],
+                priority: habit.priority,
+              ),
             );
+
             if (onHabitUpdated != null) onHabitUpdated!();
           },
           onArchive: () async {
