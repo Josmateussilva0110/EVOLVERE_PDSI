@@ -18,6 +18,11 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  // Variáveis para armazenar os dados do usuário
+  String name = '';
+  String email = '';
+  String createdAt = '';
+
   // Criar controllers para os campos de texto
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -56,9 +61,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
         // Assumindo que a rota /user/:id retorna o objeto do usuário diretamente
-        final userData = data;
-        _usernameController.text = userData['username'] ?? '';
-        _emailController.text = userData['email'] ?? '';
+        setState(() {
+          name = data['name'] ?? 'Nome não encontrado';
+          email = data['email'] ?? 'Email não encontrado';
+          createdAt = data['createdAt'] ?? 'Data não encontrada';
+          _usernameController.text = name;
+          _emailController.text = email;
+        });
       } else {
         // Tratar erro ao carregar dados
         print('Erro ao carregar dados do usuário: ${response.statusCode}');
@@ -86,11 +95,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // Função para salvar as alterações no backend
   Future<void> _saveProfileChanges() async {
-    // TODO: Implementar a lógica real para salvar as alterações do perfil enviando para o backend
-    print(
-      'Botão Salvar clicado com Nome: ${_usernameController.text}, Email: ${_emailController.text}',
-    );
-
     final String? apiURL = dotenv.env['API_URL'];
     if (apiURL == null) {
       print('API_URL não configurado no .env');
@@ -103,8 +107,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    // O corpo da requisição deve corresponder ao esperado pelo backend na rota PUT
-    // O backend espera {username, email} no body, e o ID na URL
     final Map<String, dynamic> requestBody = {
       'username': _usernameController.text,
       'email': _emailController.text,
@@ -125,10 +127,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        // TODO: Opcional: Voltar para a tela de perfil ou atualizar os dados na tela anterior
-        Navigator.pop(
-          context,
-        ); // Exemplo: Voltar para a tela anterior após sucesso
+        Navigator.pop(context); // Voltar para a tela anterior após sucesso
       } else {
         String errorMessage = 'Erro ao atualizar perfil.';
         try {
@@ -163,7 +162,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child:
-            _isLoading // Mostrar indicador de carregamento enquanto busca os dados
+            _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : SingleChildScrollView(
                   child: Column(
@@ -176,14 +175,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           children: [
                             CustomTextField(
                               label: 'Nome de Usuário',
-                              controller:
-                                  _usernameController, // Associar controller
+                              controller: _usernameController,
                             ),
                             SizedBox(height: 20),
                             CustomTextField(
                               label: 'Email',
-                              controller:
-                                  _emailController, // Associar controller
+                              controller: _emailController,
                             ),
                             SizedBox(height: 30),
                             ElevatedButton(
@@ -199,8 +196,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 ),
                                 minimumSize: Size(double.infinity, 50),
                               ),
-                              onPressed:
-                                  _saveProfileChanges, // Chamar a função de salvar
+                              onPressed: _saveProfileChanges,
                               child: Text(
                                 'Salvar',
                                 style: TextStyle(fontSize: 16),

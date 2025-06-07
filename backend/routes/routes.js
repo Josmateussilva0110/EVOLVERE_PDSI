@@ -32,5 +32,6 @@ router.delete("/habit/:id", HabitController.remove)
 router.post("/habit/archive/:id", HabitController.archiveHabit)
 router.post("/habit/active/:id", HabitController.setHabitToActive)
 router.put('/user/edit/:id', UserController.editProfile)
+router.get('/user/profile/:id', UserController.getLoggedUserInfo);
 
 module.exports = router

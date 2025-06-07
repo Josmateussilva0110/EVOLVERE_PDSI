@@ -225,6 +225,37 @@ class UserController {
             response.status(500).json({ err: "Erro interno ao atualizar perfil" });
         }
     }
+
+    async getLoggedUserInfo(request, response) {
+        const userId = request.params.id;
+
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return response.status(404).json({ err: "Usuário não encontrado" });
+            }
+
+            // Formata a data de criação
+            const createdAt = new Date(user.created_at);
+            const formattedDate = createdAt.toLocaleDateString('pt-BR', {
+                month: 'long',
+                year: 'numeric'
+            });
+
+            response.status(200).json({
+                name: user.username,
+                email: user.email,
+                createdAt: formattedDate
+            });
+        } catch (error) {
+            console.error("Erro ao buscar informações do usuário:", error);
+            response.status(500).json({ err: "Erro interno ao buscar informações do usuário" });
+        }
+    }
 }
 
 module.exports = new UserController()
