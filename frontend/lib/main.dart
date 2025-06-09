@@ -4,7 +4,7 @@ import 'features/user/tela_login/screens/login_screen.dart';
 import 'features/user/register_user/screens/user_screen.dart';
 import 'features/Habits/habit_screen/screens/habits_screens.dart';
 import 'features/Habits/limit_screen/screens/limit_period.dart';
-import 'features/home/tela_perfil.dart';
+import 'features/home/profile_screen.dart';
 import 'features/register_category/screens/categorie_screen.dart';
 import 'features/register_category/screens/list_category_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

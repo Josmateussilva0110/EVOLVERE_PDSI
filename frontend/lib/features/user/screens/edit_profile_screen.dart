@@ -3,7 +3,7 @@ import '../components/custom_top_curve.dart';
 // import '../register_user/components/register_form.dart'; // Remover import não utilizado
 import '../widgets/text_field.dart'; // Importar campo de texto genérico
 // import '../widgets/footer.dart'; // Remover import não utilizado
-import '../widgets/password_field.dart'; // Importar campo de senha, caso precise para alterar senha
+//import '../widgets/password_field.dart'; // Importar campo de senha, caso precise para alterar senha
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // Importar dotenv
 import 'dart:convert'; // Importar convert
 import 'package:http/http.dart' as http; // Importar http

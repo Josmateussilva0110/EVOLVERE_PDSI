@@ -77,12 +77,13 @@ class _LoginFormState extends State<LoginForm> {
                   response.body,
                 );
                 final int? userId = responseData['userId'];
+                final String? username = responseData['username'];
 
-                if (userId != null) {
+                if (userId != null && username != null) {
                   final SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   await prefs.setInt('loggedInUserId', userId);
-                  print('ID do usuário logado armazenado: $userId');
+                  await prefs.setString('username', username);
                 }
 
                 ScaffoldMessenger.of(context).showSnackBar(
