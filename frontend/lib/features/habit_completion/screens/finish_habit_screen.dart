@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../listHabits/model/HabitModel.dart';
+import '../../listHabits/models/HabitModel.dart';
 import '../../listHabits/screens/progress_record_screen.dart';
 
 class FinishHabitScreen extends StatefulWidget {

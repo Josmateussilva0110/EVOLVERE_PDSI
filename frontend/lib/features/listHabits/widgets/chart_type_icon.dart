@@ -20,8 +20,8 @@ class ChartTypeIcon extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        margin: const EdgeInsets.symmetric(horizontal: 2), // reduzido
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14), // reduzido
         decoration: BoxDecoration(
           color: selected ? Colors.blue : const Color(0xFF232B3E),
           borderRadius: BorderRadius.circular(14),
@@ -45,12 +45,15 @@ class ChartTypeIcon extends StatelessWidget {
               size: 22,
             ),
             const SizedBox(width: 8),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                color: selected ? Colors.white : Colors.white70,
-                fontWeight: FontWeight.w600,
-                fontSize: 15,
+            Flexible(
+              child: Text(
+                label,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  color: selected ? Colors.white : Colors.white70,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
               ),
             ),
           ],
@@ -59,3 +62,4 @@ class ChartTypeIcon extends StatelessWidget {
     );
   }
 }
+

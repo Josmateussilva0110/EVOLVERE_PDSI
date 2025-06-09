@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/list_categories_service.dart';
-import '../model/CategoryModel.dart';
+import '../models/CategoryModel.dart';
 
 class SearchBarWidget extends StatefulWidget {
   final void Function(String)? onCategorySelected;
