@@ -16,14 +16,14 @@ class HabitsListPage extends StatefulWidget {
 
 class _HabitsListPageState extends State<HabitsListPage> {
   late Future<List<Habit>> _habitsFuture;
-  String? _selectedCategory;
+  String? selectedCategory;
 
   Future<void> _loadHabits() async {
     final allHabits = await HabitService.fetchHabits();
     setState(() {
-      if (_selectedCategory != null) {
+      if (selectedCategory != null) {
         _habitsFuture = Future.value(
-          allHabits.where((h) => h.categoryName == _selectedCategory).toList(),
+          allHabits.where((h) => h.categoryName == selectedCategory).toList(),
         );
       } else {
         _habitsFuture = Future.value(allHabits);
@@ -91,21 +91,20 @@ class _HabitsListPageState extends State<HabitsListPage> {
               SearchBarWidget(
                 onCategorySelected: (category) {
                   setState(() {
-                    _selectedCategory = category;
+                    selectedCategory = category;
                   });
                   _loadHabits();
                 },
               ),
-
-              if (_selectedCategory != null)
+              if (selectedCategory != null)
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
                       setState(() {
-                        _selectedCategory = null;
+                        selectedCategory = null;
                       });
-                      _loadHabits(); 
+                      _loadHabits();
                     },
                     child: const Text(
                       'Limpar Filtro',

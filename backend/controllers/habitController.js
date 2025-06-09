@@ -132,6 +132,31 @@ class HabitController {
             response.json({err: "Erro ao atualizar habito para ativo."})
         }
     }
+
+    async editHabit(request, response) {
+        const id = request.params.id
+        const {name, description, category_id, frequency, start_date, end_date, priority, reminders} = request.body
+        if (!id || isNaN(id)) {
+            return response.status(400).json({ err: "ID inválido" })
+        }
+        var habit = await Habit.habitExist(id)
+        if(!habit) {
+            return response.status(404).json({ err: "habito não encontrada." })
+        }
+        var nameExists = await Habit.findByName(name)
+        if(nameExists && nameExists.id !== Number(id)) {
+            return response.status(409).json({err: "nome de habito já existe."})
+        }
+        var result = await Habit.uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders)
+        if(result) {
+            response.status(200)
+            response.json({message: "Habito editado com sucesso."})
+        }
+        else {
+            response.status(500)
+            response.json({err: "Erro ao editar habito."})
+        }
+    }
 }
 
 module.exports = new HabitController()

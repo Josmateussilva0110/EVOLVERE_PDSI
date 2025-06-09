@@ -14,21 +14,38 @@ class HabitScreen extends StatefulWidget {
 }
 
 class _HabitScreenState extends State<HabitScreen> {
+  int? habitId;
   String habitName = '';
   String description = '';
   int? selectedCategory;
+  Map<String, dynamic> frequencyData = {};
 
   @override
   void initState() {
     super.initState();
+    habitId = widget.habitData.habitId;
     habitName = widget.habitData.habitName;
     description = widget.habitData.description;
-    selectedCategory = widget.habitData.selectedCategory; 
+    selectedCategory = widget.habitData.selectedCategory;
+    frequencyData = Map.from(widget.habitData.frequencyData);
+    if (selectedCategory is String) {
+      selectedCategory = int.tryParse(selectedCategory as String);
+    }
   }
 
-  void _onCategorySelected(int category) {
+  void _onFrequencyDataChanged(Map<String, dynamic> newData) {
     setState(() {
-      selectedCategory = selectedCategory == category ? null : category;
+      frequencyData = newData;
+    });
+  }
+
+  void _onCategorySelected(int? category) {
+    setState(() {
+      if (selectedCategory == category) {
+        selectedCategory = null;
+      } else {
+        selectedCategory = category;
+      }
     });
   }
 
@@ -44,9 +61,11 @@ class _HabitScreenState extends State<HabitScreen> {
     }
 
     final updatedHabitData = widget.habitData.copyWith(
+      habitId: habitId,
       habitName: habitName,
       description: description,
       selectedCategory: selectedCategory,
+      frequencyData: frequencyData,
     );
 
     Navigator.pushReplacementNamed(
@@ -55,9 +74,7 @@ class _HabitScreenState extends State<HabitScreen> {
       arguments: updatedHabitData,
     );
   }
-
-
- @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: HabitsTheme.backgroundColor,
@@ -68,12 +85,14 @@ class _HabitScreenState extends State<HabitScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: HabitForm(
+                habitId: habitId,
                 habitName: habitName,
                 description: description,
                 selectedCategory: selectedCategory, 
                 onNameChanged: (value) => setState(() => habitName = value),
                 onDescriptionChanged: (value) => setState(() => description = value),
                 onCategorySelected: _onCategorySelected,
+                onFrequencyDataChanged: _onFrequencyDataChanged,
               ),
             ),
           ),

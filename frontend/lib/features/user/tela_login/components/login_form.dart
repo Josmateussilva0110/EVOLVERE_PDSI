@@ -6,6 +6,7 @@ import '../widgets/login_options.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginForm extends StatefulWidget {
   @override
@@ -18,12 +19,12 @@ class _LoginFormState extends State<LoginForm> {
   bool _obscurePassword = true;
   bool _lembrarSenha = false;
 
-    @override
-    void dispose() {
-      _emailController.dispose();
-      _passwordController.dispose();
-      super.dispose();
-    }
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class _LoginFormState extends State<LoginForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          CustomTextField(label: 'Email/Usuário', controller: _emailController,),
+          CustomTextField(label: 'Email/Usuário', controller: _emailController),
           SizedBox(height: 20),
           CustomPasswordField(
             label: 'Senha',
@@ -65,27 +66,40 @@ class _LoginFormState extends State<LoginForm> {
               final response = await http.post(
                 Uri.parse('${dotenv.env['API_URL']}/login'),
                 headers: {'Content-Type': 'application/json'},
-                body: jsonEncode({'email': _emailController.text, 'password': _passwordController.text}),
+                body: jsonEncode({
+                  'email': _emailController.text,
+                  'password': _passwordController.text,
+                }),
               );
 
-              if(response.statusCode == 200) {
+              if (response.statusCode == 200) {
+                final Map<String, dynamic> responseData = jsonDecode(
+                  response.body,
+                );
+                final int? userId = responseData['userId'];
+
+                if (userId != null) {
+                  final SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  await prefs.setInt('loggedInUserId', userId);
+                  print('ID do usuário logado armazenado: $userId');
+                }
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Login realizado com sucesso!'),
-                  backgroundColor: Colors.green,
-                ),
+                  SnackBar(
+                    content: Text('Login realizado com sucesso!'),
+                    backgroundColor: Colors.green,
+                  ),
                 );
                 Navigator.pushReplacementNamed(context, '/inicio');
-              }
-              else {
+              } else {
                 String errorMessage = 'Erro no login';
                 try {
                   final Map<String, dynamic> data = jsonDecode(response.body);
                   if (data.containsKey('err')) {
                     errorMessage = data['err'];
                   }
-                } catch (_) {
-                }
+                } catch (_) {}
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

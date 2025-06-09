@@ -179,7 +179,7 @@ class UserController {
             if(valid) {
                 var token = jwt.sign({email: user.email}, process.env.SECRET)
                 response.status(200)
-                response.json({token: token})
+                response.json({token: token, userId: user.id})
             }
             else {
                 response.status(406)
@@ -191,6 +191,71 @@ class UserController {
             response.json({err: 'Usuário não encontrado.'})
         }
    }
+
+   async editProfile(request, response) {
+        const userId = request.params.id;
+        const { username, email } = request.body;
+
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
+        if (!username || username.trim() === "") {
+            return response.status(400).json({ err: "Nome de usuário inválido" });
+        }
+
+        if (!email || email.trim() === "") {
+            return response.status(400).json({ err: "Email inválido" });
+        }
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return response.status(404).json({ err: "Usuário não encontrado" });
+            }
+
+            const result = await User.update(userId, username, email);
+            if (result.status) {
+                response.status(200).json({ message: "Perfil atualizado com sucesso" });
+            } else {
+                response.status(406).json({ err: result.err });
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar perfil:", error);
+            response.status(500).json({ err: "Erro interno ao atualizar perfil" });
+        }
+    }
+
+    async getLoggedUserInfo(request, response) {
+        const userId = request.params.id;
+
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return response.status(404).json({ err: "Usuário não encontrado" });
+            }
+
+            // Formata a data de criação
+            const createdAt = new Date(user.created_at);
+            const formattedDate = createdAt.toLocaleDateString('pt-BR', {
+                month: 'long',
+                year: 'numeric'
+            });
+
+            response.status(200).json({
+                name: user.username,
+                email: user.email,
+                createdAt: formattedDate
+            });
+        } catch (error) {
+            console.error("Erro ao buscar informações do usuário:", error);
+            response.status(500).json({ err: "Erro interno ao buscar informações do usuário" });
+        }
+    }
 }
 
 module.exports = new UserController()

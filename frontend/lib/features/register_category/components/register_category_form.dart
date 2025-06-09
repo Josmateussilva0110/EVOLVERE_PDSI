@@ -74,7 +74,7 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true);
     } else {
       String errorMessage = 'Erro ao cadastrar uma categoria.';
       try {

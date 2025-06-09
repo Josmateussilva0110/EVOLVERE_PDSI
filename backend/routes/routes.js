@@ -11,7 +11,6 @@ router.post('/user', UserController.create)
 router.get("/users", AdminAuth, UserController.index)
 router.get("/user/:id", UserController.findUser)
 router.get("/user/email/:email", UserController.findEmailUser)
-router.put("/user", UserController.edit)
 router.delete("/user/:id", AdminAuth, UserController.remove)
 router.post("/recoverpassword", UserController.recoverPassword)
 router.post("/changepassword", UserController.changePassword)
@@ -25,6 +24,7 @@ router.get("/categories/not_archived", CategoryController.getNotArchivedCategori
 router.get("/categories/archived", CategoryController.getArchivedCategories)
 router.patch("/category/:id/unarchive", CategoryController.unarchiveCategory)
 router.patch("/category/:id", CategoryController.updateCategory)
+router.get("/category/get_id/:name", CategoryController.getIdByName)
 router.post('/habit', HabitController.create)
 router.get("/habits", HabitController.getAllHabits)
 router.get("/habits/not_archived", HabitController.getHabitsNotArchived)
@@ -32,6 +32,9 @@ router.get("/habits/archived", HabitController.getHabitsArchived)
 router.delete("/habit/:id", HabitController.remove)
 router.post("/habit/archive/:id", HabitController.archiveHabit)
 router.post("/habit/active/:id", HabitController.setHabitToActive)
+router.put('/user/edit/:id', UserController.editProfile)
+router.get('/user/profile/:id', UserController.getLoggedUserInfo);
+router.patch("/habit/:id", HabitController.editHabit)
 
 
 module.exports = router
