@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../model/HabitModel.dart';
+import '../models/HabitModel.dart';
 import 'habit_options_menu.dart';
 import '../services/list_habits_service.dart';
 import '../services/list_categories_service.dart';

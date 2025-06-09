@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../model/HabitModel.dart';
+import '../models/HabitModel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HabitService {

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/filter_chips.dart';
 import '../widgets/search_bar.dart';
 import '../services/list_habits_service.dart';
-import '../model/HabitModel.dart';
+import '../models/HabitModel.dart';
 import '../widgets/habit_card.dart';
 import '../widgets/archived_habits.dart';
 

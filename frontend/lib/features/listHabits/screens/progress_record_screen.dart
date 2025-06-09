@@ -271,8 +271,9 @@ class _ProgressRecordScreenState extends State<ProgressRecordScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                    Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
                       children: [
                         PeriodChip(
                           label: 'Semana',
@@ -295,26 +296,33 @@ class _ProgressRecordScreenState extends State<ProgressRecordScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ChartTypeIcon(
-                          icon: Icons.show_chart,
-                          label: 'Linha',
-                          selected: _selectedChart == 0,
-                          onTap: () => _changeChart(0),
+                        Expanded(
+                          child: ChartTypeIcon(
+                            icon: Icons.show_chart,
+                            label: 'Linha',
+                            selected: _selectedChart == 0,
+                            onTap: () => _changeChart(0),
+                          ),
                         ),
-                        ChartTypeIcon(
-                          icon: Icons.bar_chart,
-                          label: 'Barras',
-                          selected: _selectedChart == 1,
-                          onTap: () => _changeChart(1),
+                        Expanded(
+                          child: ChartTypeIcon(
+                            icon: Icons.bar_chart,
+                            label: 'Barras',
+                            selected: _selectedChart == 1,
+                            onTap: () => _changeChart(1),
+                          ),
                         ),
-                        ChartTypeIcon(
-                          icon: Icons.area_chart,
-                          label: 'Área',
-                          selected: _selectedChart == 2,
-                          onTap: () => _changeChart(2),
+                        Expanded(
+                          child: ChartTypeIcon(
+                            icon: Icons.area_chart,
+                            label: 'Área',
+                            selected: _selectedChart == 2,
+                            onTap: () => _changeChart(2),
+                          ),
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 18),
                     SizedBox(
                       height: 200,
