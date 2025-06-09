@@ -14,7 +14,6 @@ import 'features/listHabits/screens/habits_list_screen.dart';
 import 'features/register_category/screens/edit_category_screen.dart';
 import 'features/Habits/model/HabitData.dart';
 
-
 void main() async {
   await dotenv.load(fileName: ".env");
   runApp(const MyApp());
@@ -90,7 +89,12 @@ class _MyAppState extends State<MyApp> {
             );
 
           default:
-            return null;
+            return MaterialPageRoute(
+              builder:
+                  (_) => const Scaffold(
+                    body: Center(child: Text('Rota não encontrada')),
+                  ),
+            );
         }
       },
     );
