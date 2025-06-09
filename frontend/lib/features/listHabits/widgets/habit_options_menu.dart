@@ -5,12 +5,16 @@ class HabitOptionsMenu extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onArchive;
   final VoidCallback onDelete;
+  final VoidCallback onViewRecord;
+  final VoidCallback? onComplete;
 
   const HabitOptionsMenu({
     Key? key,
     required this.onEdit,
     required this.onArchive,
     required this.onDelete,
+    required this.onViewRecord,
+    this.onComplete,
   }) : super(key: key);
 
   @override
@@ -20,6 +24,40 @@ class HabitOptionsMenu extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          ListTile(
+            leading: const Icon(Icons.history, color: Colors.blue),
+            title: Text(
+              'Ver Registro',
+              style: GoogleFonts.inter(
+                color: Colors.blue,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              onViewRecord();
+            },
+          ),
+          if (onComplete != null)
+            ListTile(
+              leading: const Icon(
+                Icons.check_circle_outline,
+                color: Colors.greenAccent,
+              ),
+              title: Text(
+                'Concluir Hábito',
+                style: GoogleFonts.inter(
+                  color: Colors.greenAccent,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(context);
+                onComplete!();
+              },
+            ),
           ListTile(
             leading: const Icon(Icons.edit, color: Colors.white),
             title: Text(
