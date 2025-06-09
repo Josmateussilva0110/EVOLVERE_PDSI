@@ -137,73 +137,86 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          if (_showDrawer)
-            GestureDetector(
-              onTap: _toggleDrawer,
-              child: Container(
-                color: Colors.black54,
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    width: 280,
-                    margin: EdgeInsets.only(top: 80, right: 10),
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.account_circle, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text(
-                              'Gabriel (Jesus)',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
+            if (_showDrawer)
+              GestureDetector(
+                onTap: _toggleDrawer,
+                behavior: HitTestBehavior.translucent, // detecta cliques em áreas transparentes
+                child: Container(
+                  color: Colors.black54,
+                  child: Stack(
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Container(
+                          width: 280,
+                          margin: EdgeInsets.only(top: 80, right: 10),
+                          padding: EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.account_circle, color: Colors.white),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Gabriel (Jesus)',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                              Divider(color: Colors.white24),
+                              _drawerItem(Icons.person, 'Conta', () {
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  '/perfil',
+                                  ModalRoute.withName('/inicio'),
+                                );
+                              }),
+                              _drawerItem(Icons.category, 'Categorias', () {
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  '/listar_categorias',
+                                  ModalRoute.withName('/inicio'),
+                                );
+                              }),
+                              _drawerItem(Icons.check_box, 'Hábitos', () {
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  '/listar_habitos',
+                                  ModalRoute.withName('/inicio'),
+                                );
+                              }),
+                              _drawerItem(Icons.settings, 'Configurações', () {}),
+                              _drawerItem(Icons.logout, 'Sair', () {
+                                Navigator.pushNamed(context, '/');
+                              }),
+                            ],
+                          ),
                         ),
-                        Divider(color: Colors.white24),
-                        _drawerItem(Icons.person, 'Conta', () {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/perfil',
-                            ModalRoute.withName('/inicio'),
-                          );
-                        }),
-                        _drawerItem(Icons.category, 'Categorias', () {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/listar_categorias',
-                            ModalRoute.withName('/inicio'),
-                          );
-                        }),
-
-                        _drawerItem(Icons.check_box, 'Hábitos', () {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/listar_habitos',
-                            ModalRoute.withName('/inicio'),
-                          );
-                        }),
-                        _drawerItem(Icons.settings, 'Configurações', () {
-                          //tela não criada
-                        }),
-                        _drawerItem(Icons.person, 'Sair', () {
-                          Navigator.pushNamed(context, '/');
-                        }),
-                      ],
-                    ),
+                      ),
+                      // Área invisível clicável maior à esquerda do menu
+                      Positioned(
+                        top: 0,
+                        bottom: 0,
+                        right: 280, // começa logo após o menu
+                        left: 0, // estende até a esquerda da tela
+                        child: Container(
+                          color: Colors.transparent,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ),
+
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
