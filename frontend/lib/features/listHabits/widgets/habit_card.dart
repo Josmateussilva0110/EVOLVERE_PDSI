@@ -4,6 +4,8 @@ import 'habit_options_menu.dart';
 import '../services/list_habits_service.dart';
 import '../services/list_categories_service.dart';
 import 'confirm_action_dialog.dart';
+import '../screens/progress_record_screen.dart';
+import '../../habit_completion/screens/finish_habit_screen.dart';
 import '../../Habits/model/HabitData.dart';
 
 class HabitCardWidget extends StatelessWidget {
@@ -29,6 +31,25 @@ class HabitCardWidget extends StatelessWidget {
       ),
       builder: (_) {
         return HabitOptionsMenu(
+          onViewRecord: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (_) => ProgressRecordScreen(
+                      habitName: habit.name,
+                      category: habit.categoryName ?? 'Categoria',
+                      totalMinutes: 6777,
+                      dailyAverage: '2h 16min',
+                      currentStreak: '1 mês e 3 dias',
+                      monthDays: '22 de 31',
+                      progressPercent: 0.66,
+                      weeklyData: [1, 2, 1, 3, 4, 2, 3],
+                    ),
+              ),
+            );
+          },
           onEdit: () async {
             Navigator.pop(context);
             int? categoryId;
@@ -85,7 +106,6 @@ class HabitCardWidget extends StatelessWidget {
               );
             }
           },
-
           onDelete: () async {
             final confirm = await showConfirmActionDialog(
               context: context,
@@ -114,6 +134,15 @@ class HabitCardWidget extends StatelessWidget {
                 ),
               );
             }
+          },
+          onComplete: () {
+            Navigator.pop(context);
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => FinishHabitScreen(habit: habit),
+              ),
+            );
           },
         );
       },
@@ -188,25 +217,29 @@ class HabitCardWidget extends StatelessWidget {
     );
   }
 
-  Color _getPrioridadeColor(int priority) {
-    switch (priority) {
+  Color _getPrioridadeColor(int prioridade) {
+    switch (prioridade) {
       case 1:
         return Colors.red;
       case 2:
-        return Colors.amber;
-      default:
+        return Colors.orange;
+      case 3:
         return Colors.green;
+      default:
+        return Colors.grey;
     }
   }
 
-  String _getPrioridadeTexto(int priority) {
-    switch (priority) {
+  String _getPrioridadeTexto(int prioridade) {
+    switch (prioridade) {
       case 1:
         return 'Alta';
       case 2:
         return 'Normal';
-      default:
+      case 3:
         return 'Baixa';
+      default:
+        return 'Não definida';
     }
   }
 }
