@@ -51,4 +51,26 @@ class CategoryService {
       return [];
     }
   }
+  static Future<bool> restoreCategory(String id) async {
+  try {
+    final response = await http.patch(
+      Uri.parse('${dotenv.env['API_URL']}/category/$id/unarchive'),
+    );
+    return response.statusCode == 200;
+  } catch (e) {
+    return false;
+  }
+}
+
+static Future<bool> deleteCategory(String id) async {
+  try {
+    final response = await http.delete(
+      Uri.parse('${dotenv.env['API_URL']}/category/$id'),
+    );
+    return response.statusCode == 200;
+  } catch (e) {
+    return false;
+  }
+}
+
 }
