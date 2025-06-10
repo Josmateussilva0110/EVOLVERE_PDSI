@@ -4,6 +4,7 @@ import '../components/habit_form.dart';
 import '../widgets/bottom_navigation.dart';
 import '../../components/habits_app_bar.dart';
 import '../../model/HabitData.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HabitScreen extends StatefulWidget {
   final HabitData habitData;
@@ -15,15 +16,25 @@ class HabitScreen extends StatefulWidget {
 
 class _HabitScreenState extends State<HabitScreen> {
   int? habitId;
+  int? userId;
   String habitName = '';
   String description = '';
   int? selectedCategory;
   Map<String, dynamic> frequencyData = {};
 
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getInt('loggedInUserId');
+    });
+  }
+
+
   @override
   void initState() {
     super.initState();
     habitId = widget.habitData.habitId;
+    userId = widget.habitData.userId;
     habitName = widget.habitData.habitName;
     description = widget.habitData.description;
     selectedCategory = widget.habitData.selectedCategory;
@@ -31,6 +42,7 @@ class _HabitScreenState extends State<HabitScreen> {
     if (selectedCategory is String) {
       selectedCategory = int.tryParse(selectedCategory as String);
     }
+    _loadUserId();
   }
 
   void _onFrequencyDataChanged(Map<String, dynamic> newData) {
@@ -62,6 +74,7 @@ class _HabitScreenState extends State<HabitScreen> {
 
     final updatedHabitData = widget.habitData.copyWith(
       habitId: habitId,
+      userId: userId,
       habitName: habitName,
       description: description,
       selectedCategory: selectedCategory,
@@ -74,6 +87,7 @@ class _HabitScreenState extends State<HabitScreen> {
       arguments: updatedHabitData,
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,9 +102,10 @@ class _HabitScreenState extends State<HabitScreen> {
                 habitId: habitId,
                 habitName: habitName,
                 description: description,
-                selectedCategory: selectedCategory, 
+                selectedCategory: selectedCategory,
                 onNameChanged: (value) => setState(() => habitName = value),
-                onDescriptionChanged: (value) => setState(() => description = value),
+                onDescriptionChanged:
+                    (value) => setState(() => description = value),
                 onCategorySelected: _onCategorySelected,
                 onFrequencyDataChanged: _onFrequencyDataChanged,
               ),

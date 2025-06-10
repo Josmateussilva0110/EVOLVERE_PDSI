@@ -166,9 +166,9 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildDifficultyChip('Fácil 💪', 0),
-                  _buildDifficultyChip('Médio 🧠', 1),
-                  _buildDifficultyChip('Difícil 🤯', 2),
+                  _buildDifficultyChip('Fácil', 0),
+                  _buildDifficultyChip('Médio', 1),
+                  _buildDifficultyChip('Difícil', 2),
                 ],
               ),
               const SizedBox(height: 24),

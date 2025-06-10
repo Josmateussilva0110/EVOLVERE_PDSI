@@ -5,6 +5,7 @@ import '../services/list_habits_service.dart';
 import '../models/HabitModel.dart';
 import '../widgets/habit_card.dart';
 import '../widgets/archived_habits.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class HabitsListPage extends StatefulWidget {
@@ -15,11 +16,20 @@ class HabitsListPage extends StatefulWidget {
 }
 
 class _HabitsListPageState extends State<HabitsListPage> {
-  late Future<List<Habit>> _habitsFuture;
+  Future<List<Habit>> _habitsFuture = Future.value([]);
   String? selectedCategory;
+  int? userId;
+
+  Future<int?> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('loggedInUserId');
+  }
+
 
   Future<void> _loadHabits() async {
-    final allHabits = await HabitService.fetchHabits();
+    if (userId == null) return;
+
+    final allHabits = await HabitService.fetchHabits(userId!);
     setState(() {
       if (selectedCategory != null) {
         _habitsFuture = Future.value(
@@ -31,11 +41,25 @@ class _HabitsListPageState extends State<HabitsListPage> {
     });
   }
 
+
+  Future<void> _initData() async {
+    final id = await _loadUserId();
+    if (id != null) {
+      setState(() {
+        userId = id;
+        _habitsFuture = HabitService.fetchHabits(id); 
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    _habitsFuture = HabitService.fetchHabits();
+    _initData();
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -138,12 +162,12 @@ class _HabitsListPageState extends State<HabitsListPage> {
                             habit: habit,
                             onHabitArchived: () {
                               setState(() {
-                                _habitsFuture = HabitService.fetchHabits();
+                                _habitsFuture = HabitService.fetchHabits(userId!);
                               });
                             },
                             onHabitDeleted: () {
                               setState(() {
-                                _habitsFuture = HabitService.fetchHabits();
+                                _habitsFuture = HabitService.fetchHabits(userId!);
                               });
                             },
                           );
