@@ -3,12 +3,19 @@ const Habit = require("../models/Habit")
 
 class HabitController {
     async create(request, response) {
-        var {name, description, category_id, frequency, start_date, end_date, priority, reminders} = request.body 
+        var {name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id} = request.body 
         if (!name || name.trim() === '') { //debug trim() remove os espaços em branco do incio e fim da string
             response.status(400)
             response.json({err: "nome invalido."})
             return
         }
+
+        if(user_id == undefined) {
+            response.status(400)
+            response.json({err: "usuário invalido."})
+            return
+        }
+
         if(start_date == undefined) {
             response.status(400)
             response.json({err: "adicione uma data de inicio."})
@@ -31,7 +38,7 @@ class HabitController {
             response.json({err: "habito já existe."})
             return 
         }
-        var done = await Habit.new(name, description, category_id, frequency, start_date, end_date, priority, reminders)
+        var done = await Habit.new(name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id)
         if(done) {
             response.status(200)
             response.send('Cadastro realizado com sucesso.')
@@ -135,10 +142,15 @@ class HabitController {
 
     async editHabit(request, response) {
         const id = request.params.id
-        const {name, description, category_id, frequency, start_date, end_date, priority, reminders} = request.body
+        const {name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id} = request.body
         if (!id || isNaN(id)) {
             return response.status(400).json({ err: "ID inválido" })
         }
+
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "usuário invalido." })
+        }
+
         var habit = await Habit.habitExist(id)
         if(!habit) {
             return response.status(404).json({ err: "habito não encontrada." })
@@ -147,7 +159,7 @@ class HabitController {
         if(nameExists && nameExists.id !== Number(id)) {
             return response.status(409).json({err: "nome de habito já existe."})
         }
-        var result = await Habit.uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders)
+        var result = await Habit.uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id)
         if(result) {
             response.status(200)
             response.json({message: "Habito editado com sucesso."})

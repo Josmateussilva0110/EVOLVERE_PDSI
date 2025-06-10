@@ -36,9 +36,9 @@ class Habit {
         }
     }
 
-    async new(name, description, category_id, frequency, start_date, end_date, priority, reminders) {
+    async new(name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id) {
         try {
-            await knex.insert({name, description, category_id, frequency, start_date, end_date, priority, reminders: reminders ? JSON.stringify(reminders) : null}).table("habits")
+            await knex.insert({name, description, category_id, frequency, start_date, end_date, priority, reminders: reminders ? JSON.stringify(reminders) : null, user_id}).table("habits")
             return true
         } catch(err) {
             console.log('erro em cadastrar habito: ', err)
@@ -145,7 +145,7 @@ class Habit {
 
     async findById(id) {
         try {
-            var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status"]).where({id: id}).table("habits")
+            var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status", "user_id"]).where({id: id}).table("habits")
             if(result.length > 0) 
                 return result[0]
             else 
@@ -157,7 +157,7 @@ class Habit {
     }
     async findByName(name) {
         try {
-            var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status"]).where({name: name}).table("habits")
+            var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status", "user_id"]).where({name: name}).table("habits")
             if(result.length > 0) 
                 return result[0]
             else 
@@ -196,7 +196,7 @@ class Habit {
             return false
         }
     }
-    async uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders) {
+    async uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id) {
         try {
             const updates = {
                 name,
@@ -207,6 +207,7 @@ class Habit {
                 end_date: end_date ? formatDateForMySQL(end_date) : undefined,
                 priority,
                 reminders: reminders ? JSON.stringify(reminders) : undefined,
+                user_id,
                 updated_at: knex.fn.now()
             }
 

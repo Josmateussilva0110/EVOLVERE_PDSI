@@ -1,8 +1,9 @@
 class HabitData {
   int? habitId;
+  int? userId;
   String habitName;
   String description;
-  int? selectedCategory; 
+  int? selectedCategory;
   Map<String, dynamic> frequencyData;
   DateTime? startDate;
   DateTime? endDate;
@@ -11,19 +12,22 @@ class HabitData {
 
   HabitData({
     this.habitId,
+    this.userId,
     this.habitName = '',
     this.description = '',
-    this.selectedCategory, 
+    this.selectedCategory,
     Map<String, dynamic>? frequencyData,
     this.startDate,
     this.endDate,
     List<DateTime>? reminders,
     this.priority = 2,
-  })  : frequencyData = frequencyData ?? {'option': 'todos_os_dias', 'value': null},
-        reminders = reminders ?? [];
+  }) : frequencyData =
+           frequencyData ?? {'option': 'todos_os_dias', 'value': null},
+       reminders = reminders ?? [];
 
   HabitData copyWith({
     int? habitId,
+    int? userId,
     String? habitName,
     String? description,
     int? selectedCategory,
@@ -35,6 +39,7 @@ class HabitData {
   }) {
     return HabitData(
       habitId: habitId ?? this.habitId,
+      userId: userId ?? this.userId,
       habitName: habitName ?? this.habitName,
       description: description ?? this.description,
       selectedCategory: selectedCategory,
@@ -51,6 +56,7 @@ class HabitData {
     return '''
   HabitData(
     habitId: $habitId,
+    userId: $userId,
     habitName: $habitName,
     description: $description,
     selectedCategory: $selectedCategory,
@@ -62,6 +68,4 @@ class HabitData {
   )
   ''';
   }
-
 }
-

@@ -36,6 +36,7 @@ class HabitService {
       'priority': habitData.priority,
       if (habitData.selectedCategory != null)
         'category_id': habitData.selectedCategory,
+      'user_id': habitData.userId
     };
     try {
       final response = await http.post(
@@ -68,6 +69,7 @@ class HabitService {
       'reminders': habitData.reminders.map((r) => r.toIso8601String()).toList(),
       'priority': habitData.priority,
       'category_id': habitData.selectedCategory,
+      'user_id': habitData.userId
     };
     try {
       final response = await http.patch(
