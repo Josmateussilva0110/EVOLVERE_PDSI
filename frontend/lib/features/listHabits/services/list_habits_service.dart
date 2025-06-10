@@ -4,10 +4,11 @@ import '../models/HabitModel.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HabitService {
-  static Future<List<Habit>> fetchHabits() async {
+  static Future<List<Habit>> fetchHabits(int userId) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/habits/not_archived'),
+      Uri.parse('${dotenv.env['API_URL']}/habits/not_archived/$userId'),
     );
+
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       final List<dynamic> habitsList = decoded['habits'];
