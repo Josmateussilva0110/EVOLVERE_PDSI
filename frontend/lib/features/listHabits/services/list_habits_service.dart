@@ -53,9 +53,9 @@ class HabitService {
     }
   }
 
-  static Future<List<Habit>> fetchHabitsArchived() async {
+  static Future<List<Habit>> fetchHabitsArchived(int userId) async {
     final response = await http.get(
-      Uri.parse('${dotenv.env['API_URL']}/habits/archived'),
+      Uri.parse('${dotenv.env['API_URL']}/habits/archived/$userId'),
     );
 
     if (response.statusCode == 200) {

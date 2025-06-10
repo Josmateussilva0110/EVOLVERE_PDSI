@@ -75,7 +75,12 @@ class HabitController {
     }
 
     async getHabitsArchived(request, response) {
-        const habits = await Habit.findArchived()
+        const user_id = request.params.user_id
+
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário invalido." });
+        }
+        const habits = await Habit.findArchived(user_id)
 
         if (habits && habits.length > 0) {
             response.status(200).json({ habits })

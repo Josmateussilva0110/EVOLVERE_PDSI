@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/list_habits_service.dart';
 import '../models/HabitModel.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ArchivedHabitsModal extends StatefulWidget {
   final VoidCallback? onHabitRestored;
@@ -12,21 +13,39 @@ class ArchivedHabitsModal extends StatefulWidget {
 
 class _ArchivedHabitsModalState extends State<ArchivedHabitsModal> {
   bool isLoading = true;
-  List<Habit> archivedHabits = [];
+  List<Habit> _archivedHabits = [];
+  int? userId;
+
+  Future<int?> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('loggedInUserId');
+  }
+
+  Future<void> _loadArchived() async {
+    if (userId == null) return;
+    final allArchivedHabits = await HabitService.fetchHabitsArchived(userId!);
+    if (mounted) {
+      setState(() {
+        _archivedHabits = allArchivedHabits;
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _initData() async {
+    final id = await _loadUserId();
+    if (id != null) {
+      setState(() {
+        userId = id;
+      });
+      _loadArchived(); 
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadArchived();
-  }
-
-  Future<void> _loadArchived() async {
-    archivedHabits = await HabitService.fetchHabitsArchived();
-    if (mounted) {
-      setState(() {
-        isLoading = false;
-      });
-    }
+    _initData();
   }
 
   @override
@@ -57,8 +76,10 @@ class _ArchivedHabitsModalState extends State<ArchivedHabitsModal> {
             ),
             const Divider(color: Colors.white24),
             if (isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (archivedHabits.isEmpty)
+              const Expanded(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_archivedHabits.isEmpty)
               const Padding(
                 padding: EdgeInsets.all(32),
                 child: Center(
@@ -71,9 +92,9 @@ class _ArchivedHabitsModalState extends State<ArchivedHabitsModal> {
             else
               Expanded(
                 child: ListView.builder(
-                  itemCount: archivedHabits.length,
+                  itemCount: _archivedHabits.length,
                   itemBuilder: (context, index) {
-                    final habit = archivedHabits[index];
+                    final habit = _archivedHabits[index];
                     return ListTile(
                       title: Text(
                         habit.name,
@@ -81,16 +102,12 @@ class _ArchivedHabitsModalState extends State<ArchivedHabitsModal> {
                       ),
                       trailing: const Icon(Icons.restore, color: Colors.green),
                       onTap: () async {
-                        final success = await HabitService.activeHabit(
-                          habit.id,
-                        );
+                        final success = await HabitService.activeHabit(habit.id);
                         if (success) {
                           setState(() {
-                            archivedHabits.removeAt(index);
+                            _archivedHabits.removeAt(index);
                           });
-                          if (widget.onHabitRestored != null) {
-                            widget.onHabitRestored!();
-                          }
+                          widget.onHabitRestored?.call();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Hábito restaurado com sucesso!'),

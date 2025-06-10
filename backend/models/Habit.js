@@ -110,11 +110,11 @@ class Habit {
         }
     }
 
-    async findArchived() {
+    async findArchived(user_id) {
         try {
             const result = await knex('habits as h')
             .leftJoin('category as c', 'h.category_id', 'c.id')
-            .where('h.status', '=', 3)
+            .where('h.status', '=', 3).andWhere('h.user_id', user_id)
             .select(
                 'h.id',
                 'h.name',
