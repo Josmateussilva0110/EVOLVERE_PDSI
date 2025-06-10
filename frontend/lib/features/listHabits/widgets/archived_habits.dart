@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/list_habits_service.dart';
-import '../model/HabitModel.dart';
+import '../models/HabitModel.dart';
 
 class ArchivedHabitsModal extends StatefulWidget {
   final VoidCallback? onHabitRestored;

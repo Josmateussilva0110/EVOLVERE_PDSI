@@ -3,6 +3,7 @@ import '../user/screens/edit_profile_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart'; 
 
 class User {
   final String name;
@@ -12,7 +13,6 @@ class User {
   User({required this.name, required this.email, required this.createdAt});
 
   factory User.fromJson(Map<String, dynamic> json) {
-    print('Convertendo JSON para User: $json');
     return User(
       name: json['name'] ?? '',
       email: json['email'] ?? '',
@@ -59,7 +59,6 @@ class _TelaPerfilState extends State<TelaPerfil> {
     _loggedInUserId = prefs.getInt('loggedInUserId'); // Recupera o ID
 
     if (_loggedInUserId == null) {
-      print('Erro: ID do usuário logado não encontrado.');
       setState(() {
         _isLoading = false;
       });
@@ -68,30 +67,23 @@ class _TelaPerfilState extends State<TelaPerfil> {
       return;
     }
 
-    print('Inicializando TelaPerfil com ID: $_loggedInUserId');
     await _fetchUserData(_loggedInUserId!); // Passa o ID para a função de busca
   }
 
   Future<void> _fetchUserData(int userId) async {
     try {
-      print('Iniciando busca do usuário com ID: $userId');
       final response = await http.get(
-        Uri.parse('http://192.168.2.107:8080/user/profile/$userId'),
+        Uri.parse('${dotenv.env['API_URL']}/user/profile/$userId'),
       );
-
-      print('Resposta da API: ${response.statusCode}');
-      print('Corpo da resposta: ${response.body}');
 
       if (response.statusCode == 200) {
         final userData = json.decode(response.body);
-        print('Dados do usuário decodificados: $userData');
 
         setState(() {
           _user = User.fromJson(userData);
           _isLoading = false;
         });
       } else {
-        print('Erro na resposta da API: ${response.statusCode}');
         throw Exception('Falha ao carregar dados do usuário');
       }
     } catch (e) {

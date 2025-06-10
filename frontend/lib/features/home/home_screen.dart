@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'notifications_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -9,6 +10,20 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _showDrawer = false;
   int _selectedIndex = 0;
+  String _userName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  void _loadUserName() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('username') ?? 'Usuário';
+    });
+  }
 
   void _toggleDrawer() {
     setState(() {
@@ -44,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Olá, Gabriel (Jesus)',
+                        'Olá, $_userName',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -161,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             Icon(Icons.account_circle, color: Colors.white),
                             SizedBox(width: 8),
                             Text(
-                              'Gabriel (Jesus)',
+                              '$_userName',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,

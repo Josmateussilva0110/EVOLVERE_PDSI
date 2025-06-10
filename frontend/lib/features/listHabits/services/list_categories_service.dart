@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../model/CategoryModel.dart';
+import '../models/CategoryModel.dart';
 
 class CategoryService {
   static Future<List<Category>> fetchNotArchivedCategories() async {
