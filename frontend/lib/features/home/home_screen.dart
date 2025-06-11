@@ -148,6 +148,19 @@ class _HomeScreenState extends State<HomeScreen> {
                     Icons.favorite,
                     Color.fromARGB(255, 251, 192, 45),
                   ),
+                  SizedBox(height: 10),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/listar_habitos');
+                      },
+                      child: Text(
+                        'Ver Mais',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
