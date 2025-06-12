@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../listHabits/models/HabitModel.dart';
-import '../../listHabits/screens/progress_record_screen.dart';
+import '../model/Finish_habit_model.dart';
+import '../service/finish_habit_service.dart';
 
 class FinishHabitScreen extends StatefulWidget {
   final Habit habit;
@@ -185,14 +186,14 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildMoodOption(
-                    'Neutro',
-                    Icons.sentiment_neutral_rounded,
-                    0,
-                  ),
-                  _buildMoodOption(
                     'Motivado',
                     Icons.sentiment_satisfied_alt_rounded,
                     1,
+                  ),
+                  _buildMoodOption(
+                    'Neutro',
+                    Icons.sentiment_neutral_rounded,
+                    0,
                   ),
                   _buildMoodOption(
                     'Desanimado',
@@ -349,7 +350,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_hours == 0 && _minutes == 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -367,24 +368,45 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                       );
                       return;
                     }
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => ProgressRecordScreen(
-                              habitName: widget.habit.name,
-                              category:
-                                  widget.habit.categoryName ?? 'Sem Categoria',
-                              totalMinutes: _hours * 60 + _minutes,
-                              dailyAverage: 'N/A',
-                              currentStreak: 'N/A',
-                              monthDays: 'N/A',
-                              progressPercent: 0.0,
-                              weeklyData: [],
-                            ),
-                      ),
-                      (route) => false,
+                    final habitData = FinishHabitData(
+                      habitId: widget.habit.id,
+                      difficulty: _selectedDifficulty,
+                      mood: _selectedMood,
+                      reflection: _reflectionController.text.trim(),
+                      location: _locationController.text.trim(),
+                      hour: TimeOfDay(hour: _hours, minute: _minutes),
                     );
+
+                    final result = await FinishHabitService.createFinishHabit(
+                      habitData,
+                    );
+
+                    if (result == null) {
+                      // Sucesso: ir para a tela de progresso
+                      ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Cadastro realizado com sucesso!'),
+                        backgroundColor: Colors.green,
+                        ),
+                      );
+                      Navigator.pushReplacementNamed(context, '/listar_habitos');
+                    } else {
+                      // Falha: mostrar erro
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            result,
+                            style: GoogleFonts.inter(color: Colors.white),
+                          ),
+                          backgroundColor: Colors.red,
+                          behavior: SnackBarBehavior.floating,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: const EdgeInsets.all(16),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
@@ -397,35 +419,6 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                     'Salvar',
                     style: GoogleFonts.inter(
                       color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-                    Navigator.pushNamedAndRemoveUntil(
-                      context,
-                      '/listar_habitos',
-                      (route) => false,
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Colors.white38, width: 1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: Text(
-                    'Cancelar',
-                    style: GoogleFonts.inter(
-                      color: Colors.white70,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),

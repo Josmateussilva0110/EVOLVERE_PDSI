@@ -53,9 +53,11 @@ class HabitCardWidget extends StatelessWidget {
           onEdit: () async {
             Navigator.pop(context);
             int? categoryId;
-              if (habit.categoryName != null) {
-                categoryId = await CategoryService.fetchCategoryIdByName(habit.categoryName!);
-              }
+            if (habit.categoryName != null) {
+              categoryId = await CategoryService.fetchCategoryIdByName(
+                habit.categoryName!,
+              );
+            }
             await Navigator.pushNamed(
               context,
               '/cadastrar_habito',
