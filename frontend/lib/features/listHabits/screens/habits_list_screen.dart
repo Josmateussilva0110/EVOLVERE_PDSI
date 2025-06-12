@@ -7,7 +7,6 @@ import '../widgets/habit_card.dart';
 import '../widgets/archived_habits.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class HabitsListPage extends StatefulWidget {
   const HabitsListPage({Key? key}) : super(key: key);
 
@@ -25,7 +24,6 @@ class _HabitsListPageState extends State<HabitsListPage> {
     return prefs.getInt('loggedInUserId');
   }
 
-
   Future<void> _loadHabits() async {
     if (userId == null) return;
 
@@ -41,13 +39,12 @@ class _HabitsListPageState extends State<HabitsListPage> {
     });
   }
 
-
   Future<void> _initData() async {
     final id = await _loadUserId();
     if (id != null) {
       setState(() {
         userId = id;
-        _habitsFuture = HabitService.fetchHabits(id); 
+        _habitsFuture = HabitService.fetchHabits(id);
       });
     }
   }
@@ -57,9 +54,6 @@ class _HabitsListPageState extends State<HabitsListPage> {
     super.initState();
     _initData();
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -162,12 +156,16 @@ class _HabitsListPageState extends State<HabitsListPage> {
                             habit: habit,
                             onHabitArchived: () {
                               setState(() {
-                                _habitsFuture = HabitService.fetchHabits(userId!);
+                                _habitsFuture = HabitService.fetchHabits(
+                                  userId!,
+                                );
                               });
                             },
                             onHabitDeleted: () {
                               setState(() {
-                                _habitsFuture = HabitService.fetchHabits(userId!);
+                                _habitsFuture = HabitService.fetchHabits(
+                                  userId!,
+                                );
                               });
                             },
                           );
