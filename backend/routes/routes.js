@@ -8,10 +8,10 @@ const AdminAuth = require("../middleware/AdminAuth")
 
 router.get('/', HomeController.index)
 router.post('/user', UserController.create)
-router.get("/users", AdminAuth, UserController.index)
+router.get("/users", UserController.index)
 router.get("/user/:id", UserController.findUser)
 router.get("/user/email/:email", UserController.findEmailUser)
-router.delete("/user/:id", AdminAuth, UserController.remove)
+router.delete("/user/:id", UserController.remove)
 router.post("/recoverpassword", UserController.recoverPassword)
 router.post("/changepassword", UserController.changePassword)
 router.post("/login", UserController.login)
@@ -33,9 +33,10 @@ router.get("/habits/top_priorities/:user_id", HabitController.getTopPriorities)
 router.delete("/habit/:id", HabitController.remove)
 router.post("/habit/archive/:id", HabitController.archiveHabit)
 router.post("/habit/active/:id", HabitController.setHabitToActive)
-router.put('/user/edit/:id', UserController.editProfile)
-router.get('/user/profile/:id', UserController.getLoggedUserInfo);
+router.put("/user/edit/:id", UserController.editProfile)
+router.get("/user/profile/:id", UserController.getLoggedUserInfo)
 router.patch("/habit/:id", HabitController.editHabit)
+router.post("/finished_habit", HabitController.finishedHabitCreate)
 
 
 module.exports = router

@@ -36,12 +36,37 @@ class Habit {
         }
     }
 
+    async finishHabitExist(id) {
+        try {
+            var result = await knex.select(["habit_id"]).from("finish_habit").where({habit_id: id})
+            if(result.length > 0) {
+                return true
+            }
+            else {
+                return false
+            }
+        } catch(err) {
+            console.log('erro em buscar id do habito: ', err)
+            return false
+        }
+    }
+
     async new(name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id) {
         try {
             await knex.insert({name, description, category_id, frequency, start_date, end_date, priority, reminders: reminders ? JSON.stringify(reminders) : null, user_id}).table("habits")
             return true
         } catch(err) {
             console.log('erro em cadastrar habito: ', err)
+            return false
+        }
+    }
+
+    async newFinishHabit(habit_id, difficulty, mood, reflection, location, hour) {
+        try {
+            await knex.insert({habit_id, difficulty, mood, reflection, location, hour}).table("finish_habit")
+            return true
+        } catch(err) {
+            console.log('erro em cadastrar a finalização do habito: ', err)
             return false
         }
     }
