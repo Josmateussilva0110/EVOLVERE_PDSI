@@ -196,6 +196,10 @@ class HabitController {
 
     async finishedHabitCreate(request, response) {
         var {habit_id, difficulty, mood, reflection, location, hour} = request.body 
+        habit_id = Number(habit_id)
+        difficulty = Number(difficulty)
+        mood = Number(mood)
+        
         if (isNaN(habit_id)) {
             return response.status(400).json({ err: "Hábito invalido." })
         }
