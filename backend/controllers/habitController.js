@@ -224,12 +224,16 @@ class HabitController {
         }
         var done = await Habit.newFinishHabit(habit_id, difficulty, mood, reflection, location, hour)
         if(done) {
+            var completed = await Habit.updateToCompleted(habit_id)
+            if(!completed) {
+                return response.status(500).json({err: "erro ao completar habito"})
+            }
             response.status(200)
-            response.send('Cadastro realizado com sucesso.')
+            response.send('Habito finalizado com sucesso.')
         }
         else {
             response.status(500)
-            response.json({err: "erro ao cadastrar habito."})
+            response.json({err: "erro ao completar habito."})
         }
     }
 }
