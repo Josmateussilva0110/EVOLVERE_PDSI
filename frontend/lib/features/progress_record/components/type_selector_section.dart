@@ -119,10 +119,10 @@ class TypeSelectorSection extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           selectedType == 0
-              ? 'Automático: o sistema registra automaticamente...'
+              ? 'O sistema registra automaticamente.'
               : selectedType == 1
-                  ? 'Manual: você marca quando cumprir.'
-                  : 'Acumulativa: define uma meta de quantidade.',
+                  ? 'Você marca quando cumprir.'
+                  : 'Define uma meta de quantidade.',
           style: GoogleFonts.inter(
             color: Colors.white54,
             fontSize: descFontSize,
