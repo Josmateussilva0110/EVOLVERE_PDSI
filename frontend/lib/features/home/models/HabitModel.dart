@@ -44,7 +44,8 @@ class Habit {
       categoryName: json['categoria'] ?? '',
       frequency: frequencyData,
       startDate: DateTime.parse(json['start_date']),
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
+      endDate:
+          json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
       priority: json['priority'],
       reminders: json['reminders'] ?? [],
       status: json['status'],

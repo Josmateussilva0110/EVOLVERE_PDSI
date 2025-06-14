@@ -231,7 +231,7 @@ class Habit {
             .leftJoin('category as c', 'h.category_id', 'c.id')
             .where('h.status', '!=', 3)
             .andWhere('h.user_id', user_id)
-            .orderBy('h.priority', 'desc')
+            .orderBy('h.priority', 'asc')
             .limit(3)
             .select(
                 'h.id',
