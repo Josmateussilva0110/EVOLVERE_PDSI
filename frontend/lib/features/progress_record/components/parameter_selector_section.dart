@@ -19,7 +19,14 @@ class ParameterSelectorSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double fontSize = MediaQuery.of(context).size.width * 0.035;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isLandscape = screenWidth > screenHeight;
+
+    final double labelFontSize = isLandscape ? screenWidth * 0.035 : screenWidth * 0.04;
+    final double valueFontSize = isLandscape ? screenWidth * 0.04 : screenWidth * 0.05;
+    final double iconSize = isLandscape ? 18 : 22;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -29,25 +36,31 @@ class ParameterSelectorSection extends StatelessWidget {
               'Parâmetro',
               style: GoogleFonts.inter(
                 color: Colors.white70,
-                fontSize: fontSize,
+                fontSize: labelFontSize,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(width: 6),
             GestureDetector(
               onTap: onInfoTap,
-              child: const Icon(Icons.info_outline, color: Colors.white38, size: 18),
+              child: Icon(
+                Icons.info_outline,
+                color: Colors.white38,
+                size: iconSize,
+              ),
             ),
           ],
         ),
         const SizedBox(height: 10),
+
         Row(
           children: [
             if (selectedType != 1)
               Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color(0xFF232B3E),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
@@ -58,26 +71,30 @@ class ParameterSelectorSection extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
+                    // Botão -
                     IconButton(
                       icon: const Icon(Icons.remove, color: Colors.white),
-                      splashRadius: 20,
+                      splashRadius: 22,
                       onPressed: onDecrement,
                     ),
-                    SizedBox(
-                      width: 40,
-                      child: Text(
-                        '$parameterValue',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontSize: MediaQuery.of(context).size.width * 0.045,
-                          fontWeight: FontWeight.w600,
+
+                    IntrinsicWidth(
+                      child: Center(
+                        child: Text(
+                          '$parameterValue',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: valueFontSize,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
+
                     IconButton(
                       icon: const Icon(Icons.add, color: Colors.white),
-                      splashRadius: 20,
+                      splashRadius: 22,
                       onPressed: onIncrement,
                     ),
                   ],
@@ -88,7 +105,7 @@ class ParameterSelectorSection extends StatelessWidget {
                 'Sem parâmetro',
                 style: GoogleFonts.inter(
                   color: Colors.white38,
-                  fontSize: fontSize,
+                  fontSize: labelFontSize,
                 ),
               ),
           ],
