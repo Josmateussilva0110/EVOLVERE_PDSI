@@ -106,7 +106,7 @@ class Habit {
         try {
             const result = await knex('habits as h')
             .leftJoin('category as c', 'h.category_id', 'c.id')
-            .where('h.status', '!=', 3).andWhere('h.user_id', user_id)
+            .where('h.status', '=', 1).andWhere('h.user_id', user_id)
             .select(
                 'h.id',
                 'h.name',
@@ -221,6 +221,18 @@ class Habit {
             return false
         }
     }
+
+    async updateToCompleted(id) {
+        try {
+            await knex("habits").where({id: id}).update({status: 4})
+            return true
+        } catch(err) {
+            console.log('erro ao arquivar habito: ', err)
+            return false
+        }
+    }
+
+
     async uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id) {
         try {
             const updates = {
