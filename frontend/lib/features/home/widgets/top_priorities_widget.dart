@@ -48,7 +48,23 @@ class _TopPrioritiesWidgetState extends State<TopPrioritiesWidget> {
 
   String _getFrequencyOption(Map<String, dynamic> frequency) {
     if (frequency == null) return 'Sem frequência definida';
-    return frequency['option'] ?? 'Sem frequência definida';
+
+    final option = frequency['option']?.toString().toLowerCase() ?? '';
+
+    switch (option) {
+      case 'diário':
+        return 'Diário';
+      case 'semanal':
+        return 'Semanal';
+      case 'mensal':
+        return 'Mensal';
+      default:
+        return option
+            .replaceAll('_', ' ')
+            .split(' ')
+            .map((word) => word[0].toUpperCase() + word.substring(1))
+            .join(' ');
+    }
   }
 
   @override
