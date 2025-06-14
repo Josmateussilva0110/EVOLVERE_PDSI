@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'add_goal_screen.dart';
+import '../screens/add_goal_screen.dart';
 
 class GoalSettingsScreen extends StatelessWidget {
   final List<Goal> goals = [

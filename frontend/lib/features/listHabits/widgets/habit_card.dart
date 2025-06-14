@@ -4,7 +4,7 @@ import 'habit_options_menu.dart';
 import '../services/list_habits_service.dart';
 import '../services/list_categories_service.dart';
 import 'confirm_action_dialog.dart';
-import '../screens/progress_record_screen.dart';
+import '../../progress_record/screens/progress_record_screen.dart';
 import '../../habit_completion/screens/finish_habit_screen.dart';
 import '../../Habits/model/HabitData.dart';
 
