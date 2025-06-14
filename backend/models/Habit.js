@@ -21,6 +21,21 @@ class Habit {
         }
     }
 
+    async findNameProgress(name) {
+        try {
+            var result = await knex.select("*").from("habit_progress").where({name: name})
+            if(result.length > 0) {
+                return true
+            }
+            else {
+                return false
+            }
+        } catch(err) {
+            console.log('erro em buscar nome do progresso habito: ', err)
+            return false
+        }
+    }
+
     async habitExist(id) {
         try {
             var result = await knex.select(["id"]).from("habits").where({id: id})
@@ -67,6 +82,16 @@ class Habit {
             return true
         } catch(err) {
             console.log('erro em cadastrar a finalização do habito: ', err)
+            return false
+        }
+    }
+
+    async newHabitProgress(habit_id, name, type, parameter) {
+        try {
+            await knex.insert({habit_id, name, type, parameter}).table("habit_progress")
+            return true
+        } catch(err) {
+            console.log('erro ao cadastrar progresso do habito: ', err)
             return false
         }
     }
