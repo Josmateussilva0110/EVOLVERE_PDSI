@@ -67,7 +67,7 @@ class _TopPrioritiesWidgetState extends State<TopPrioritiesWidget> {
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(
             child: Text(
-              'Nenhum hábito prioritário encontrado',
+              'Nenhum hábito encontrado',
               style: TextStyle(color: Colors.grey),
             ),
           );
