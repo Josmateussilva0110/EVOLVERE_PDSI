@@ -46,6 +46,11 @@ class _TopPrioritiesWidgetState extends State<TopPrioritiesWidget> {
     }
   }
 
+  String _getFrequencyOption(Map<String, dynamic> frequency) {
+    if (frequency == null) return 'Sem frequência definida';
+    return frequency['option'] ?? 'Sem frequência definida';
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<Habit>>(
@@ -73,7 +78,6 @@ class _TopPrioritiesWidgetState extends State<TopPrioritiesWidget> {
           );
         }
 
-        // Ordena os hábitos por prioridade (1 é a mais alta)
         final sortedHabits = List<Habit>.from(snapshot.data!)
           ..sort((a, b) => a.priority.compareTo(b.priority));
 
@@ -83,43 +87,82 @@ class _TopPrioritiesWidgetState extends State<TopPrioritiesWidget> {
                 final priorityColor = _getPriorityColor(habit.priority);
 
                 return Container(
-                  margin: const EdgeInsets.only(bottom: 8.0),
+                  margin: const EdgeInsets.only(bottom: 12.0),
                   child: Card(
                     color: const Color(0xFF1F222A),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: priorityColor.withOpacity(0.3),
+                        width: 1,
+                      ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Row(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Text(
-                              habit.name,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  habit.name,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
-                            ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: priorityColor.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.flag,
+                                      size: 14,
+                                      color: priorityColor,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _getPriorityText(habit.priority),
+                                      style: TextStyle(
+                                        color: priorityColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: priorityColor.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _getPriorityText(habit.priority),
-                              style: TextStyle(
-                                color: priorityColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.calendar_today,
+                                size: 14,
+                                color: Colors.blue.withOpacity(0.7),
                               ),
-                            ),
+                              const SizedBox(width: 6),
+                              Text(
+                                _getFrequencyOption(habit.frequency),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: Colors.blue.withOpacity(0.7),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
