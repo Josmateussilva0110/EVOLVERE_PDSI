@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../screens/add_goal_screen.dart';
 
 class GoalSettingsScreen extends StatelessWidget {
+  final int habitId;
   final List<Goal> goals = [
     Goal(
       title: 'Estudar 30hrs este mês',
@@ -34,7 +35,7 @@ class GoalSettingsScreen extends StatelessWidget {
     ),
   ];
 
-  GoalSettingsScreen({super.key});
+  GoalSettingsScreen(this.habitId, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +71,7 @@ class GoalSettingsScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     if (index < goals.length) {
                       final goal = goals[index];
-                      return _GoalCard(goal: goal);
+                      return _GoalCard(goal: goal, habitId: habitId,);
                     } else {
                       // Botão de adicionar nova meta
                       return Padding(
@@ -81,7 +82,7 @@ class GoalSettingsScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => const AddGoalScreen(),
+                                  builder: (_) => AddGoalScreen(habitId: habitId),
                                 ),
                               );
                             },
@@ -113,11 +114,17 @@ class GoalSettingsScreen extends StatelessWidget {
 
 class _GoalCard extends StatefulWidget {
   final Goal goal;
-  const _GoalCard({required this.goal});
+  final int habitId;
+
+  const _GoalCard({
+    required this.goal,
+    required this.habitId,
+  });
 
   @override
   State<_GoalCard> createState() => _GoalCardState();
 }
+
 
 class _GoalCardState extends State<_GoalCard> {
   bool _isPressed = false;
@@ -164,14 +171,14 @@ class _GoalCardState extends State<_GoalCard> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder:
-                              (_) => AddGoalScreen(
-                                initialName: widget.goal.title,
-                                initialType: _goalTypeToIndex(widget.goal.type),
-                                initialParameter: widget.goal.progress ?? 10,
-                                initialInterval: 0,
-                                isEditing: true,
-                              ),
+                          builder: (_) => AddGoalScreen(
+                            habitId: widget.habitId,
+                            initialName: widget.goal.title,
+                            initialType: _goalTypeToIndex(widget.goal.type),
+                            initialParameter: widget.goal.progress ?? 10,
+                            initialInterval: 0,
+                            isEditing: true,
+                          ),
                         ),
                       );
                     },

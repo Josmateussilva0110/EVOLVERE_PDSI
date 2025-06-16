@@ -3,8 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../components/name_field.dart';
 import '../components/type_selector_section.dart';
 import '../components/parameter_selector_section.dart';
+import '../service/progress_record_service.dart';
+import '../model/Progress_record_model.dart';
 
 class AddGoalScreen extends StatefulWidget {
+  final int? habitId;
   final String? initialName;
   final int? initialType;
   final int? initialParameter;
@@ -13,6 +16,7 @@ class AddGoalScreen extends StatefulWidget {
 
   const AddGoalScreen({
     Key? key,
+    this.habitId,
     this.initialName,
     this.initialType,
     this.initialParameter,
@@ -21,10 +25,10 @@ class AddGoalScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<AddGoalScreen> createState() => _AddGoalScreenState();
+  State<AddGoalScreen> createState() => AddGoalScreenState();
 }
 
-class _AddGoalScreenState extends State<AddGoalScreen>
+class AddGoalScreenState extends State<AddGoalScreen>
     with SingleTickerProviderStateMixin {
   late TextEditingController _nameController;
   late int _selectedType;
@@ -36,6 +40,7 @@ class _AddGoalScreenState extends State<AddGoalScreen>
   @override
   void initState() {
     super.initState();
+    print('HABIT ID: ${widget.habitId}');
     _nameController = TextEditingController(text: widget.initialName ?? '');
     _selectedType = widget.initialType ?? 0;
     _parameter = widget.initialParameter ?? 10;
@@ -68,72 +73,103 @@ class _AddGoalScreenState extends State<AddGoalScreen>
     }
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF232B3E),
-        title: Text(
-          'Parâmetro',
-          style: GoogleFonts.inter(color: Colors.white),
-        ),
-        content: Text(
-          info,
-          style: GoogleFonts.inter(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK', style: TextStyle(color: Colors.blue)),
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: const Color(0xFF232B3E),
+            title: Text(
+              'Parâmetro',
+              style: GoogleFonts.inter(color: Colors.white),
+            ),
+            content: Text(
+              info,
+              style: GoogleFonts.inter(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK', style: TextStyle(color: Colors.blue)),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
   void _showTypeInfo() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF232B3E),
-        title: Text('Tipo', style: GoogleFonts.inter(color: Colors.white)),
-        content: Text(
-          'Automático: o sistema registra automaticamente (ex: tempo de estudo).\n\n'
-          'Manual: você marca quando cumprir.\n\n'
-          'Acumulativa: você define uma meta de quantidade (ex: ler 10 tópicos).',
-          style: GoogleFonts.inter(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK', style: TextStyle(color: Colors.blue)),
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: const Color(0xFF232B3E),
+            title: Text('Tipo', style: GoogleFonts.inter(color: Colors.white)),
+            content: Text(
+              'Automático: o sistema registra automaticamente (ex: tempo de estudo).\n\n'
+              'Manual: você marca quando cumprir.\n\n'
+              'Acumulativa: você define uma meta de quantidade (ex: ler 10 tópicos).',
+              style: GoogleFonts.inter(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK', style: TextStyle(color: Colors.blue)),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
-  void _validateAndSave() {
+  void _validateAndSave() async {
     setState(() {
       _nameValid = _nameController.text.trim().isNotEmpty;
     });
-    if (_nameValid) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 22),
-              const SizedBox(width: 8),
-              Text(widget.isEditing ? 'Meta atualizada!' : 'Meta adicionada!'),
-            ],
+
+    if (!_nameValid) return;
+
+    final data = ProgressRecordData(
+      habitId: widget.habitId, 
+      name: _nameController.text.trim(),
+      type: _selectedType,
+      parameter:
+          _selectedType == 1
+              ? null
+              : _parameter, 
+    );
+
+    final error = await ProgressRecordService.createProgressHabit(data);
+
+    if (error == null) {
+      // Sucesso
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(
+                  widget.isEditing ? 'Meta atualizada!' : 'Meta adicionada!',
+                ),
+              ],
+            ),
+            backgroundColor: Colors.blue,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
-          backgroundColor: Colors.blue,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        );
+      }
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) Navigator.pop(context);
+    } else {
+      // Erro
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao salvar: $error'),
+            backgroundColor: Colors.redAccent,
           ),
-        ),
-      );
-      Future.delayed(const Duration(milliseconds: 500), () {
-        Navigator.pop(context);
-      });
+        );
+      }
     }
   }
 
@@ -165,9 +201,7 @@ class _AddGoalScreenState extends State<AddGoalScreen>
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxWidth: maxContentWidth,
-              ),
+              constraints: BoxConstraints(maxWidth: maxContentWidth),
               child: FadeTransition(
                 opacity: _fadeAnim,
                 child: Column(
@@ -275,7 +309,9 @@ class _AddGoalScreenState extends State<AddGoalScreen>
                               splashColor: Colors.white24,
                               onTap: _validateAndSave,
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 20),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 20,
+                                ),
                                 child: Center(
                                   child: Text(
                                     widget.isEditing ? 'Salvar' : 'Adicionar',
