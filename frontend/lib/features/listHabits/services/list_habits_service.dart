@@ -19,7 +19,6 @@ class HabitService {
     }
   }
 
-
   static Future<bool> deleteHabit(int habitId) async {
     final response = await http.delete(
       Uri.parse('${dotenv.env['API_URL']}/habit/$habitId'),
