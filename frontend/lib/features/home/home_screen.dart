@@ -10,6 +10,7 @@ import '../user/screens/edit_profile_screen.dart';
 import '../listHabits/screens/habits_list_screen.dart'; // Importar tela de lista de hábitos (caminho corrigido)
 import '../register_category/screens/list_category_screen.dart'; // Importar tela de lista de categorias (caminho corrigido)
 import '../settings/screens/settings_screen.dart'; // Importar a nova tela de configurações
+import 'widgets/top_priorities_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -19,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // bool _showDrawer = false; // Removido: A navegação será direta para a tela de perfil
   String _userName = '';
-  int _userId = 0; // Adicionar para armazenar o ID do usuário
   String _userEmail = ''; // Adicionar para armazenar o email do usuário
 
   // Dados simulados para as métricas da home
@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double _dailyProgressValue = 6 / 8;
   int _completedHabitsCount = 6;
   int _totalHabitsCount = 8;
+  int? _userId;
 
   @override
   void initState() {
@@ -40,11 +41,13 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString('username') ?? 'Usuário';
-      // Assumindo que userId e userEmail também estão em SharedPreferences
-      _userId = prefs.getInt('userId') ?? 0; // Recupere o userId real
       _userEmail =
           prefs.getString('userEmail') ??
           'usuario@example.com'; // Recupere o userEmail real
+      _userId = prefs.getInt('loggedInUserId');
+    });
+  }
+
 
       // Dados simulados para demonstração. Substituir com dados reais da API.
       _dailyStreak = prefs.getInt('dailyStreak') ?? 3;
