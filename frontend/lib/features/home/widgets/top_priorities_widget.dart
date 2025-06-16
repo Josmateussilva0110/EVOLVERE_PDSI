@@ -47,7 +47,6 @@ class _TopPrioritiesWidgetState extends State<TopPrioritiesWidget> {
   }
 
   String _getFrequencyOption(Map<String, dynamic> frequency) {
-    if (frequency == null) return 'Sem frequência definida';
 
     final option = frequency['option']?.toString().toLowerCase() ?? '';
 
