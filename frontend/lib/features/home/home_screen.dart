@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'notifications_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'widgets/top_priorities_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -11,17 +12,19 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showDrawer = false;
   int _selectedIndex = 0;
   String _userName = '';
+  int? _userId;
 
   @override
   void initState() {
     super.initState();
-    _loadUserName();
+    _loadUserData();
   }
 
-  void _loadUserName() async {
+  void _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString('username') ?? 'Usuário';
+      _userId = prefs.getInt('loggedInUserId');
     });
   }
 
@@ -50,105 +53,106 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Olá, $_userName',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Olá, $_userName',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.account_circle, color: Colors.white),
-                        onPressed: _toggleDrawer,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _statCard(
-                          'Sequência Diária',
-                          '3',
-                          height: 100,
-                          topPadding: 21,
+                        IconButton(
+                          icon: Icon(Icons.account_circle, color: Colors.white),
+                          onPressed: _toggleDrawer,
                         ),
-                      ),
-                      SizedBox(width: 15),
-                      Expanded(
-                        child: _statCard(
-                          'Hábitos Completados',
-                          '3',
-                          height: 100,
-                          topPadding: 21,
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _statCard(
+                            'Sequência Diária',
+                            '3',
+                            height: 100,
+                            topPadding: 21,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  _statCard('Pontuação Total', '246', width: double.infinity),
-                  SizedBox(height: 10),
-                  Text(
-                    'Progresso Diário',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(height: 5),
-                  LinearProgressIndicator(
-                    value: 6 / 8,
-                    color: Colors.white,
-                    backgroundColor: Colors.grey,
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    '6 de 8 hábitos completados',
-                    style: TextStyle(color: Colors.white70),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Hoje',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                        SizedBox(width: 15),
+                        Expanded(
+                          child: _statCard(
+                            'Hábitos Completados',
+                            '3',
+                            height: 100,
+                            topPadding: 21,
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.add, color: Colors.white),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    _statCard('Pontuação Total', '246', width: double.infinity),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Hoje',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add, color: Colors.white),
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/cadastrar_habito');
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    if (_userId != null) TopPrioritiesWidget(userId: _userId!),
+                    SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/cadastrar_habito');
+                          Navigator.pushNamed(context, '/listar_habitos');
                         },
+                        child: Text(
+                          'Ver Mais',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 10),
-                  _habitTile(
-                    'Exercício Matinal',
-                    Icons.directions_run,
-                    Colors.red,
-                  ),
-                  _habitTile(
-                    'Ler 30 Minutos',
-                    Icons.menu_book,
-                    Colors.lightBlue,
-                  ),
-                  _habitTile(
-                    'Meditar',
-                    Icons.favorite,
-                    Color.fromARGB(255, 251, 192, 45),
-                  ),
-                ],
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Progresso Diário',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(height: 5),
+                    LinearProgressIndicator(
+                      value: 6 / 8,
+                      color: Colors.white,
+                      backgroundColor: Colors.grey,
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      '6 de 8 hábitos completados',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -199,7 +203,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ModalRoute.withName('/inicio'),
                           );
                         }),
-
                         _drawerItem(Icons.check_box, 'Hábitos', () {
                           Navigator.pushNamedAndRemoveUntil(
                             context,
@@ -269,27 +272,6 @@ class _HomeScreenState extends State<HomeScreen> {
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _habitTile(String title, IconData icon, Color iconColor) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 6),
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[900],
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: iconColor),
-          SizedBox(width: 10),
-          Text(
-            title,
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ],
       ),

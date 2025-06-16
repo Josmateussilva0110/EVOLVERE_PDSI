@@ -24,6 +24,7 @@ class _HabitsListPageState extends State<HabitsListPage> {
     return prefs.getInt('loggedInUserId');
   }
 
+
   Future<void> _loadHabits() async {
     if (userId == null) return;
 
@@ -54,6 +55,9 @@ class _HabitsListPageState extends State<HabitsListPage> {
     super.initState();
     _initData();
   }
+
+
+
 
   @override
   Widget build(BuildContext context) {

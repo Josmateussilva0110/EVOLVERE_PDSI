@@ -89,7 +89,21 @@ class HabitController {
         }
     }
 
+    async getTopPriorities(request, response) {
+        const user_id = request.params.user_id
 
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário invalido." });
+        }
+
+        const habits = await Habit.findTopPriorities(user_id)
+
+        if (habits && habits.length > 0) {
+            response.status(200).json({ habits })
+        } else {
+            response.status(404).json({ err: "Nenhum hábito encontrado." })
+        }
+    }
 
     async remove(request, response) {
         const id = request.params.id

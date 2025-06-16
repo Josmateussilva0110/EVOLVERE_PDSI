@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'features/initial/widgets/widgets.dart';
 import 'features/user/tela_login/screens/login_screen.dart';
 import 'features/user/register_user/screens/user_screen.dart';
+import 'features/user/tela_login/screens/forgot_password_screen.dart';
 import 'features/Habits/habit_screen/screens/habits_screens.dart';
 import 'features/Habits/limit_screen/screens/limit_period.dart';
 import 'features/home/profile_screen.dart';
@@ -13,6 +14,9 @@ import 'features/home/home_screen.dart';
 import 'features/listHabits/screens/habits_list_screen.dart';
 import 'features/register_category/screens/edit_category_screen.dart';
 import 'features/Habits/model/HabitData.dart';
+import 'features/explanation/screens/explanation_screen.dart';
+import 'features/listHabits/screens/progress_record_screen.dart';
+import 'features/listHabits/models/HabitModel.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -27,7 +31,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.light;
+  ThemeMode _themeMode = ThemeMode.dark;
 
   void toggleTheme() {
     setState(() {
@@ -41,16 +45,50 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'App com Rotas',
       initialRoute: '/',
+      themeMode: ThemeMode.dark,
+      theme: ThemeData(
+        brightness: Brightness.light,
+        primarySwatch: Colors.blue,
+        scaffoldBackgroundColor: Colors.white,
+        appBarTheme: const AppBarTheme(
+          color: Colors.white,
+          foregroundColor: Colors.black,
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black),
+          bodyMedium: TextStyle(color: Colors.black),
+          titleLarge: TextStyle(color: Colors.black),
+          titleMedium: TextStyle(color: Colors.black),
+          titleSmall: TextStyle(color: Colors.black),
+        ),
+      ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: const AppBarTheme(
+          color: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.white),
+          bodyMedium: TextStyle(color: Colors.white),
+          titleLarge: TextStyle(color: Colors.white),
+          titleMedium: TextStyle(color: Colors.white),
+          titleSmall: TextStyle(color: Colors.white),
+        ),
+      ),
       routes: {
         '/': (context) => WelcomeScreen(),
         '/inicio': (context) => HomeScreen(),
         '/login': (context) => LoginScreen(),
         '/cadastro_usuario': (context) => RegisterUserScreen(),
+        '/esqueci_senha': (context) => ForgotPasswordScreen(),
         '/perfil': (context) => TelaPerfil(),
         '/cadastro_categoria': (context) => RegisterCategoryScreen(),
         '/listar_categorias': (context) => ListCategoryScreen(),
         '/listar_habitos': (context) => HabitsListPage(),
         '/editar_categoria': (context) => EditCategoryScreen(),
+        '/explanation_screen': (context) => ExplanationScreen(),
       },
 
       onGenerateRoute: (settings) {
@@ -86,6 +124,40 @@ class _MyAppState extends State<MyApp> {
             }
             return MaterialPageRoute(
               builder: (_) => TermScreen(habitData: HabitData()),
+            );
+
+          case '/progress_record':
+            final args = settings.arguments;
+            if (args is Habit) {
+              debugPrint(
+                'Navegando para ProgressRecordScreen com Hábito: ${args.name}',
+              );
+              return MaterialPageRoute(
+                builder:
+                    (_) => ProgressRecordScreen(
+                      habitName: args.name,
+                      category: args.categoryName ?? 'Sem Categoria',
+                      totalMinutes: 0,
+                      dailyAverage: 'N/A',
+                      currentStreak: 'N/A',
+                      monthDays: 'N/A',
+                      progressPercent: 0.0,
+                      weeklyData: [],
+                    ),
+              );
+            }
+            debugPrint(
+              'Erro: Rota /progress_record acessada sem um objeto Habit válido.',
+            );
+            return MaterialPageRoute(
+              builder:
+                  (_) => const Scaffold(
+                    body: Center(
+                      child: Text(
+                        'Erro: Hábito não encontrado para a tela de progresso',
+                      ),
+                    ),
+                  ),
             );
 
           default:

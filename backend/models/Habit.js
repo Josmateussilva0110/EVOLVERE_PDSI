@@ -257,7 +257,6 @@ class Habit {
         }
     }
 
-
     async uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id) {
         try {
             const updates = {
@@ -284,6 +283,42 @@ class Habit {
         } catch (err) {
             console.log('erro em editar habito: ', err)
             return false
+        }
+    }
+
+    async findTopPriorities(user_id) {
+        try {
+            const result = await knex('habits as h')
+            .leftJoin('category as c', 'h.category_id', 'c.id')
+            .where('h.status', '!=', 3)
+            .andWhere('h.user_id', user_id)
+            .orderBy('h.priority', 'asc')
+            .limit(3)
+            .select(
+                'h.id',
+                'h.name',
+                'h.description',
+                'c.name as categoria',
+                'h.frequency',
+                'h.start_date',
+                'h.end_date',
+                'h.priority',
+                'h.reminders',
+                'h.status',
+            );
+
+            const habits = result.map(habit => ({
+                ...habit,
+                reminders: Array.isArray(habit.reminders) ? habit.reminders : [],
+            }));
+
+            if(habits)
+                return habits;
+            else 
+                return undefined;
+        } catch (err) {
+            console.error('Erro em buscar hábitos prioritários:', err);
+            return undefined;
         }
     }
 }
