@@ -8,6 +8,7 @@ import '../../listHabits/widgets/chart_type_icon.dart';
 import '../../listHabits/widgets/show_history_bottom_sheet.dart';
 
 class ProgressRecordScreen extends StatefulWidget {
+  final int habitId;
   final String habitName;
   final String category;
   final int totalMinutes;
@@ -19,6 +20,7 @@ class ProgressRecordScreen extends StatefulWidget {
 
   const ProgressRecordScreen({
     Key? key,
+    required this.habitId,
     required this.habitName,
     required this.category,
     required this.totalMinutes,
@@ -372,7 +374,7 @@ class _ProgressRecordScreenState extends State<ProgressRecordScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => GoalSettingsScreen(),
+                                  builder: (_) => GoalSettingsScreen(widget.habitId),
                                 ),
                               );
                             },

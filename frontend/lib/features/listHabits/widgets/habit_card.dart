@@ -38,6 +38,7 @@ class HabitCardWidget extends StatelessWidget {
               MaterialPageRoute(
                 builder:
                     (_) => ProgressRecordScreen(
+                      habitId: habit.id,
                       habitName: habit.name,
                       category: habit.categoryName ?? 'Categoria',
                       totalMinutes: 6777,
