@@ -50,6 +50,16 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
   }
 
   Future<void> _submitCategory() async {
+    if (_nameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('O nome da categoria é obrigatório'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     var request =
         http.MultipartRequest(
             'POST',
@@ -65,28 +75,36 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
       );
     }
 
-    var response = await request.send();
+    try {
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Categoria cadastrada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true);
+      } else {
+        String errorMessage = 'Erro ao cadastrar uma categoria.';
+        try {
+          final respStr = await response.stream.bytesToString();
+          final Map<String, dynamic> data = jsonDecode(respStr);
+          if (data.containsKey('err')) {
+            errorMessage = data['err'];
+          }
+        } catch (_) {}
 
-    if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Categoria cadastrada com sucesso!'),
-          backgroundColor: Colors.green,
+          content: Text('Erro ao conectar com o servidor: $e'),
+          backgroundColor: Colors.red,
         ),
-      );
-      Navigator.pop(context, true);
-    } else {
-      String errorMessage = 'Erro ao cadastrar uma categoria.';
-      try {
-        final respStr = await response.stream.bytesToString();
-        final Map<String, dynamic> data = jsonDecode(respStr);
-        if (data.containsKey('err')) {
-          errorMessage = data['err'];
-        }
-      } catch (_) {}
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
       );
     }
   }
@@ -108,49 +126,63 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
     return Column(
       children: [
         FormContainer(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CustomTextField(
-                label: "Nome da Categoria",
-                controller: _nameController,
-              ),
-              SizedBox(height: 20),
-              CustomTextField(
-                label: "Descrição",
-                maxLines: 5,
-                controller: _descriptionController,
-              ),
-              SizedBox(height: 20),
-              IconPicker(image: _image, onPickImage: _pickImage),
-              SizedBox(height: 20),
-              ColorSelector(
-                colors: _colorsAvailable,
-                selectedColor: _selectedColor,
-                onColorSelected: (color) {
-                  setState(() {
-                    _selectedColor = color;
-                  });
-                },
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                CustomTextField(
+                  label: "Nome da Categoria",
+                  controller: _nameController,
+                  maxLength: 30,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'O nome da categoria é obrigatório';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+                CustomTextField(
+                  label: "Descrição",
+                  maxLines: 5,
+                  maxLength: 200,
+                  controller: _descriptionController,
+                ),
+                const SizedBox(height: 24),
+                IconPicker(image: _image, onPickImage: _pickImage),
+                const SizedBox(height: 32),
+                ColorSelector(
+                  colors: _colorsAvailable,
+                  selectedColor: _selectedColor,
+                  onColorSelected: (color) {
+                    setState(() {
+                      _selectedColor = color;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 32),
         SizedBox(
-          width: 200,
-          height: 52,
+          width: double.infinity,
+          height: 56,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFF2196F3),
+              backgroundColor: const Color(0xFF007AFF),
               foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
             onPressed: _submitCategory,
-            child: Text('Cadastrar', style: TextStyle(fontSize: 16)),
+            child: const Text(
+              'Cadastrar',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
           ),
         ),
       ],

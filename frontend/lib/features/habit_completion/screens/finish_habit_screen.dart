@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../listHabits/models/HabitModel.dart';
-import '../../listHabits/screens/progress_record_screen.dart';
 
 class FinishHabitScreen extends StatefulWidget {
   final Habit habit;
@@ -27,43 +26,49 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
     super.dispose();
   }
 
+  bool _isTimeValid() {
+    return !(_hours == 0 && _minutes == 0);
+  }
+
   Widget _buildDifficultyChip(String label, int index) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedDifficulty = index;
-        });
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color:
-              _selectedDifficulty == index
-                  ? Colors.blue.withOpacity(0.2)
-                  : const Color(0xFF232B3E),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            _selectedDifficulty = index;
+          });
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeInOut,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
             color:
-                _selectedDifficulty == index ? Colors.blue : Colors.transparent,
-            width: 2,
+                _selectedDifficulty == index
+                    ? const Color(0xFF1E3A5F)
+                    : const Color(0xFF141414),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color:
+                  _selectedDifficulty == index
+                      ? const Color(0xFF4A90E2)
+                      : Colors.transparent,
+              width: 1,
+            ),
           ),
-          boxShadow: [
-            if (_selectedDifficulty == index)
-              BoxShadow(
-                color: Colors.blue.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+          child: Center(
+            child: Text(
+              label,
+              style: GoogleFonts.inter(
+                color:
+                    _selectedDifficulty == index
+                        ? const Color(0xFFFFFFFF)
+                        : const Color(0xFF808080),
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
               ),
-          ],
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            color: _selectedDifficulty == index ? Colors.blue : Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
+            ),
           ),
         ),
       ),
@@ -82,36 +87,36 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
           AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeInOut,
-            width: 70,
-            height: 70,
+            width: 65,
+            height: 65,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
                 color:
-                    _selectedMood == index ? Colors.blue : Colors.transparent,
-                width: _selectedMood == index ? 3 : 0,
+                    _selectedMood == index
+                        ? const Color(0xFF4A90E2)
+                        : Colors.transparent,
+                width: _selectedMood == index ? 2 : 0,
               ),
-              boxShadow: [
-                if (_selectedMood == index)
-                  BoxShadow(
-                    color: Colors.blue.withOpacity(0.15),
-                    blurRadius: 12,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 4),
-                  ),
-              ],
+              color: const Color(0xFF141414),
             ),
             child: Icon(
               iconData,
-              color: _selectedMood == index ? Colors.blue : Colors.white,
-              size: 40,
+              color:
+                  _selectedMood == index
+                      ? const Color(0xFF4A90E2)
+                      : const Color(0xFF808080),
+              size: 32,
             ),
           ),
           const SizedBox(height: 8),
           Text(
             label,
             style: GoogleFonts.inter(
-              color: _selectedMood == index ? Colors.blue : Colors.white,
+              color:
+                  _selectedMood == index
+                      ? const Color(0xFF4A90E2)
+                      : const Color(0xFF808080),
               fontSize: 12,
             ),
           ),
@@ -120,16 +125,83 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
     );
   }
 
+  Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: _hours, minute: _minutes),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.dark().copyWith(
+            colorScheme: const ColorScheme.dark(
+              primary: Color(0xFF4A90E2),
+              onPrimary: Colors.white,
+              surface: Color(0xFF1F222A),
+              onSurface: Colors.white,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF4A90E2),
+              ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedTime != null) {
+      setState(() {
+        _hours = pickedTime.hour;
+        _minutes = pickedTime.minute;
+      });
+    }
+  }
+
+  Future<void> _submitCompletion() async {
+    if (!_isTimeValid()) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'O tempo dedicado não pode ser zero.',
+            style: GoogleFonts.inter(color: Colors.white),
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(16),
+        ),
+      );
+      return;
+    }
+
+    // Removido o código de chamada da API para depuração temporária
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   const SnackBar(
+    //     content: Text('Navegando para a tela de progresso (API ignorada)!'),
+    //     backgroundColor: Colors.blue,
+    //   ),
+    // );
+
+    // Navegar para a tela de registro de progresso e remover todas as rotas anteriores
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/progress_record',
+      (Route<dynamic> route) => false, // Remove todas as rotas anteriores
+      arguments: widget.habit, // Passa o objeto habit
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFF10182B),
+        backgroundColor: const Color(0xFF0A0A0A),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF808080)),
             onPressed: () {
               Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -139,7 +211,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
             },
           ),
           title: Text(
-            'Finalizar hábito',
+            'Finalizar Hábito',
             style: GoogleFonts.inter(
               color: Colors.white,
               fontWeight: FontWeight.w600,
@@ -162,7 +234,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -171,7 +243,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   _buildDifficultyChip('Difícil', 2),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               Text(
                 'Humor',
                 style: GoogleFonts.inter(
@@ -180,7 +252,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -201,7 +273,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               Text(
                 'Reflexão',
                 style: GoogleFonts.inter(
@@ -210,7 +282,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               TextField(
                 controller: _reflectionController,
                 maxLines: 4,
@@ -220,22 +292,25 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   hintText:
                       'Hoje foi desafiador, mas consegui manter o foco...',
                   hintStyle: GoogleFonts.inter(
-                    color: Colors.white54,
+                    color: const Color(0xFF606060),
                     fontSize: 14,
                   ),
                   filled: true,
-                  fillColor: const Color(0xFF232B3E),
+                  fillColor: const Color(0xFF141414),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.blue, width: 2),
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF4A90E2),
+                      width: 1,
+                    ),
                   ),
                   counterText: '${_reflectionController.text.length}/250',
                   counterStyle: GoogleFonts.inter(
-                    color: Colors.white54,
+                    color: const Color(0xFF606060),
                     fontSize: 12,
                   ),
                 ),
@@ -243,7 +318,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   setState(() {});
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               Text(
                 'Local da realização',
                 style: GoogleFonts.inter(
@@ -252,29 +327,32 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               TextField(
                 controller: _locationController,
                 style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Casa, Biblioteca, Academia...',
                   hintStyle: GoogleFonts.inter(
-                    color: Colors.white54,
+                    color: const Color(0xFF606060),
                     fontSize: 14,
                   ),
                   filled: true,
-                  fillColor: const Color(0xFF232B3E),
+                  fillColor: const Color(0xFF141414),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.blue, width: 2),
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: const BorderSide(
+                      color: Color(0xFF4A90E2),
+                      width: 1,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               Text(
                 'Tempo dedicado',
                 style: GoogleFonts.inter(
@@ -283,122 +361,56 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               GestureDetector(
-                onTap: () async {
-                  final TimeOfDay? pickedTime = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay(hour: _hours, minute: _minutes),
-                    builder: (BuildContext context, Widget? child) {
-                      return Theme(
-                        data: ThemeData.dark().copyWith(
-                          colorScheme: const ColorScheme.dark(
-                            primary: Colors.blue,
-                            onPrimary: Colors.white,
-                            surface: Color(0xFF232B3E),
-                            onSurface: Colors.white,
-                          ),
-                          dialogBackgroundColor: const Color(0xFF10182B),
-                        ),
-                        child: child!,
-                      );
-                    },
-                  );
-                  if (pickedTime != null) {
-                    setState(() {
-                      _hours = pickedTime.hour;
-                      _minutes = pickedTime.minute;
-                    });
-                  }
-                },
+                onTap: () => _selectTime(context),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 16,
+                    vertical: 14,
                   ),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF232B3E),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.blue, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.blue.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    color: const Color(0xFF141414),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF4A90E2).withOpacity(0.5),
+                      width: 1,
+                    ),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         '${_hours.toString().padLeft(2, '0')}h ${_minutes.toString().padLeft(2, '0')}min',
                         style: GoogleFonts.inter(
                           color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.access_time, color: Colors.white70),
+                      const Icon(Icons.access_time, color: Color(0xFF4A90E2)),
                     ],
                   ),
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_hours == 0 && _minutes == 0) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'O tempo dedicado não pode ser zero.',
-                            style: GoogleFonts.inter(color: Colors.white),
-                          ),
-                          backgroundColor: Colors.red,
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          margin: const EdgeInsets.all(16),
-                        ),
-                      );
-                      return;
-                    }
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => ProgressRecordScreen(
-                              habitName: widget.habit.name,
-                              category:
-                                  widget.habit.categoryName ?? 'Sem Categoria',
-                              totalMinutes: _hours * 60 + _minutes,
-                              dailyAverage: 'N/A',
-                              currentStreak: 'N/A',
-                              monthDays: 'N/A',
-                              progressPercent: 0.0,
-                              weeklyData: [],
-                            ),
-                      ),
-                      (route) => false,
-                    );
-                  },
+                  onPressed: _submitCompletion,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: const Color(0xFF4A90E2),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
                     'Salvar',
                     style: GoogleFonts.inter(
                       color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -406,7 +418,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: OutlinedButton(
+                child: TextButton(
                   onPressed: () {
                     Navigator.pushNamedAndRemoveUntil(
                       context,
@@ -414,20 +426,18 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                       (route) => false,
                     );
                   },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
+                  style: TextButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    side: const BorderSide(color: Colors.white38, width: 1),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
                     'Cancelar',
                     style: GoogleFonts.inter(
-                      color: Colors.white70,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF808080),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),

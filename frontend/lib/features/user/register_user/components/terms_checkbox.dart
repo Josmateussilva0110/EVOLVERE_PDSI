@@ -1,37 +1,31 @@
 import 'package:flutter/material.dart';
+import 'terms_dialog.dart';
 
 class TermsCheckbox extends StatelessWidget {
   final bool value;
-  final ValueChanged<bool> onChanged;
+  final ValueChanged<bool?> onChanged;
 
-  const TermsCheckbox({
-    required this.value,
-    required this.onChanged,
-  });
+  const TermsCheckbox({Key? key, required this.value, required this.onChanged})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Row(
       children: [
-        Checkbox(
-          value: value,
-          onChanged: (bool? val) => onChanged(val ?? false),
-          activeColor: Color(0xFF2196F3),
-        ),
+        Checkbox(value: value, onChanged: onChanged),
         Expanded(
-          child: RichText(
-            text: TextSpan(
-              text: 'Aceito todos os ',
-              style: TextStyle(color: Colors.white),
-              children: [
-                TextSpan(
-                  text: 'termos e condições',
-                  style: TextStyle(
-                    color: Color(0xFF2196F3),
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ],
+          child: GestureDetector(
+            onTap: () {
+              showDialog(context: context, builder: (context) => TermsDialog());
+            },
+            child: Text(
+              'Li e aceito os termos e condições',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: Colors.blue,
+                decoration: TextDecoration.underline,
+              ),
             ),
           ),
         ),
