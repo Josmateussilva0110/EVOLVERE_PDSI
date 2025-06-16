@@ -6,14 +6,14 @@ class LoginOptionsRow extends StatefulWidget {
   final VoidCallback onEsqueciSenha;
 
   const LoginOptionsRow({
-    Key? key,
+    super.key,
     required this.lembrarSenha,
     required this.onLembrarSenhaChanged,
     required this.onEsqueciSenha,
-  }) : super(key: key);
+  });
 
   @override
-  _LoginOptionsRowState createState() => _LoginOptionsRowState();
+  State<LoginOptionsRow> createState() => _LoginOptionsRowState();
 }
 
 class _LoginOptionsRowState extends State<LoginOptionsRow> {
@@ -22,7 +22,6 @@ class _LoginOptionsRowState extends State<LoginOptionsRow> {
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
       crossAxisAlignment: WrapCrossAlignment.center,
-      runSpacing: 10,
       children: [
         Row(
           mainAxisSize: MainAxisSize.min,
@@ -34,21 +33,28 @@ class _LoginOptionsRowState extends State<LoginOptionsRow> {
                   widget.onLembrarSenhaChanged(value);
                 }
               },
-              activeColor: Color(0xFF2196F3),
+              activeColor: const Color(0xFF2196F3),
               checkColor: Colors.white,
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
             ),
-            const Text("Lembrar minha senha", style: TextStyle(
-              color: Colors.white,
-              fontSize: 11,
-            ),),
+            const Text(
+              "Lembrar-me",
+              style: TextStyle(color: Colors.white, fontSize: 11),
+            ),
           ],
         ),
         TextButton(
           onPressed: widget.onEsqueciSenha,
-          child: const Text("Esqueci minha senha", style: TextStyle(
-            color: Colors.blue,
-            fontSize: 11,
-          ),),
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: const Text(
+            "Esqueci a senha?",
+            style: TextStyle(color: Colors.blue, fontSize: 11),
+          ),
         ),
       ],
     );
