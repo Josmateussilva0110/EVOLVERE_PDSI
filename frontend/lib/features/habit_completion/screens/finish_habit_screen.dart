@@ -5,6 +5,7 @@ import '../model/Finish_habit_model.dart';
 import '../service/finish_habit_service.dart';
 import '../components/finish_habit_form.dart';
 
+
 class FinishHabitScreen extends StatefulWidget {
   final Habit habit;
 
@@ -29,16 +30,17 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        backgroundColor: const Color(0xFF10182B),
+        backgroundColor: const Color(0xFF0A0A0A),
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF808080)),
             onPressed: () {
               Navigator.pushNamedAndRemoveUntil(
                 context,
@@ -48,7 +50,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
             },
           ),
           title: Text(
-            'Finalizar hábito',
+            'Finalizar Hábito',
             style: GoogleFonts.inter(
               color: Colors.white,
               fontWeight: FontWeight.w600,
@@ -110,7 +112,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                   setState(() {});
                 },
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -175,18 +177,18 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
+                    backgroundColor: const Color(0xFF4A90E2),
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: Text(
                     'Salvar',
                     style: GoogleFonts.inter(
                       color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),

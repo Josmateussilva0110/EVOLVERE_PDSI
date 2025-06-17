@@ -3,7 +3,7 @@ import '../user/screens/edit_profile_screen.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class User {
   final String name;
@@ -210,6 +210,8 @@ class _TelaPerfilState extends State<TelaPerfil> {
                       builder:
                           (context) => EditProfileScreen(
                             userId: _loggedInUserId!,
+                            userEmail:
+                                _user?.email ?? '', // Passar o email do usuário
                           ), // Passar o ID para a tela de edição
                     ),
                   );
