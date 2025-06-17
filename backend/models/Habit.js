@@ -291,7 +291,7 @@ class Habit {
         try {
             const result = await knex('habits as h')
             .leftJoin('category as c', 'h.category_id', 'c.id')
-            .where('h.status', '!=', 3)
+            .where('h.status', '=', 1).andWhere('h.user_id', user_id)
             .andWhere('h.user_id', user_id)
             .orderBy('h.priority', 'asc')
             .limit(3)
