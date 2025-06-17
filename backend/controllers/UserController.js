@@ -179,7 +179,7 @@ class UserController {
             if(valid) {
                 var token = jwt.sign({email: user.email}, process.env.SECRET)
                 response.status(200)
-                response.json({token: token, userId: user.id, username: user.username})
+                response.json({token: token, userId: user.id, username: user.username, email: user.email})
             }
             else {
                 response.status(406)

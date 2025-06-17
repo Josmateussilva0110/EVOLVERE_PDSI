@@ -5,7 +5,7 @@ import 'dart:math' as math;
 
 // Importações das telas
 import 'notifications_screen.dart';
-//import '../user/screens/edit_profile_screen.dart';
+import '../user/screens/edit_profile_screen.dart';
 import '../listHabits/screens/habits_list_screen.dart';
 import '../register_category/screens/list_category_screen.dart';
 import '../settings/screens/settings_screen.dart';
@@ -29,14 +29,16 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadUserData();
+    print('USER ID: ${_userId}');
+    print('EMAIL: ${_userEmail}');
   }
 
   void _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString('username') ?? 'Usuário';
-      _userId = prefs.getInt('userId') ?? 0;
-      _userEmail = prefs.getString('userEmail') ?? 'usuario@example.com';
+      _userId = prefs.getInt('loggedInUserId');
+      _userEmail = prefs.getString('email') ?? 'usuario@example.com';
     });
   }
 
@@ -57,10 +59,11 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         leading: Builder(
-          builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, color: Colors.white, size: 32),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
+          builder:
+              (context) => IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white, size: 32),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
         ),
       ),
       body: SafeArea(
@@ -72,13 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
               // Estatísticas
               Row(
                 children: [
-                  Expanded(
-                    child: _statCard('Sequência Diária', '3'),
-                  ),
+                  Expanded(child: _statCard('Sequência Diária', '3')),
                   const SizedBox(width: 15),
-                  Expanded(
-                    child: _statCard('Hábitos Completos', '3'),
-                  ),
+                  Expanded(child: _statCard('Hábitos Completos', '3')),
                 ],
               ),
               const SizedBox(height: 10),
@@ -92,9 +91,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   const Text(
                     'Hoje',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold),
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.add, color: Colors.white),
@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 10),
 
               if (_userId != null) TopPrioritiesWidget(userId: _userId!),
-
+              SizedBox(height: 10),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -145,8 +145,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Widget para estatísticas
-  Widget _statCard(String title, String value,
-      {double? width, double height = 100}) {
+  Widget _statCard(
+    String title,
+    String value, {
+    double? width,
+    double height = 100,
+  }) {
     return Container(
       width: width,
       height: height,
@@ -162,17 +166,19 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             title,
             style: GoogleFonts.inter(
-                color: Colors.white70,
-                fontSize: 14,
-                fontWeight: FontWeight.w500),
+              color: Colors.white70,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 8),
           Text(
             value,
             style: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold),
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),
@@ -210,18 +216,39 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'Olá, $_userName!',
                   style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold),
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   _userEmail,
-                  style:
-                      GoogleFonts.inter(color: Colors.white70, fontSize: 14),
+                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),
           ),
+          _drawerItem(Icons.category, 'Conta', () {
+            if (_userId != null) {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditProfileScreen(
+                    userId: _userId!,
+                    userEmail: _userEmail,
+                  ),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Erro: Usuário não carregado.'),
+                ),
+              );
+            }
+          }),
+
           _drawerItem(Icons.category, 'Categorias', () {
             Navigator.pop(context);
             Navigator.push(
@@ -247,7 +274,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                  content: Text('Tela de Relatórios em desenvolvimento.')),
+                content: Text('Tela de Relatórios em desenvolvimento.'),
+              ),
             );
           }),
           _drawerItem(Icons.settings, 'Configurações', () {
@@ -273,7 +301,10 @@ class _HomeScreenState extends State<HomeScreen> {
       title: Text(
         title,
         style: GoogleFonts.inter(
-            color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
       ),
       onTap: onTap,
     );

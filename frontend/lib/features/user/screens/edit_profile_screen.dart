@@ -55,6 +55,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  String formatDate(String dateStr) {
+    try {
+      if (dateStr.isEmpty) return '---';
+      var parts = dateStr.split('T');
+      if (parts.isEmpty) return '---';
+      var dateParts = parts[0].split('-');
+      if (dateParts.length != 3) return '---';
+      return '${dateParts[2]}/${dateParts[1]}/${dateParts[0]}';
+    } catch (e) {
+      return '---';
+    }
+  }
+
   // Função para carregar os dados do usuário do backend
   Future<void> _loadUserData() async {
     final String? apiURL = dotenv.env['API_URL'];
@@ -74,11 +87,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
+        print('DATA: ${data}');
         // Assumindo que a rota /user/:id retorna o objeto do usuário diretamente
         setState(() {
-          name = data['username'] ?? 'Nome não encontrado';
+          name = data['name'] ?? 'Nome não encontrado';
           email = data['email'] ?? 'Email não encontrado';
           createdAt = data['createdAt'] ?? 'Data não encontrada';
+          print('CREATED AT: ${createdAt}');
           // Atribuir valores simulados ou de uma API expandida
           activeDays = 75; // Simulado
           totalXp = 1200; // Simulado
@@ -180,8 +195,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     // Formatar a data de criação
-    String formattedCreatedAt =
-        'Desde ${createdAt.isNotEmpty ? createdAt.split('T')[0].split('-')[2] + '/' + createdAt.split('T')[0].split('-')[1] + '/' + createdAt.split('T')[0].split('-')[0] : '---'}'; // Formatar a data para DD/MM/AAAA
+    String formattedCreatedAt = 'Desde ${createdAt}';
 
     return Scaffold(
       backgroundColor: Colors.black,
