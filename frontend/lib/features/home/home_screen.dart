@@ -10,6 +10,7 @@ import '../user/screens/edit_profile_screen.dart';
 import '../listHabits/screens/habits_list_screen.dart'; // Importar tela de lista de hábitos (caminho corrigido)
 import '../register_category/screens/list_category_screen.dart'; // Importar tela de lista de categorias (caminho corrigido)
 import '../settings/screens/settings_screen.dart'; // Importar a nova tela de configurações
+import 'widgets/top_priorities_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -30,10 +31,11 @@ class _HomeScreenState extends State<HomeScreen> {
   int _completedHabitsCount = 6;
   int _totalHabitsCount = 8;
 
+
   @override
   void initState() {
     super.initState();
-    _loadUserData(); // Chamar a função para carregar os dados do usuário
+    _loadUserData();
   }
 
   void _loadUserData() async {
@@ -59,166 +61,175 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF121217),
-      // Adicionando o Drawer ao Scaffold
-      drawer: _buildAppDrawer(),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Text(
-          'Olá, $_userName',
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: math.max(
-              20.0, // Aumentar tamanho da fonte para o nome
-              MediaQuery.of(context).size.width * 0.05,
-            ),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: const Icon(
-                Icons.menu, // Ícone de menu para abrir o drawer
-                color: Colors.white,
-                size: 32,
-              ),
-              onPressed: () {
-                Scaffold.of(context).openDrawer(); // Abrir o drawer
-              },
-            );
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 25,
-                ), // Manter o espaçamento se necessário após o AppBar
-                GridView.count(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildStatCard(
-                      'Sequência Diária',
-                      _dailyStreak.toString(),
-                      Icons.calendar_today,
-                      Colors.blueAccent,
-                    ),
-                    _buildStatCard(
-                      'Hábitos Completados',
-                      _completedHabitsToday.toString(),
-                      Icons.check_circle,
-                      Colors.greenAccent,
-                    ),
-                    _buildStatCard(
-                      'Pontuação Total',
-                      _totalScore.toString(),
-                      Icons.star,
-                      Colors.amberAccent,
-                      flex: 2,
-                    ), // Ocupa 2 colunas
-                  ],
-                ),
-                const SizedBox(height: 25), // Mais espaço após as estatísticas
-                Text(
-                  'Progresso Diário',
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: math.max(
-                      16.0,
-                      MediaQuery.of(context).size.width * 0.045,
-                    ),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                LinearProgressIndicator(
-                  value: _dailyProgressValue,
-                  color: Colors.deepPurpleAccent,
-                  backgroundColor: Colors.white12,
-                  borderRadius: BorderRadius.circular(8),
-                  minHeight: 12,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$_completedHabitsCount de $_totalHabitsCount hábitos completados',
-                  style: GoogleFonts.inter(
-                    color: Colors.white70,
-                    fontSize: math.max(
-                      12.0,
-                      MediaQuery.of(context).size.width * 0.035,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 25,
-                ), // Mais espaço antes dos hábitos de hoje
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Hoje',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: math.max(
-                          18.0,
-                          MediaQuery.of(context).size.width * 0.05,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Olá, $_userName',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        fontWeight: FontWeight.bold,
+                        IconButton(
+                          icon: Icon(Icons.account_circle, color: Colors.white),
+                          onPressed: _toggleDrawer,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _statCard(
+                            'Sequência Diária',
+                            '3',
+                            height: 100,
+                            topPadding: 21,
+                          ),
+                        ),
+                        SizedBox(width: 15),
+                        Expanded(
+                          child: _statCard(
+                            'Hábitos Completados',
+                            '3',
+                            height: 100,
+                            topPadding: 21,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    _statCard('Pontuação Total', '246', width: double.infinity),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Hoje',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.add, color: Colors.white),
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/cadastrar_habito');
+                          },
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    if (_userId != null) TopPrioritiesWidget(userId: _userId!),
+                    SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/listar_habitos');
+                        },
+                        child: Text(
+                          'Ver Mais',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
                       ),
                     ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 30,
-                      ),
-                      onPressed: () {
-                        Navigator.pushNamed(context, '/cadastrar_habito');
-                      },
+                    SizedBox(height: 20),
+                    Text(
+                      'Progresso Diário',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(height: 5),
+                    LinearProgressIndicator(
+                      value: 6 / 8,
+                      color: Colors.white,
+                      backgroundColor: Colors.grey,
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      '6 de 8 hábitos completados',
+                      style: TextStyle(color: Colors.white70),
                     ),
                   ],
                 ),
-                const SizedBox(height: 15),
-                // Exemplo de Hábitos (substituir por dados reais da API)
-                HabitTile(
-                  title: 'Exercício Matinal',
-                  icon: Icons.directions_run,
-                  iconColor: Colors.redAccent,
-                  onTap: () {},
-                  fontSize: math.max(
-                    14.0,
-                    MediaQuery.of(context).size.width * 0.04,
-                  ),
-                ),
-                HabitTile(
-                  title: 'Ler 30 Minutos',
-                  icon: Icons.menu_book,
-                  iconColor: Colors.lightBlueAccent,
-                  onTap: () {},
-                  fontSize: math.max(
-                    14.0,
-                    MediaQuery.of(context).size.width * 0.04,
-                  ),
-                ),
-                HabitTile(
-                  title: 'Meditar',
-                  icon: Icons.favorite,
-                  iconColor: Colors.amberAccent,
-                  onTap: () {},
-                  fontSize: math.max(
-                    14.0,
-                    MediaQuery.of(context).size.width * 0.04,
+              ),
+            ),
+          ),
+          if (_showDrawer)
+            GestureDetector(
+              onTap: _toggleDrawer,
+              child: Container(
+                color: Colors.black54,
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: Container(
+                    width: 280,
+                    margin: EdgeInsets.only(top: 80, right: 10),
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.account_circle, color: Colors.white),
+                            SizedBox(width: 8),
+                            Text(
+                              '$_userName',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Divider(color: Colors.white24),
+                        _drawerItem(Icons.person, 'Conta', () {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/perfil',
+                            ModalRoute.withName('/inicio'),
+                          );
+                        }),
+                        _drawerItem(Icons.category, 'Categorias', () {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/listar_categorias',
+                            ModalRoute.withName('/inicio'),
+                          );
+                        }),
+                        _drawerItem(Icons.check_box, 'Hábitos', () {
+                          Navigator.pushNamedAndRemoveUntil(
+                            context,
+                            '/listar_habitos',
+                            ModalRoute.withName('/inicio'),
+                          );
+                        }),
+                        _drawerItem(Icons.settings, 'Configurações', () {
+                          //tela não criada
+                        }),
+                        _drawerItem(Icons.person, 'Sair', () {
+                          Navigator.pushNamed(context, '/');
+                        }),
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height * 0.03),
@@ -399,24 +410,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-  // Removido: _drawerItem não é mais usado
-  // Widget _drawerItem(IconData icon, String title, VoidCallback onTap) {
-  //   return ListTile(
-  //     leading: Icon(
-  //       icon,
-  //       color: Colors.white,
-  //       size: math.max(18.0, MediaQuery.of(context).size.width * 0.04),
-  //     ),
-  //     title: Text(
-  //       title,
-  //       style: GoogleFonts.inter(
-  //         color: Colors.white,
-  //         fontSize: math.max(12.0, MediaQuery.of(context).size.width * 0.035),
-  //         fontWeight: FontWeight.w500,
-  //       ),
-  //     ),
-  //     onTap: onTap,
-  //   );
-  // }
 }

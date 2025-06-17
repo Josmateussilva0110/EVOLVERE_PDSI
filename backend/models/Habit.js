@@ -21,9 +21,39 @@ class Habit {
         }
     }
 
+    async findNameProgress(name) {
+        try {
+            var result = await knex.select("*").from("habit_progress").where({name: name})
+            if(result.length > 0) {
+                return true
+            }
+            else {
+                return false
+            }
+        } catch(err) {
+            console.log('erro em buscar nome do progresso habito: ', err)
+            return false
+        }
+    }
+
     async habitExist(id) {
         try {
             var result = await knex.select(["id"]).from("habits").where({id: id})
+            if(result.length > 0) {
+                return true
+            }
+            else {
+                return false
+            }
+        } catch(err) {
+            console.log('erro em buscar id do habito: ', err)
+            return false
+        }
+    }
+
+    async finishHabitExist(id) {
+        try {
+            var result = await knex.select(["habit_id"]).from("finish_habit").where({habit_id: id})
             if(result.length > 0) {
                 return true
             }
@@ -42,6 +72,26 @@ class Habit {
             return true
         } catch(err) {
             console.log('erro em cadastrar habito: ', err)
+            return false
+        }
+    }
+
+    async newFinishHabit(habit_id, difficulty, mood, reflection, location, hour) {
+        try {
+            await knex.insert({habit_id, difficulty, mood, reflection, location, hour}).table("finish_habit")
+            return true
+        } catch(err) {
+            console.log('erro em cadastrar a finalização do habito: ', err)
+            return false
+        }
+    }
+
+    async newHabitProgress(habit_id, name, type, parameter) {
+        try {
+            await knex.insert({habit_id, name, type, parameter}).table("habit_progress")
+            return true
+        } catch(err) {
+            console.log('erro ao cadastrar progresso do habito: ', err)
             return false
         }
     }
@@ -81,7 +131,7 @@ class Habit {
         try {
             const result = await knex('habits as h')
             .leftJoin('category as c', 'h.category_id', 'c.id')
-            .where('h.status', '!=', 3).andWhere('h.user_id', user_id)
+            .where('h.status', '=', 1).andWhere('h.user_id', user_id)
             .select(
                 'h.id',
                 'h.name',
@@ -196,6 +246,18 @@ class Habit {
             return false
         }
     }
+
+    async updateToCompleted(id) {
+        try {
+            await knex("habits").where({id: id}).update({status: 4})
+            return true
+        } catch(err) {
+            console.log('erro ao arquivar habito: ', err)
+            return false
+        }
+    }
+
+
     async uptadeData(id, name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id) {
         try {
             const updates = {
@@ -229,7 +291,7 @@ class Habit {
         try {
             const result = await knex('habits as h')
             .leftJoin('category as c', 'h.category_id', 'c.id')
-            .where('h.status', '!=', 3)
+            .where('h.status', '=', 1).andWhere('h.user_id', user_id)
             .andWhere('h.user_id', user_id)
             .orderBy('h.priority', 'asc')
             .limit(3)

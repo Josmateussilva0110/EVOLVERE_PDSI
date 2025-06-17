@@ -4,7 +4,7 @@ import 'habit_options_menu.dart';
 import '../services/list_habits_service.dart';
 import '../services/list_categories_service.dart';
 import 'confirm_action_dialog.dart';
-import '../screens/progress_record_screen.dart';
+import '../../progress_record/screens/progress_record_screen.dart';
 import '../../habit_completion/screens/finish_habit_screen.dart';
 import '../../Habits/model/HabitData.dart';
 
@@ -38,6 +38,7 @@ class HabitCardWidget extends StatelessWidget {
               MaterialPageRoute(
                 builder:
                     (_) => ProgressRecordScreen(
+                      habitId: habit.id,
                       habitName: habit.name,
                       category: habit.categoryName ?? 'Categoria',
                       totalMinutes: 6777,
@@ -53,9 +54,11 @@ class HabitCardWidget extends StatelessWidget {
           onEdit: () async {
             Navigator.pop(context);
             int? categoryId;
-              if (habit.categoryName != null) {
-                categoryId = await CategoryService.fetchCategoryIdByName(habit.categoryName!);
-              }
+            if (habit.categoryName != null) {
+              categoryId = await CategoryService.fetchCategoryIdByName(
+                habit.categoryName!,
+              );
+            }
             await Navigator.pushNamed(
               context,
               '/cadastrar_habito',

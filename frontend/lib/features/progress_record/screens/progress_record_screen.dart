@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'goal_settings_screen.dart';
-import '../widgets/stat_card.dart';
-import '../widgets/period_chip.dart';
-import '../widgets/chart_type_icon.dart';
-import '../widgets/show_history_bottom_sheet.dart';
+import '../../listHabits/widgets/stat_card.dart';
+import '../../listHabits/widgets/period_chip.dart';
+import '../../listHabits/widgets/chart_type_icon.dart';
+import '../../listHabits/widgets/show_history_bottom_sheet.dart';
 
 class ProgressRecordScreen extends StatefulWidget {
+  final int habitId;
   final String habitName;
   final String category;
   final int totalMinutes;
@@ -19,6 +20,7 @@ class ProgressRecordScreen extends StatefulWidget {
 
   const ProgressRecordScreen({
     Key? key,
+    required this.habitId,
     required this.habitName,
     required this.category,
     required this.totalMinutes,
@@ -272,8 +274,8 @@ class _ProgressRecordScreenState extends State<ProgressRecordScreen> {
                     ),
                     const SizedBox(height: 16),
                     Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                      spacing: 8,
+                      runSpacing: 8,
                       children: [
                         PeriodChip(
                           label: 'Semana',
@@ -372,7 +374,7 @@ class _ProgressRecordScreenState extends State<ProgressRecordScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => GoalSettingsScreen(),
+                                  builder: (_) => GoalSettingsScreen(widget.habitId),
                                 ),
                               );
                             },

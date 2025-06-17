@@ -193,6 +193,92 @@ class HabitController {
             response.json({err: "Erro ao editar habito."})
         }
     }
+
+    async finishedHabitCreate(request, response) {
+        var {habit_id, difficulty, mood, reflection, location, hour} = request.body 
+        habit_id = Number(habit_id)
+        difficulty = Number(difficulty)
+        mood = Number(mood)
+        
+        if (isNaN(habit_id)) {
+            return response.status(400).json({ err: "Hábito invalido." })
+        }
+
+        if (isNaN(difficulty)) {
+            return response.status(400).json({ err: "Nível de dificuldade invalida." })
+        }
+
+        if (isNaN(mood)) {
+            return response.status(400).json({ err: "Humor invalido." })
+        }
+
+        if(hour == undefined) {
+            return response.status(400).json({ err: "Tempo dedicado invalido." })
+        }
+
+        var valid = await Habit.finishHabitExist(habit_id)
+        if(valid) {
+            response.status(406)
+            response.json({err: "Já existe uma finalização para esse habito."})
+            return 
+        }
+        var done = await Habit.newFinishHabit(habit_id, difficulty, mood, reflection, location, hour)
+        if(done) {
+            var completed = await Habit.updateToCompleted(habit_id)
+            if(!completed) {
+                return response.status(500).json({err: "erro ao completar habito"})
+            }
+            response.status(200)
+            response.send('Habito finalizado com sucesso.')
+        }
+        else {
+            response.status(500)
+            response.json({err: "erro ao completar habito."})
+        }
+    }
+
+    async habitProgressCreate(request, response) {
+        var {habit_id, name, type, parameter} = request.body
+        habit_id = Number(habit_id)
+        type = Number(type)
+        parameter = Number(parameter)
+        if (!name || name.trim() === '') { 
+            response.status(400)
+            response.json({err: "nome invalido."})
+            return
+        }
+        if (isNaN(habit_id)) {
+            return response.status(400).json({ err: "Hábito invalido." })
+        }
+
+        if (isNaN(type)) {
+            return response.status(400).json({ err: "Tipo invalido." })
+        }
+
+        if (isNaN(parameter)) {
+            return response.status(400).json({ err: "Parâmetro invalido." })
+        }
+
+        var valid = await Habit.habitExist(habit_id)
+        if(!valid) {
+            response.status(404)
+            response.json({err: "Nenhum habito encontrado."})
+            return 
+        }
+        var nameExists = await Habit.findNameProgress(name)
+        if(nameExists) {
+            return response.status(406).json({err: "nome de progresso ja existe."})
+        }
+        var done = await Habit.newHabitProgress(habit_id, name, type, parameter)
+        if(done) {
+            response.status(200)
+            response.send('Progresso de habito adicionado com sucesso.')
+        }
+        else {
+            response.status(500)
+            response.json({err: "erro ao cadastrar progresso de habito."})
+        }
+    }
 }
 
 module.exports = new HabitController()
