@@ -117,6 +117,15 @@ class User {
         await PasswordToken.setUsed(token)
    }
 
+    async updateUsername(id, name) {
+        try {
+            await knex.update({username: name}).where({id: id}).table("users")
+            return {status: true}
+        } catch(err) {
+            return {status: false, err: err}
+        }
+   }
+
 }
 
 module.exports = new User()

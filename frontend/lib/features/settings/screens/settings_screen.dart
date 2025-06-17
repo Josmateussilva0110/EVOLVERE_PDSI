@@ -39,23 +39,6 @@ class SettingsScreen extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 15),
-            ListTile(
-              leading: Icon(Icons.email, color: Colors.blueAccent),
-              title: Text(
-                'Alterar Email',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
-              onTap: () {
-                // TODO: Navegar para a tela de Alterar Email
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Tela de Alterar Email em desenvolvimento.'),
-                  ),
-                );
-              },
-            ),
             Divider(color: Colors.grey[700]),
             ListTile(
               leading: Icon(Icons.lock, color: Colors.blueAccent),

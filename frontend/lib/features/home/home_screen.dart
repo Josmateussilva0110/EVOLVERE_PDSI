@@ -228,7 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-          _drawerItem(Icons.category, 'Conta', () {
+          _drawerItem(Icons.person, 'Conta', () {
             if (_userId != null) {
               Navigator.pop(context);
               Navigator.push(

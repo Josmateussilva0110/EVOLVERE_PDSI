@@ -256,6 +256,36 @@ class UserController {
             response.status(500).json({ err: "Erro interno ao buscar informações do usuário" });
         }
     }
+
+    async editUsername(request, response) {
+        const userId = request.params.id;
+        const { username } = request.body;
+
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
+        if (!username || username.trim() === "") {
+            return response.status(400).json({ err: "Nome de usuário inválido" });
+        }
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return response.status(404).json({ err: "Usuário não encontrado" });
+            }
+
+            const result = await User.updateUsername(userId, username)
+            if (result.status) {
+                response.status(200).json({ message: "Nome atualizado com sucesso" });
+            } else {
+                response.status(406).json({ err: result.err });
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar perfil:", error);
+            response.status(500).json({ err: "Erro interno ao atualizar perfil" });
+        }
+    }
 }
 
 module.exports = new UserController()
