@@ -32,7 +32,7 @@ class UserProfileService {
       );
 
       if (response.statusCode == 200) {
-        _showSnackbar(context, 'Perfil atualizado com sucesso!', isError: false);
+        _showSnackbar(context, 'Nome atualizado com sucesso!', isError: false);
         return true;
       } else {
         String errorMessage = 'Erro ao atualizar perfil.';
@@ -44,6 +44,54 @@ class UserProfileService {
         } catch (_) {}
         debugPrint(
           'Erro ao atualizar perfil: ${response.statusCode} - $errorMessage',
+        );
+        _showSnackbar(context, errorMessage, isError: true);
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Erro na requisição de atualização: $e');
+      _showSnackbar(context, 'Erro ao conectar com o servidor.', isError: true);
+      return false;
+    }
+  }
+
+  Future<bool> updateEmailProfile({
+    required int userId,
+    required String email,
+    required BuildContext context,
+  }) async {
+    if (apiURL == null) {
+      debugPrint('API_URL não configurado no .env');
+      _showSnackbar(context, 'URL da API não configurada.', isError: true);
+      return false;
+    }
+
+    final Uri url = Uri.parse('$apiURL/user/edit_email/$userId');
+
+    final Map<String, dynamic> requestBody = {
+      'email': email,
+    };
+
+    try {
+      final response = await http.put(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        _showSnackbar(context, 'Email atualizado com sucesso!', isError: false);
+        return true;
+      } else {
+        String errorMessage = 'Erro ao atualizar perfil.';
+        try {
+          final Map<String, dynamic> data = jsonDecode(response.body);
+          if (data.containsKey('err')) {
+            errorMessage = data['err'];
+          }
+        } catch (_) {}
+        debugPrint(
+          'Erro ao atualizar email: ${response.statusCode} - $errorMessage',
         );
         _showSnackbar(context, errorMessage, isError: true);
         return false;

@@ -126,6 +126,23 @@ class User {
         }
    }
 
+    async updateEmail(id, email) {
+        const user = await this.findById(id);
+        if (user) {
+            if (email && email !== user.email) {
+                const emailExists = await this.findEmail(email);
+                if (emailExists) {
+                    return { status: false, err: "Email já existe" };
+                }
+                await knex.update({email: email}).where({id: id}).table("users")
+                return {status: true}
+            }
+        }
+        else {
+            return { status: false, err: "Usuário não encontrado." };
+        }
+    }
+
 }
 
 module.exports = new User()

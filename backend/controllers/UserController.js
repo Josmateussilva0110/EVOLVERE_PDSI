@@ -286,6 +286,36 @@ class UserController {
             response.status(500).json({ err: "Erro interno ao atualizar perfil" });
         }
     }
+
+    async editEmail(request, response) {
+        const userId = request.params.id;
+        const { email } = request.body;
+
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
+        if (!email || email.trim() === "") {
+            return response.status(400).json({ err: "Email de usuário inválido" });
+        }
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return response.status(404).json({ err: "Usuário não encontrado" });
+            }
+
+            const result = await User.updateEmail(userId, email)
+            if (result.status) {
+                response.status(200).json({ message: "Email atualizado com sucesso" });
+            } else {
+                response.status(406).json({ err: result.err });
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar perfil:", error);
+            response.status(500).json({ err: "Erro interno ao atualizar perfil" });
+        }
+    }
 }
 
 module.exports = new UserController()
