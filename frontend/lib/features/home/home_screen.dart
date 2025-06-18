@@ -2,13 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
-
-// Importações das telas
-import 'notifications_screen.dart';
 import '../user/screens/edit_profile_screen.dart';
-import '../listHabits/screens/habits_list_screen.dart';
-import '../register_category/screens/list_category_screen.dart';
-import '../settings/screens/settings_screen.dart';
 
 // Importações dos widgets
 import 'widgets/top_priorities_widget.dart';
@@ -234,41 +228,31 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditProfileScreen(
-                    userId: _userId!,
-                    userEmail: _userEmail,
-                  ),
+                  builder:
+                      (context) => EditProfileScreen(
+                        userId: _userId!,
+                        userEmail: _userEmail,
+                      ),
                 ),
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Erro: Usuário não carregado.'),
-                ),
+                const SnackBar(content: Text('Erro: Usuário não carregado.')),
               );
             }
           }),
 
           _drawerItem(Icons.category, 'Categorias', () {
             Navigator.pop(context);
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ListCategoryScreen()),
-            );
+            Navigator.pushNamed(context, '/listar_categorias');
           }),
           _drawerItem(Icons.check_box, 'Hábitos', () {
             Navigator.pop(context);
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HabitsListPage()),
-            );
+            Navigator.pushNamed(context, '/listar_habitos');
           }),
           _drawerItem(Icons.notifications, 'Notificações', () {
             Navigator.pop(context);
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => NotificationsScreen()),
-            );
+            Navigator.pushNamed(context, '/notificacoes');
           }),
           _drawerItem(Icons.bar_chart, 'Relatórios', () {
             Navigator.pop(context);
@@ -280,10 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }),
           _drawerItem(Icons.settings, 'Configurações', () {
             Navigator.pop(context);
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SettingsScreen()),
-            );
+            Navigator.pushNamed(context, '/configuracoes');
           }),
           const Divider(color: Colors.white24),
           _drawerItem(Icons.exit_to_app, 'Sair', () {

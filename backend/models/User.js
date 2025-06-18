@@ -137,6 +137,9 @@ class User {
                 await knex.update({email: email}).where({id: id}).table("users")
                 return {status: true}
             }
+            else {
+                return {status: true}
+            }
         }
         else {
             return { status: false, err: "Usuário não encontrado." };

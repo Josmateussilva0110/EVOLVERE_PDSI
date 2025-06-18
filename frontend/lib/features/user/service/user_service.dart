@@ -32,7 +32,6 @@ class UserProfileService {
       );
 
       if (response.statusCode == 200) {
-        _showSnackbar(context, 'Nome atualizado com sucesso!', isError: false);
         return true;
       } else {
         String errorMessage = 'Erro ao atualizar perfil.';
@@ -80,7 +79,6 @@ class UserProfileService {
       );
 
       if (response.statusCode == 200) {
-        _showSnackbar(context, 'Email atualizado com sucesso!', isError: false);
         return true;
       } else {
         String errorMessage = 'Erro ao atualizar perfil.';

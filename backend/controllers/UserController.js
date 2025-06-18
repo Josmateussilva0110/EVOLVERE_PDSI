@@ -313,7 +313,7 @@ class UserController {
             }
         } catch (error) {
             console.error("Erro ao atualizar perfil:", error);
-            response.status(500).json({ err: "Erro interno ao atualizar perfil" });
+            response.status(500).json({ err: "Erro interno ao atualizar email" });
         }
     }
 }
