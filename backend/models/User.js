@@ -117,6 +117,35 @@ class User {
         await PasswordToken.setUsed(token)
    }
 
+    async updateUsername(id, name) {
+        try {
+            await knex.update({username: name}).where({id: id}).table("users")
+            return {status: true}
+        } catch(err) {
+            return {status: false, err: err}
+        }
+   }
+
+    async updateEmail(id, email) {
+        const user = await this.findById(id);
+        if (user) {
+            if (email && email !== user.email) {
+                const emailExists = await this.findEmail(email);
+                if (emailExists) {
+                    return { status: false, err: "Email já existe" };
+                }
+                await knex.update({email: email}).where({id: id}).table("users")
+                return {status: true}
+            }
+            else {
+                return {status: true}
+            }
+        }
+        else {
+            return { status: false, err: "Usuário não encontrado." };
+        }
+    }
+
 }
 
 module.exports = new User()

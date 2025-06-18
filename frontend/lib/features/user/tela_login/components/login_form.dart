@@ -127,9 +127,6 @@ class _LoginFormState extends State<LoginForm> {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira sua senha';
                   }
-                  if (value.length < 6) {
-                    return 'A senha deve ter pelo menos 6 caracteres';
-                  }
                   return null;
                 },
               ),
@@ -163,12 +160,14 @@ class _LoginFormState extends State<LoginForm> {
                                   jsonDecode(response.body);
                               final int? userId = responseData['userId'];
                               final String? username = responseData['username'];
+                              final String? email = responseData['email'];
 
-                              if (userId != null && username != null) {
+                              if (userId != null && username != null && email != null) {
                                 final SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 await prefs.setInt('loggedInUserId', userId);
                                 await prefs.setString('username', username);
+                                await prefs.setString('email', email);
                               }
 
                               ScaffoldMessenger.of(context).showSnackBar(

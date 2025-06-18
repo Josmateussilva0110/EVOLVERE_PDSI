@@ -279,6 +279,7 @@ class Habit {
                     delete updates[key]
                 }
             })
+            
             await knex.table("habits").where({ id }).update(updates)
             return true
         } catch (err) {

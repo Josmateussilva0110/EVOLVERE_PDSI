@@ -1,253 +1,191 @@
 import 'package:flutter/material.dart';
-import 'notifications_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'widgets/habit_tile_widget.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
-
-// Importar a tela de perfil
 import '../user/screens/edit_profile_screen.dart';
-import '../listHabits/screens/habits_list_screen.dart'; // Importar tela de lista de hábitos (caminho corrigido)
-import '../register_category/screens/list_category_screen.dart'; // Importar tela de lista de categorias (caminho corrigido)
-import '../settings/screens/settings_screen.dart'; // Importar a nova tela de configurações
+
+// Importações dos widgets
 import 'widgets/top_priorities_widget.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // bool _showDrawer = false; // Removido: A navegação será direta para a tela de perfil
   String _userName = '';
-  int _userId = 0; // Adicionar para armazenar o ID do usuário
-  String _userEmail = ''; // Adicionar para armazenar o email do usuário
-
-  // Dados simulados para as métricas da home
-  int _dailyStreak = 3;
-  int _completedHabitsToday = 3;
-  int _totalScore = 246;
-  double _dailyProgressValue = 6 / 8;
-  int _completedHabitsCount = 6;
-  int _totalHabitsCount = 8;
-
+  int? _userId;
+  String _userEmail = '';
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    print('USER ID: ${_userId}');
+    print('EMAIL: ${_userEmail}');
   }
 
   void _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _userName = prefs.getString('username') ?? 'Usuário';
-      // Assumindo que userId e userEmail também estão em SharedPreferences
-      _userId = prefs.getInt('userId') ?? 0; // Recupere o userId real
-      _userEmail =
-          prefs.getString('userEmail') ??
-          'usuario@example.com'; // Recupere o userEmail real
-
-      // Dados simulados para demonstração. Substituir com dados reais da API.
-      _dailyStreak = prefs.getInt('dailyStreak') ?? 3;
-      _completedHabitsToday = prefs.getInt('completedHabitsToday') ?? 3;
-      _totalScore = prefs.getInt('totalScore') ?? 246;
-      _completedHabitsCount = prefs.getInt('completedHabitsCount') ?? 6;
-      _totalHabitsCount = prefs.getInt('totalHabitsCount') ?? 8;
-      _dailyProgressValue = _completedHabitsCount / _totalHabitsCount;
+      _userId = prefs.getInt('loggedInUserId');
+      _userEmail = prefs.getString('email') ?? 'usuario@example.com';
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Olá, $_userName',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.account_circle, color: Colors.white),
-                          onPressed: _toggleDrawer,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _statCard(
-                            'Sequência Diária',
-                            '3',
-                            height: 100,
-                            topPadding: 21,
-                          ),
-                        ),
-                        SizedBox(width: 15),
-                        Expanded(
-                          child: _statCard(
-                            'Hábitos Completados',
-                            '3',
-                            height: 100,
-                            topPadding: 21,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    _statCard('Pontuação Total', '246', width: double.infinity),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Hoje',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.add, color: Colors.white),
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/cadastrar_habito');
-                          },
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    if (_userId != null) TopPrioritiesWidget(userId: _userId!),
-                    SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/listar_habitos');
-                        },
-                        child: Text(
-                          'Ver Mais',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Progresso Diário',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    SizedBox(height: 5),
-                    LinearProgressIndicator(
-                      value: 6 / 8,
-                      color: Colors.white,
-                      backgroundColor: Colors.grey,
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      '6 de 8 hábitos completados',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+      backgroundColor: const Color(0xFF121217),
+      drawer: _buildAppDrawer(),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Olá, $_userName',
+          style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: math.max(20.0, MediaQuery.of(context).size.width * 0.05),
+            fontWeight: FontWeight.bold,
           ),
-          if (_showDrawer)
-            GestureDetector(
-              onTap: _toggleDrawer,
-              child: Container(
-                color: Colors.black54,
-                child: Align(
-                  alignment: Alignment.topRight,
-                  child: Container(
-                    width: 280,
-                    margin: EdgeInsets.only(top: 80, right: 10),
-                    padding: EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.account_circle, color: Colors.white),
-                            SizedBox(width: 8),
-                            Text(
-                              '$_userName',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Divider(color: Colors.white24),
-                        _drawerItem(Icons.person, 'Conta', () {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/perfil',
-                            ModalRoute.withName('/inicio'),
-                          );
-                        }),
-                        _drawerItem(Icons.category, 'Categorias', () {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/listar_categorias',
-                            ModalRoute.withName('/inicio'),
-                          );
-                        }),
-                        _drawerItem(Icons.check_box, 'Hábitos', () {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/listar_habitos',
-                            ModalRoute.withName('/inicio'),
-                          );
-                        }),
-                        _drawerItem(Icons.settings, 'Configurações', () {
-                          //tela não criada
-                        }),
-                        _drawerItem(Icons.person, 'Sair', () {
-                          Navigator.pushNamed(context, '/');
-                        }),
-                      ],
+        ),
+        leading: Builder(
+          builder:
+              (context) => IconButton(
+                icon: const Icon(Icons.menu, color: Colors.white, size: 32),
+                onPressed: () => Scaffold.of(context).openDrawer(),
+              ),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Estatísticas
+              Row(
+                children: [
+                  Expanded(child: _statCard('Sequência Diária', '3')),
+                  const SizedBox(width: 15),
+                  Expanded(child: _statCard('Hábitos Completos', '3')),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _statCard('Pontuação Total', '246', width: double.infinity),
+              const SizedBox(height: 20),
+
+              // Hoje
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Hoje',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
+                  IconButton(
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/cadastrar_habito');
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              if (_userId != null) TopPrioritiesWidget(userId: _userId!),
+              SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/listar_habitos');
+                  },
+                  child: const Text(
+                    'Ver Mais',
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
                 ),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.03),
-              ],
-            ),
+              ),
+              const SizedBox(height: 20),
+
+              const Text(
+                'Progresso Diário',
+                style: TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 5),
+              const LinearProgressIndicator(
+                value: 6 / 8,
+                color: Colors.white,
+                backgroundColor: Colors.grey,
+              ),
+              const SizedBox(height: 5),
+              const Text(
+                '6 de 8 hábitos completados',
+                style: TextStyle(color: Colors.white70),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
 
-  // Widget para construir o Drawer lateral
+  // Widget para estatísticas
+  Widget _statCard(
+    String title,
+    String value, {
+    double? width,
+    double height = 100,
+  }) {
+    return Container(
+      width: width,
+      height: height,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1C1F26),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            title,
+            style: GoogleFonts.inter(
+              color: Colors.white70,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: GoogleFonts.inter(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Drawer lateral
   Widget _buildAppDrawer() {
     return Drawer(
-      backgroundColor: const Color(0xFF1C1F26), // Cor de fundo do drawer
+      backgroundColor: const Color(0xFF1C1F26),
       child: ListView(
         padding: EdgeInsets.zero,
-        children: <Widget>[
+        children: [
           DrawerHeader(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -263,12 +201,12 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
                   child: Icon(Icons.person, color: Colors.blueAccent, size: 40),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   'Olá, $_userName!',
                   style: GoogleFonts.inter(
@@ -278,62 +216,59 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 Text(
-                  _userEmail, // Exibir o email do usuário
+                  _userEmail,
                   style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),
           ),
           _drawerItem(Icons.person, 'Conta', () {
-            Navigator.pop(context); // Fechar o drawer
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => EditProfileScreen(
-                      userId: _userId,
-                      userEmail: _userEmail,
-                    ),
+            if (_userId != null) {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => EditProfileScreen(
+                        userId: _userId!,
+                        userEmail: _userEmail,
+                      ),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Erro: Usuário não carregado.')),
+              );
+            }
+          }),
+
+          _drawerItem(Icons.category, 'Categorias', () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, '/listar_categorias');
+          }),
+          _drawerItem(Icons.check_box, 'Hábitos', () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, '/listar_habitos');
+          }),
+          _drawerItem(Icons.notifications, 'Notificações', () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, '/notificacoes');
+          }),
+          _drawerItem(Icons.bar_chart, 'Relatórios', () {
+            Navigator.pop(context);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Tela de Relatórios em desenvolvimento.'),
               ),
             );
           }),
-          _drawerItem(Icons.category, 'Categorias', () {
-            Navigator.pop(context); // Fechar o drawer
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ListCategoryScreen()),
-            );
-          }),
-          _drawerItem(Icons.check_box, 'Hábitos', () {
-            Navigator.pop(context); // Fechar o drawer
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HabitsListPage()),
-            );
-          }),
-          _drawerItem(Icons.notifications, 'Notificações', () {
-            Navigator.pop(context); // Fechar o drawer
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => NotificationsScreen()),
-            );
-          }),
-          _drawerItem(Icons.bar_chart, 'Relatórios', () {
-            Navigator.pop(context); // Fechar o drawer
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Tela de Relatórios em desenvolvimento.')),
-            );
-          }),
           _drawerItem(Icons.settings, 'Configurações', () {
-            Navigator.pop(context); // Fechar o drawer
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SettingsScreen()),
-            ); // Navegar para a tela de Configurações
+            Navigator.pop(context);
+            Navigator.pushNamed(context, '/configuracoes');
           }),
-          Divider(color: Colors.white24, height: 1),
+          const Divider(color: Colors.white24),
           _drawerItem(Icons.exit_to_app, 'Sair', () {
-            Navigator.pop(context); // Fechar o drawer
+            Navigator.pop(context);
             _clearUserDataAndNavigateToLogin();
           }),
         ],
@@ -341,10 +276,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Widget auxiliar para os itens do menu no drawer
   Widget _drawerItem(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: Colors.white, size: 24),
+      leading: Icon(icon, color: Colors.white),
       title: Text(
         title,
         style: GoogleFonts.inter(
@@ -357,57 +291,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Novo método para limpar dados e navegar para o login
   Future<void> _clearUserDataAndNavigateToLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Limpa todos os dados salvos
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/',
-      (route) => false,
-    ); // Navega para a rota raiz e remove todas as anteriores
-  }
-
-  // Novo widget auxiliar para os cartões de estatísticas
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color, {
-    int flex = 1,
-  }) {
-    return Card(
-      color: Colors.grey[850],
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      elevation: 5, // Adicionar um pouco de elevação
-      child: InkWell(
-        onTap: () {},
-        borderRadius: BorderRadius.circular(15),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: color, size: 35), // Ícone maior e colorido
-              const SizedBox(height: 15),
-              Text(
-                value,
-                style: GoogleFonts.inter(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                title,
-                style: GoogleFonts.inter(color: Colors.grey[400], fontSize: 15),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    await prefs.clear();
+    Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
   }
 }

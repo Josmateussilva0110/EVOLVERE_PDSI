@@ -15,8 +15,8 @@ import 'features/listHabits/screens/habits_list_screen.dart';
 import 'features/register_category/screens/edit_category_screen.dart';
 import 'features/Habits/model/HabitData.dart';
 import 'features/explanation/screens/explanation_screen.dart';
-import 'features/listHabits/screens/progress_record_screen.dart';
-import 'features/listHabits/models/HabitModel.dart';
+import 'features/home/notifications_screen.dart';
+import 'features/settings/screens/settings_screen.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -89,6 +89,8 @@ class _MyAppState extends State<MyApp> {
         '/listar_habitos': (context) => HabitsListPage(),
         '/editar_categoria': (context) => EditCategoryScreen(),
         '/explanation_screen': (context) => ExplanationScreen(),
+        '/notificacoes': (context) => NotificationsScreen(),
+        '/configuracoes': (context) => SettingsScreen()
       },
 
       onGenerateRoute: (settings) {
@@ -124,40 +126,6 @@ class _MyAppState extends State<MyApp> {
             }
             return MaterialPageRoute(
               builder: (_) => TermScreen(habitData: HabitData()),
-            );
-
-          case '/progress_record':
-            final args = settings.arguments;
-            if (args is Habit) {
-              debugPrint(
-                'Navegando para ProgressRecordScreen com Hábito: ${args.name}',
-              );
-              return MaterialPageRoute(
-                builder:
-                    (_) => ProgressRecordScreen(
-                      habitName: args.name,
-                      category: args.categoryName ?? 'Sem Categoria',
-                      totalMinutes: 0,
-                      dailyAverage: 'N/A',
-                      currentStreak: 'N/A',
-                      monthDays: 'N/A',
-                      progressPercent: 0.0,
-                      weeklyData: [],
-                    ),
-              );
-            }
-            debugPrint(
-              'Erro: Rota /progress_record acessada sem um objeto Habit válido.',
-            );
-            return MaterialPageRoute(
-              builder:
-                  (_) => const Scaffold(
-                    body: Center(
-                      child: Text(
-                        'Erro: Hábito não encontrado para a tela de progresso',
-                      ),
-                    ),
-                  ),
             );
 
           default:

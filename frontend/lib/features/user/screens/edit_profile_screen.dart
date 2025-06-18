@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http; // Importar http
 import 'package:image_picker/image_picker.dart'; // Importar image_picker
 import 'dart:io'; // Importar dart:io para File
 import 'package:google_fonts/google_fonts.dart'; // Importar GoogleFonts para estilização
+import '../service/user_service.dart';
 
 class EditProfileScreen extends StatefulWidget {
   final int userId; // Adicionar userId como propriedade obrigatória
@@ -38,7 +39,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // Criar controllers para os campos de texto
   final TextEditingController _usernameController = TextEditingController();
-  // final TextEditingController _emailController = TextEditingController(); // Removido: Edição de email movida para configurações
+  final TextEditingController _emailController = TextEditingController(); // Removido: Edição de email movida para configurações
   bool _isLoading = true; // Estado para controle do carregamento
   final ImagePicker _picker = ImagePicker(); // Instância do ImagePicker
 
@@ -51,7 +52,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void dispose() {
     _usernameController.dispose();
-    // _emailController.dispose(); // Removido: Edição de email movida para configurações
+    _emailController.dispose(); // Removido: Edição de email movida para configurações
     super.dispose();
   }
 
@@ -74,9 +75,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
+        print('DATA: ${data}');
         // Assumindo que a rota /user/:id retorna o objeto do usuário diretamente
         setState(() {
-          name = data['username'] ?? 'Nome não encontrado';
+          name = data['name'] ?? 'Nome não encontrado';
           email = data['email'] ?? 'Email não encontrado';
           createdAt = data['createdAt'] ?? 'Data não encontrada';
           // Atribuir valores simulados ou de uma API expandida
@@ -86,7 +88,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           activeHabits = 10; // Simulado
 
           _usernameController.text = name;
-          // _emailController.text = email; // Removido: Edição de email movida para configurações
+          _emailController.text = email; // Removido: Edição de email movida para configurações
         });
       } else {
         // Tratar erro ao carregar dados
@@ -113,75 +115,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // Função para salvar as alterações no backend
-  Future<void> _saveProfileChanges() async {
-    final String? apiURL = dotenv.env['API_URL'];
-    if (apiURL == null) {
-      print('API_URL não configurado no .env');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao salvar: URL da API não configurada.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    final Map<String, dynamic> requestBody = {
-      'username': _usernameController.text,
-      // 'email': _emailController.text, // Removido: Edição de email movida para configurações
-    };
-
-    try {
-      final response = await http.put(
-        Uri.parse('$apiURL/user/edit/${widget.userId}'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
-      );
-
-      if (response.statusCode == 200) {
-        print('Perfil atualizado com sucesso!');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Perfil atualizado com sucesso!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // Não voltar para a tela anterior automaticamente se o email foi removido daqui
-        // Navigator.pop(context);
-      } else {
-        String errorMessage = 'Erro ao atualizar perfil.';
-        try {
-          final Map<String, dynamic> data = jsonDecode(response.body);
-          if (data.containsKey('err')) {
-            errorMessage = data['err'];
-          }
-        } catch (_) {
-          // Ignorar erro de parsing se a resposta não for um JSON
-        }
-        print(
-          'Erro ao atualizar perfil: ${response.statusCode} - $errorMessage',
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
-        );
-      }
-    } catch (e) {
-      print('Erro na requisição de atualização: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao conectar com o servidor.'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // Formatar a data de criação
-    String formattedCreatedAt =
-        'Desde ${createdAt.isNotEmpty ? createdAt.split('T')[0].split('-')[2] + '/' + createdAt.split('T')[0].split('-')[1] + '/' + createdAt.split('T')[0].split('-')[0] : '---'}'; // Formatar a data para DD/MM/AAAA
+    String formattedCreatedAt = 'Desde ${createdAt}';
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -289,29 +226,69 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       // Nome e email para visualização, com opção de clique para alterar nome de usuário
                                       _buildEditableInfoTile(
                                         label: 'Nome de Usuário',
-                                        value:
-                                            name.isNotEmpty
-                                                ? name
-                                                : 'Carregando...',
-                                        onTap:
-                                            () => _showEditDialog(
-                                              'Nome de Usuário',
-                                              _usernameController,
-                                              (value) {
-                                                setState(() {
-                                                  name = value;
-                                                });
-                                                _saveProfileChanges();
-                                              },
-                                            ),
+                                        value: name.isNotEmpty ? name : 'Carregando...',
+                                        onTap: () {
+                                          _showEditDialog(
+                                            'Nome de Usuário',
+                                            _usernameController,
+                                            (newValue) async {
+                                              setState(() {
+                                                name = newValue;
+                                              });
+
+                                              // Chama o service para atualizar no backend
+                                              final service = UserProfileService();
+                                              bool success = await service.updateUserProfile(
+                                                userId: widget.userId,
+                                                username: newValue,
+                                                context: context,
+                                              );
+
+                                              if (success) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('Nome atualizado com sucesso!'),
+                                                    backgroundColor: Colors.green,
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                          );
+                                        },
                                       ),
+
                                       // Email (apenas visualização)
-                                      _buildInfoTile(
+                                    _buildEditableInfoTile(
                                         label: 'Email',
-                                        value:
-                                            email.isNotEmpty
-                                                ? email
-                                                : 'Carregando...', // Garante que o email da variável de estado seja usado
+                                        value: email.isNotEmpty ? email : 'Carregando...',
+                                        onTap: () {
+                                          _showEditDialog(
+                                            'Email',
+                                            _emailController,
+                                            (newValue) async {
+                                              setState(() {
+                                                email = newValue;
+                                              });
+
+                                              // Chama o service para atualizar no backend
+                                              final service = UserProfileService();
+                                              bool success = await service.updateEmailProfile(
+                                                userId: widget.userId,
+                                                email: newValue,
+                                                context: context,
+                                              );
+
+                                              if (success) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('Email atualizado com sucesso!'),
+                                                    backgroundColor: Colors.green,
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                          );
+                                        },
                                       ),
                                       const SizedBox(
                                         height: 10,
@@ -413,23 +390,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // Novo Widget para exibir informações de perfil não clicáveis
-  Widget _buildInfoTile({required String label, required String value}) {
-    return ListTile(
-      title: Text(
-        label,
-        style: TextStyle(color: Colors.grey[500], fontSize: 14),
-      ),
-      subtitle: Text(
-        value,
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-    );
-  }
 
   // Diálogo para edição de texto
   void _showEditDialog(
