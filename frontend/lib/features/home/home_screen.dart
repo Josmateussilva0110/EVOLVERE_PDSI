@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
 import '../user/screens/edit_profile_screen.dart';
+import 'services/home_service.dart';
 
 // Importações dos widgets
 import 'widgets/top_priorities_widget.dart';
@@ -23,21 +24,54 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _activeLabel;
   int? _activeIndex; // 0: notificações, 1: home, 2: conta
 
+  int _completedTodayCount = 0;
+  bool _loadingCompletedToday = false;
+
   @override
   void initState() {
     super.initState();
     _loadUserData();
-    print('USER ID: ${_userId}');
-    print('EMAIL: ${_userEmail}');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCompletedTodayCount();
+    });
+  }
+
+  Future<void> _loadCompletedTodayCount() async {
+    if (_userId == null) {
+      print('UserId nulo, não vai buscar contagem');
+      return;
+    }
+    setState(() {
+      _loadingCompletedToday = true;
+    });
+    try {
+      final count = await HomeService.fetchCompletedTodayCount(_userId!);
+      print('Contagem recebida: $count');
+      setState(() {
+        _completedTodayCount = count;
+      });
+    } catch (e) {
+      setState(() {
+        _completedTodayCount = 0;
+      });
+    } finally {
+      setState(() {
+        _loadingCompletedToday = false;
+      });
+    }
   }
 
   void _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('loggedInUserId');
     setState(() {
       _userName = prefs.getString('username') ?? 'Usuário';
-      _userId = prefs.getInt('loggedInUserId');
+      _userId = userId;
       _userEmail = prefs.getString('email') ?? 'usuario@example.com';
     });
+    if (userId != null) {
+      _loadCompletedTodayCount();
+    }
   }
 
   void _showLabel(String label, int index) {
@@ -98,7 +132,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Expanded(child: _statCard('Sequência Diária', '3')),
                           const SizedBox(width: 15),
-                          Expanded(child: _statCard('Hábitos Completos', '3')),
+                          Expanded(
+                            child:
+                                _loadingCompletedToday
+                                    ? _statCard('Completados Hoje', '...')
+                                    : _statCard(
+                                      'Completados Hoje',
+                                      _completedTodayCount.toString(),
+                                    ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -111,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       // Progresso Diário (MOVIDO PARA CIMA)
                       const Text(
-                        'Progresso Diário',
+                        'Progresso',
                         style: TextStyle(color: Colors.white),
                       ),
                       const SizedBox(height: 5),
@@ -132,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'Hoje',
+                            'Hábitos',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,

@@ -279,6 +279,15 @@ class HabitController {
             response.json({err: "erro ao cadastrar progresso de habito."})
         }
     }
+
+    async getHabitsCompletedToday(request, response) {
+        const user_id = request.params.user_id;
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário invalido." });
+        }
+        const count = await Habit.countCompletedToday(user_id);
+        response.status(200).json({ count });
+    }
 }
 
 module.exports = new HabitController()

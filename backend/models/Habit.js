@@ -323,6 +323,28 @@ class Habit {
             return undefined;
         }
     }
+
+    // Busca a contagem de hábitos concluídos hoje por usuário
+    async countCompletedToday(user_id) {
+        try {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+
+            const result = await knex('habits as h')
+                .where('h.status', '=', 4)
+                .andWhere('h.user_id', user_id)
+                .andWhereRaw('DATE(h.updated_at) = ?', [todayStr])
+                .count('h.id as count');
+
+            return result[0].count || 0;
+        } catch (err) {
+            console.error('Erro em contar hábitos concluídos hoje:', err);
+            return 0;
+        }
+    }
 }
 
 module.exports = new Habit()

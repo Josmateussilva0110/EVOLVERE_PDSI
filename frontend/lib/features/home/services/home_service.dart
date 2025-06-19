@@ -41,4 +41,37 @@ class HomeService {
       throw Exception('Erro ao conectar com o servidor: $e');
     }
   }
+
+  static Future<int> fetchCompletedTodayCount(int userId) async {
+    try {
+      final String? apiUrl = dotenv.env['API_URL'];
+      if (apiUrl == null) {
+        print('API_URL não configurado no .env');
+        throw Exception('API_URL não configurado no .env');
+      }
+
+      print(
+        'Buscando contagem de hábitos concluídos hoje para o usuário $userId',
+      );
+      print('URL: $apiUrl/habits/completed_today/$userId');
+
+      final response = await http.get(
+        Uri.parse('$apiUrl/habits/completed_today/$userId'),
+      );
+
+      print('Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        return data['count'] ?? 0;
+      } else {
+        print('Erro ao buscar contagem de hábitos concluídos hoje');
+        return 0;
+      }
+    } catch (e) {
+      print('Erro ao buscar contagem de hábitos concluídos hoje: $e');
+      return 0;
+    }
+  }
 }
