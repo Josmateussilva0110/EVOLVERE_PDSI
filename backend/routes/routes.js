@@ -40,5 +40,6 @@ router.patch("/habit/:id", HabitController.editHabit)
 router.post("/finished_habit", HabitController.finishedHabitCreate)
 router.post("/habit_progress", HabitController.habitProgressCreate)
 router.get("/habits/completed_today/:user_id", HabitController.getHabitsCompletedToday)
+router.get("/habits/total/:user_id", HabitController.getHabitsSummaryByUser)
 
 module.exports = router

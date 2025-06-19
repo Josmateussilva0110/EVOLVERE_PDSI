@@ -345,6 +345,28 @@ class Habit {
             return 0;
         }
     }
+
+    // Função para contar o total de hábitos cadastrados por usuário
+    async countAllHabitsByUser(user_id) {
+        try {
+            const result = await knex('habits').where({ user_id }).count('id as total');
+            return result[0].total || 0;
+        } catch (err) {
+            console.error('Erro ao contar o total de hábitos por usuário:', err);
+            return 0;
+        }
+    }
+
+    // Função para contar o total de hábitos concluídos (status 4) por usuário
+    async countCompletedHabitsByUser(user_id) {
+        try {
+            const result = await knex('habits').where({ user_id, status: 4 }).count('id as total');
+            return result[0].total || 0;
+        } catch (err) {
+            console.error('Erro ao contar hábitos concluídos por usuário:', err);
+            return 0;
+        }
+    }
 }
 
 module.exports = new Habit()

@@ -20,9 +20,12 @@ class _HomeScreenState extends State<HomeScreen> {
   int? _userId;
   String _userEmail = '';
 
-
   int _completedTodayCount = 0;
   bool _loadingCompletedToday = false;
+
+  // Novos estados para o resumo de hábitos
+  int _habitsTotal = 0;
+  int _habitsCompleted = 0;
 
   @override
   void initState() {
@@ -30,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadUserData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadCompletedTodayCount();
+      _loadHabitsSummary();
     });
   }
 
@@ -58,6 +62,31 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _loadHabitsSummary() async {
+    if (_userId == null) {
+      print('UserId nulo, não vai buscar resumo de hábitos');
+      return;
+    }
+    print('Carregando resumo de hábitos para userId: $_userId');
+    try {
+      final summary = await HomeService.fetchHabitsSummary(_userId!);
+      print('Resumo recebido: $summary');
+      setState(() {
+        _habitsTotal = summary['total'] ?? 0;
+        _habitsCompleted = summary['completed'] ?? 0;
+      });
+      print(
+        'Valores definidos - Total: $_habitsTotal, Completed: $_habitsCompleted',
+      );
+    } catch (e) {
+      print('Erro ao carregar resumo de hábitos: $e');
+      setState(() {
+        _habitsTotal = 0;
+        _habitsCompleted = 0;
+      });
+    }
+  }
+
   void _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final userId = prefs.getInt('loggedInUserId');
@@ -68,6 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
     if (userId != null) {
       _loadCompletedTodayCount();
+      _loadHabitsSummary();
     }
   }
 
@@ -139,14 +169,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         style: TextStyle(color: Colors.white),
                       ),
                       const SizedBox(height: 5),
-                      const LinearProgressIndicator(
-                        value: 6 / 8,
+                      LinearProgressIndicator(
+                        value:
+                            (_habitsTotal > 0)
+                                ? (_habitsCompleted / _habitsTotal).clamp(
+                                  0.0,
+                                  1.0,
+                                )
+                                : 0.0,
                         color: Colors.white,
                         backgroundColor: Colors.grey,
                       ),
                       const SizedBox(height: 5),
-                      const Text(
-                        '6 de 8 hábitos completados',
+                      Text(
+                        '${_habitsCompleted} de ${_habitsTotal} hábitos completados',
                         style: TextStyle(color: Colors.white70),
                       ),
                       const SizedBox(height: 20),
