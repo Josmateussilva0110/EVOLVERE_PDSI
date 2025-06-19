@@ -1,6 +1,49 @@
 import 'package:flutter/material.dart';
+import '../service/login_service.dart'; 
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
+  @override
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final _emailController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSendEmail() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Por favor, insira um email')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final result = await AuthService.sendRecoveryEmail(email);
+
+    setState(() => _isLoading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result['message']),
+        backgroundColor: result['success'] ? Colors.green : Colors.red,
+      ),
+    );
+
+    if (result['success']) {
+      Navigator.of(context).pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -16,9 +59,7 @@ class ForgotPasswordScreen extends StatelessWidget {
             color: theme.textTheme.bodyLarge?.color,
             size: 28,
           ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text('Recuperar Senha', style: theme.textTheme.titleLarge),
       ),
@@ -34,6 +75,8 @@ class ForgotPasswordScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             TextField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
               style: TextStyle(color: theme.textTheme.bodyLarge?.color),
               decoration: InputDecoration(
                 labelText: 'Email',
@@ -55,20 +98,15 @@ class ForgotPasswordScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
-              onPressed: () {
-                // TODO: Implementar lógica de recuperação de senha
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Email de recuperação enviado!'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Enviar',
-                style: TextStyle(fontSize: 16, color: Colors.white),
-              ),
+              onPressed: _isLoading ? null : _handleSendEmail,
+              child: _isLoading
+                  ? CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    )
+                  : Text(
+                      'Enviar',
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
             ),
           ],
         ),
