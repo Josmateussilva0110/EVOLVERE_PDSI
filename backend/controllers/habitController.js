@@ -304,6 +304,20 @@ class HabitController {
             response.status(500).json({ err: "Erro ao buscar o resumo de hábitos do usuário." });
         }
     }
+
+    // Retorna hábitos completados agrupados por mês
+    async getCompletedHabitsByMonth(request, response) {
+        const user_id = request.params.user_id;
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+        try {
+            const completedHabits = await Habit.findCompletedHabitsByMonth(user_id);
+            response.status(200).json({ completedHabits });
+        } catch (err) {
+            response.status(500).json({ err: "Erro ao buscar hábitos completados por mês." });
+        }
+    }
 }
 
 module.exports = new HabitController()

@@ -152,7 +152,7 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                       );
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Cadastro realizado com sucesso!'),
+                          content: Text('Hábito Concluído com sucesso!'),
                           backgroundColor: Colors.green,
                         ),
                       );

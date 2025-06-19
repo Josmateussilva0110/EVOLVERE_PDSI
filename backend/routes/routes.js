@@ -41,5 +41,6 @@ router.post("/finished_habit", HabitController.finishedHabitCreate)
 router.post("/habit_progress", HabitController.habitProgressCreate)
 router.get("/habits/completed_today/:user_id", HabitController.getHabitsCompletedToday)
 router.get("/habits/total/:user_id", HabitController.getHabitsSummaryByUser)
+router.get("/habits/completed_by_month/:user_id", HabitController.getCompletedHabitsByMonth)
 
 module.exports = router

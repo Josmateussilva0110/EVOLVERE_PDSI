@@ -367,6 +367,46 @@ class Habit {
             return 0;
         }
     }
+
+    // Função para buscar hábitos completados agrupados por mês
+    async findCompletedHabitsByMonth(user_id) {
+        try {
+            const result = await knex('habits as h')
+                .leftJoin('category as c', 'h.category_id', 'c.id')
+                .where('h.status', '=', 4)
+                .andWhere('h.user_id', user_id)
+                .select(
+                    'h.id',
+                    'h.name',
+                    'h.description',
+                    'c.name as categoria',
+                    'h.updated_at',
+                    knex.raw('DATE_FORMAT(h.updated_at, "%Y-%m") as month_year')
+                )
+                .orderBy('h.updated_at', 'desc');
+
+            // Agrupar por mês
+            const groupedByMonth = {};
+            result.forEach(habit => {
+                const monthYear = habit.month_year;
+                if (!groupedByMonth[monthYear]) {
+                    groupedByMonth[monthYear] = [];
+                }
+                groupedByMonth[monthYear].push({
+                    id: habit.id,
+                    name: habit.name,
+                    description: habit.description,
+                    categoria: habit.categoria,
+                    completedAt: habit.updated_at
+                });
+            });
+
+            return groupedByMonth;
+        } catch (err) {
+            console.error('Erro ao buscar hábitos completados por mês:', err);
+            return {};
+        }
+    }
 }
 
 module.exports = new Habit()
