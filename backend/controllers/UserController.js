@@ -3,6 +3,7 @@ const PasswordToken = require("../models/PasswordToken")
 const jwt = require("jsonwebtoken")
 var bcrypt = require("bcrypt")
 const sendEmail = require("../utils/send_email")
+const formatMessageSendPassword = require("../utils/message_email")
 
 
 require('dotenv').config({ path: '../.env' })
@@ -329,25 +330,9 @@ class UserController {
                 const resetLink = `${request.protocol}://${request.get("host")}/redefinir_senha/${result.token}`;
                 const subject = "Redefinição de Senha - Evolvere";
                 const textContent = `Clique no link para redefinir sua senha: ${resetLink}`;
-                const htmlContent = `
-                    <h2>Redefinir sua senha</h2>
-                    <p>Olá,</p>
-                    <p>Recebemos um pedido para redefinir sua senha na <strong>Evolvere</strong>.</p>
-                    <p>
-                    <a href="http://localhost:8080/redefinir_senha/${result.token}" style="background-color:#4CAF50;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;">
-                        Redefinir Senha
-                    </a>
-                    </p>
-                    <p>Ou copie e cole este link no seu navegador:</p>
-                    <p><a href="${resetLink}">${resetLink}</a></p>
-                    <hr>
-                    <p style="font-size:12px;color:#888;">
-                    Você recebeu este e-mail porque solicitou a redefinição de senha em nosso aplicativo.<br>
-                    Se não foi você, apenas ignore esta mensagem.<br><br>
-                    </p>
-                `;
+                const { html } = formatMessageSendPassword(resetLink)
 
-                await sendEmail(email, subject, htmlContent, textContent);
+                await sendEmail(email, subject, html, textContent);
 
                 return response.json({ success: true, message: "verifique seu email" })
             } else {
