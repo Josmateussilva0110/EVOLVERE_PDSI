@@ -20,9 +20,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int? _userId;
   String _userEmail = '';
 
-  // Novo: controle de label animada
-  String? _activeLabel;
-  int? _activeIndex; // 0: notificações, 1: home, 2: conta
 
   int _completedTodayCount = 0;
   bool _loadingCompletedToday = false;
@@ -72,21 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (userId != null) {
       _loadCompletedTodayCount();
     }
-  }
-
-  void _showLabel(String label, int index) {
-    setState(() {
-      _activeLabel = label;
-      _activeIndex = index;
-    });
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted && _activeLabel == label && _activeIndex == index) {
-        setState(() {
-          _activeLabel = null;
-          _activeIndex = null;
-        });
-      }
-    });
   }
 
   @override

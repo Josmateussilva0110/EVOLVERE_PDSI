@@ -147,17 +147,24 @@ class _FinishHabitScreenState extends State<FinishHabitScreen> {
                     );
 
                     if (result == null) {
+                      print(
+                        'Hábito finalizado com sucesso! Navegando para a Home.',
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Cadastro realizado com sucesso!'),
                           backgroundColor: Colors.green,
                         ),
                       );
-                      Navigator.pushReplacementNamed(
+                      // Aguarda um pequeno delay para garantir que o SnackBar apareça
+                      await Future.delayed(Duration(milliseconds: 500));
+                      Navigator.pushNamedAndRemoveUntil(
                         context,
-                        '/listar_habitos',
+                        '/inicio',
+                        (route) => false,
                       );
                     } else {
+                      print('Erro ao finalizar hábito: ' + result);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
