@@ -17,7 +17,7 @@ class User {
 
     async findById(id) {
         try {
-            var result = await knex.select(["id", "username", "email", "created_at"]).where({id: id}).table("users")
+            var result = await knex.select(["id", "username", "email", "created_at", "upload_perfil"]).where({id: id}).table("users")
             if(result.length > 0)
                 return result[0]
             else 
@@ -143,6 +143,16 @@ class User {
         }
         else {
             return { status: false, err: "Usuário não encontrado." };
+        }
+    }
+
+    async updateProfileImage(id, imagePath) {
+        try {
+            await knex.update({upload_perfil: imagePath}).where({id: id}).table("users")
+            return {status: true}
+        } catch(err) {
+            console.error("Erro ao atualizar imagem de perfil:", err);
+            return {status: false, err: err}
         }
     }
 

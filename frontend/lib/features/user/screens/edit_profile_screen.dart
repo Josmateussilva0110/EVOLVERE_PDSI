@@ -57,6 +57,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String name = '';
   String email = '';
   String createdAt = '';
+  String? profileImagePath; // Adicionar variável para o caminho da imagem
   int activeDays = 0; // Exemplo de nova variável
   int totalXp = 0; // Exemplo de nova variável
   int completedHabitsToday = 0; // Exemplo de nova variável
@@ -177,6 +178,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           name = data['name'] ?? 'Nome não encontrado';
           email = data['email'] ?? 'Email não encontrado';
           createdAt = data['createdAt'] ?? 'Data não encontrada';
+          profileImagePath =
+              data['upload_perfil']; // Carregar caminho da imagem
           // Atribuir valores simulados ou de uma API expandida
           activeDays = 75; // Simulado
           totalXp = 1200; // Simulado
@@ -279,21 +282,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           CircleAvatar(
                                             radius: 60,
                                             backgroundColor: Colors.grey[800],
-                                            backgroundImage:
-                                                _profileImage != null
-                                                    ? FileImage(_profileImage!)
-                                                        as ImageProvider<
-                                                          Object
-                                                        >?
-                                                    : null, // Exibe a imagem selecionada ou nulo
+                                            backgroundImage: _getProfileImage(),
                                             child:
-                                                _profileImage == null
+                                                _getProfileImage() == null
                                                     ? Icon(
                                                       Icons.person,
                                                       size: 80,
                                                       color: Colors.white,
                                                     )
-                                                    : null, // Exibe o ícone se nenhuma imagem for selecionada
+                                                    : null,
                                           ),
                                           Positioned(
                                             bottom: 0,
@@ -819,7 +816,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // Função para selecionar imagem da galeria
+  // Função para selecionar imagem da galeria e fazer upload
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -828,12 +825,68 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         _profileImage = File(pickedFile.path);
       });
-      // TODO: Implementar lógica para enviar a imagem para o backend
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Imagem selecionada! Implementar upload para o servidor.',
+
+      // Fazer upload da imagem para o backend
+      await _uploadImage(pickedFile);
+    }
+  }
+
+  // Função para fazer upload da imagem
+  Future<void> _uploadImage(XFile imageFile) async {
+    try {
+      final String? apiURL = dotenv.env['API_URL'];
+      if (apiURL == null) {
+        throw Exception('API_URL não configurado');
+      }
+
+      // Criar requisição multipart
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$apiURL/user/upload_image/${widget.userId}'),
+      );
+
+      // Adicionar arquivo
+      var stream = http.ByteStream(imageFile.openRead());
+      var length = await imageFile.length();
+      var multipartFile = http.MultipartFile(
+        'profile_image',
+        stream,
+        length,
+        filename: imageFile.name,
+      );
+      request.files.add(multipartFile);
+
+      // Enviar requisição
+      var response = await request.send();
+      var responseData = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        final data = json.decode(responseData);
+        setState(() {
+          profileImagePath = data['imagePath'];
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Imagem de perfil atualizada com sucesso!'),
+            backgroundColor: Colors.green,
           ),
+        );
+      } else {
+        final errorData = json.decode(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorData['err'] ?? 'Erro ao fazer upload da imagem'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Erro ao fazer upload da imagem: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao fazer upload da imagem'),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -868,5 +921,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       ),
     );
+  }
+
+  ImageProvider<Object>? _getProfileImage() {
+    if (profileImagePath != null) {
+      final String? apiURL = dotenv.env['API_URL'];
+      if (apiURL != null) {
+        return NetworkImage('$apiURL$profileImagePath');
+      }
+    } else if (_profileImage != null) {
+      return FileImage(_profileImage!);
+    }
+    return null;
   }
 }
