@@ -380,8 +380,9 @@ class Habit {
                     'h.name',
                     'h.description',
                     'c.name as categoria',
-                    'h.updated_at',
-                    knex.raw('DATE_FORMAT(h.updated_at, "%Y-%m") as month_year')
+                    // Converte a data de UTC para o fuso de Brasília (-03:00)
+                    knex.raw("CONVERT_TZ(h.updated_at, '+00:00', '-03:00') as updated_at"),
+                    knex.raw("DATE_FORMAT(CONVERT_TZ(h.updated_at, '+00:00', '-03:00'), '%Y-%m') as month_year")
                 )
                 .orderBy('h.updated_at', 'desc');
 

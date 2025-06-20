@@ -153,6 +153,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return monthYear;
   }
 
+  // Função para formatar a data de conclusão
+  String _formatCompletionDate(String dateString) {
+    print('Data recebida para formatação: $dateString');
+    try {
+      // Pega a parte da data (ex: "2025-06-19")
+      final datePart = dateString.split('T')[0];
+      // Divide em ano, mês e dia
+      final dateComponents = datePart.split('-');
+      // Reorganiza para o formato dd/mm/yyyy
+      if (dateComponents.length == 3) {
+        final year = dateComponents[0];
+        final month = dateComponents[1];
+        final day = dateComponents[2];
+        return 'Completado em: $day/$month/$year';
+      }
+      return 'Completado em: $datePart'; // Fallback
+    } catch (e) {
+      // Fallback em caso de erro
+      return 'Completado em: ${dateString.split('T')[0]}';
+    }
+  }
+
   // Função para carregar os dados do usuário do backend
   Future<void> _loadUserData() async {
     final String? apiURL = dotenv.env['API_URL'];
@@ -727,7 +749,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                                                       width: 4,
                                                                     ),
                                                                     Text(
-                                                                      'Completado em: ${habit.completedAt.split('T')[0]}',
+                                                                      _formatCompletionDate(
+                                                                        habit
+                                                                            .completedAt,
+                                                                      ),
                                                                       style: TextStyle(
                                                                         color:
                                                                             Colors.grey[400],
