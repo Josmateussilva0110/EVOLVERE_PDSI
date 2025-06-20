@@ -368,6 +368,17 @@ class Habit {
         }
     }
 
+    // Função para contar o total de hábitos ativos (status 1) por usuário
+    async countActiveHabitsByUser(user_id) {
+        try {
+            const result = await knex('habits').where({ user_id, status: 1 }).count('id as total');
+            return result[0].total || 0;
+        } catch (err) {
+            console.error('Erro ao contar hábitos ativos por usuário:', err);
+            return 0;
+        }
+    }
+
     // Função para buscar hábitos completados agrupados por mês
     async findCompletedHabitsByMonth(user_id) {
         try {

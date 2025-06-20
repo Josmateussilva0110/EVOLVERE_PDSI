@@ -11,6 +11,7 @@ import 'package:image_picker/image_picker.dart'; // Importar image_picker
 import 'dart:io'; // Importar dart:io para File
 import 'package:google_fonts/google_fonts.dart'; // Importar GoogleFonts para estilização
 import '../service/user_service.dart';
+import '../../home/services/home_service.dart'; // Importar o serviço da Home
 
 class CompletedHabit {
   final int id;
@@ -60,6 +61,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? profileImagePath; // Adicionar variável para o caminho da imagem
   int activeDays = 0; // Exemplo de nova variável
   int totalXp = 0; // Exemplo de nova variável
+  int _totalHabitsCompleted = 0; // Novo: para o total de hábitos concluídos
   int completedHabitsToday = 0; // Exemplo de nova variável
   int activeHabits = 0; // Exemplo de nova variável
   File? _profileImage; // Variável para armazenar a imagem de perfil selecionada
@@ -80,6 +82,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.initState();
     _loadUserData(); // Chamar a função para carregar os dados
     _loadCompletedHabits(); // Carregar hábitos completados
+    _loadHabitsSummary(); // Novo: Carregar o resumo de hábitos
+    _loadActiveHabits(); // NOVO: Carregar hábitos ativos
   }
 
   @override
@@ -175,6 +179,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  // Novo: Função para carregar o resumo de hábitos (total e concluídos)
+  Future<void> _loadHabitsSummary() async {
+    try {
+      final summary = await HomeService.fetchHabitsSummary(widget.userId);
+      setState(() {
+        _totalHabitsCompleted = summary['completed'] ?? 0;
+      });
+    } catch (e) {
+      print('Erro ao carregar resumo de hábitos no perfil: $e');
+    }
+  }
+
+  // NOVO: Função para carregar o total de hábitos ativos
+  Future<void> _loadActiveHabits() async {
+    try {
+      final count = await HomeService.fetchActiveHabitsCount(widget.userId);
+      if (mounted) {
+        setState(() {
+          activeHabits = count;
+        });
+      }
+    } catch (e) {
+      print('Erro ao carregar o total de hábitos ativos: $e');
+    }
+  }
+
   // Função para carregar os dados do usuário do backend
   Future<void> _loadUserData() async {
     final String? apiURL = dotenv.env['API_URL'];
@@ -206,7 +236,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           activeDays = 75; // Simulado
           totalXp = 1200; // Simulado
           completedHabitsToday = 5; // Simulado
-          activeHabits = 10; // Simulado
+          // activeHabits = 10; // REMOVIDO
 
           _usernameController.text = name;
           _emailController.text =
@@ -479,8 +509,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   Icons.star,
                                 ),
                                 _buildMetricCard(
-                                  'Hábitos Concluídos Hoje',
-                                  completedHabitsToday.toString(),
+                                  'Hábitos Concluídos',
+                                  _totalHabitsCompleted.toString(),
                                   Icons.check_circle,
                                 ),
                                 _buildMetricCard(

@@ -108,4 +108,20 @@ class HomeService {
       return {'total': 0, 'completed': 0};
     }
   }
+
+  static Future<int> fetchActiveHabitsCount(int userId) async {
+    final String? apiURL = dotenv.env['API_URL'];
+    if (apiURL == null) {
+      throw Exception('API_URL not set');
+    }
+    final response = await http.get(Uri.parse('$apiURL/habits/active/$userId'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return data['active'] ?? 0;
+    } else {
+      print('Failed to load active habits count: ${response.body}');
+      throw Exception('Failed to load active habits count');
+    }
+  }
 }

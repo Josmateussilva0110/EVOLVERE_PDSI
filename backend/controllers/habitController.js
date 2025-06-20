@@ -318,6 +318,20 @@ class HabitController {
             response.status(500).json({ err: "Erro ao buscar hábitos completados por mês." });
         }
     }
+
+    async getHabitsActive(request, response) {
+        const user_id = request.params.user_id;
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+        try {
+            const count = await Habit.countActiveHabitsByUser(user_id);
+            response.status(200).json({ active: count });
+        } catch (err) {
+            console.error("Erro ao buscar contagem de hábitos ativos:", err);
+            response.status(500).json({ err: "Erro ao buscar o total de hábitos ativos." });
+        }
+    }
 }
 
 module.exports = new HabitController()
