@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../user/screens/edit_profile_screen.dart';
 import 'services/home_service.dart';
 
@@ -19,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _userName = '';
   int? _userId;
   String _userEmail = '';
+  String? _profileImagePath;
 
   int _completedTodayCount = 0;
   bool _loadingCompletedToday = false;
@@ -98,6 +102,29 @@ class _HomeScreenState extends State<HomeScreen> {
     if (userId != null) {
       _loadCompletedTodayCount();
       _loadHabitsSummary();
+      _loadUserProfileImage();
+    }
+  }
+
+  Future<void> _loadUserProfileImage() async {
+    if (_userId == null) return;
+
+    try {
+      final String? apiURL = dotenv.env['API_URL'];
+      if (apiURL == null) return;
+
+      final response = await http.get(
+        Uri.parse('$apiURL/user/profile/$_userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _profileImagePath = data['upload_perfil'];
+        });
+      }
+    } catch (e) {
+      print('Erro ao carregar imagem de perfil: $e');
     }
   }
 
@@ -278,9 +305,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.white,
                         highlightColor: Colors.purpleAccent,
                         size: 32,
-                        onTap: () {
+                        onTap: () async {
                           if (_userId != null) {
-                            Navigator.push(
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder:
@@ -290,6 +317,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                               ),
                             );
+                            // Recarregar a imagem de perfil quando retornar
+                            _loadUserProfileImage();
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -373,10 +402,18 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
-                  child: Icon(Icons.person, color: Colors.blueAccent, size: 40),
+                  backgroundImage: _getProfileImage(),
+                  child:
+                      _getProfileImage() == null
+                          ? const Icon(
+                            Icons.person,
+                            color: Colors.blueAccent,
+                            size: 40,
+                          )
+                          : null,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -435,6 +472,16 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+  }
+
+  ImageProvider? _getProfileImage() {
+    if (_profileImagePath != null) {
+      final String? apiURL = dotenv.env['API_URL'];
+      if (apiURL != null) {
+        return NetworkImage('$apiURL$_profileImagePath');
+      }
+    }
+    return null;
   }
 }
 
