@@ -335,11 +335,11 @@ class UserController {
         const token = jwt.sign(
             { email, code },
             process.env.SECRET,
-            { expiresIn: '10m' }
+            { expiresIn: '3m' }
         );
 
         const subject = "Redefinição de Senha - Evolvere";
-        const { html } = formatMessageSendPassword(code);
+        const { html } = formatMessageSendPassword(code, user.username);
         await sendEmail(email, subject, html);
 
         return response.json({
