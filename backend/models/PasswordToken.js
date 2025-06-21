@@ -1,51 +1,48 @@
-const { response } = require("express")
 var knex = require("../database/connection")
-var User = require("./User")
+const { v4: uuidv4 } = require("uuid")
 
 class PasswordToken {
-    async create(email) {
-        var user = await User.findByEmail(email)
-        if(user != undefined) {
-            var token = Date.now() 
-            try {
-                await knex.insert({
-                    user_id: user.id,
-                    used: 0,
-                    token: token // recomendado user o UUID (pesquisar node)
-                }).table("passwordtokens")
-                return {status: true, token: token}
-            } catch(err) {
-                return {status: false, err: 'Erro ao inserir o token.'}
-            }
-        } else {
-            return {status: false, err: 'Email não existe.'}
+    async create(user_id) {
+        const token = uuidv4() 
+        try {
+            await knex.insert({
+                user_id: user_id,
+                used: 0,
+                token: token
+            }).table("passwordToken")
+            return { token }
+        } catch(err) {
+            console.error("Erro ao criar token:", err)
+            return false
         }
     }
 
 
     async validate(token) {
         try {
-            var result = await knex.select().where({token: token}).table("passwordtokens")
-            if(result.length > 0) {
+           var result = await knex.raw(`
+            select token, user_id from passwordToken
+            where token = ? and used = '0';
+            `, [token])
+            if(result[0].length > 0) {
                 var tk = result[0]
                 if(tk.used) {
-                    return {status: false}
+                    return undefined
                 }
                 else {
-                    return {status: true, token: tk}
+                    return tk[0]
                 }
             }
             else 
-                return {status: false}
+                return undefined
         } catch(err) {
-            console.log(err)
-            return {status: false}
+            return undefined
         }
     }
 
 
     async setUsed(token) {
-        await knex.update({used: 1}).where({token: token}).table("passwordtokens")
+        await knex.update({used: 1}).where({token: token}).table("passwordToken")
     }
 }
 

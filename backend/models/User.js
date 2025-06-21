@@ -146,6 +146,15 @@ class User {
         }
     }
 
+    async updatePassword(id, password) {
+        try {
+            await knex('users')
+                .where({ id: id })
+                .update({ password: password })
+            return true
+        } catch(err) {
+            console.log('erro em atualizar senha: ', err)
+            return false
     async updateProfileImage(id, imagePath) {
         try {
             await knex.update({upload_perfil: imagePath}).where({id: id}).table("users")
@@ -157,5 +166,6 @@ class User {
     }
 
 }
+
 
 module.exports = new User()
