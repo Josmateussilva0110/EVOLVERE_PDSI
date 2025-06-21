@@ -181,8 +181,9 @@ class _HabitsListPageState extends State<HabitsListPage> {
         floatingActionButton: SizedBox(
           height: 56,
           child: FloatingActionButton.extended(
-            onPressed: () {
-              Navigator.pushNamed(context, '/cadastrar_habito');
+            onPressed: () async {
+              await Navigator.pushNamed(context, '/cadastrar_habito');
+              _loadHabits();
             },
             icon: const Icon(Icons.add),
             label: const Text('Novo Hábito'),

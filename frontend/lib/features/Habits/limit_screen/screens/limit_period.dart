@@ -171,6 +171,7 @@ class _TermScreenState extends State<TermScreen> {
       habitData.reminders.add(reminder);
     });
   }
+
   void _removeReminder(DateTime reminder) {
     setState(() {
       habitData.reminders.remove(reminder);
@@ -182,6 +183,7 @@ class _TermScreenState extends State<TermScreen> {
       habitData.endDate = null;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     final isEditing = habitData.habitId != null;
@@ -230,28 +232,36 @@ class _TermScreenState extends State<TermScreen> {
                   arguments: habitData,
                 ),
             onNext: () async {
+              final errorMessage =
+                  isEditing
+                      ? await HabitService.editHabit(habitData)
+                      : await HabitService.createHabit(habitData);
 
-            final errorMessage = isEditing
-                ? await HabitService.editHabit(habitData)
-                : await HabitService.createHabit(habitData);
-
-            if (errorMessage == null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(isEditing ? 'Hábito editado com sucesso!' : 'Hábito cadastrado com sucesso!'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              Navigator.pushReplacementNamed(context, '/listar_habitos');
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(errorMessage),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          },
+              if (errorMessage == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      isEditing
+                          ? 'Hábito editado com sucesso!'
+                          : 'Hábito cadastrado com sucesso!',
+                    ),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/inicio',
+                  (route) => false,
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(errorMessage),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
             previousLabel: 'Anterior',
             nextLabel: isEditing ? 'Editar Hábito' : 'Criar Hábito',
             currentIndex: 2,

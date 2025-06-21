@@ -279,6 +279,59 @@ class HabitController {
             response.json({err: "erro ao cadastrar progresso de habito."})
         }
     }
+
+    async getHabitsCompletedToday(request, response) {
+        const user_id = request.params.user_id;
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário invalido." });
+        }
+        const count = await Habit.countCompletedToday(user_id);
+        response.status(200).json({ count });
+    }
+
+    // Retorna o total de hábitos cadastrados por usuário
+   // Retorna o total de hábitos cadastrados e concluídos (status 4) por usuário
+    async getHabitsSummaryByUser(request, response) {
+        const user_id = request.params.user_id;
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+        try {
+            const total = await Habit.countAllHabitsByUser(user_id);
+            const completed = await Habit.countCompletedHabitsByUser(user_id);
+            response.status(200).json({ total, completed });
+        } catch (err) {
+            response.status(500).json({ err: "Erro ao buscar o resumo de hábitos do usuário." });
+        }
+    }
+
+    // Retorna hábitos completados agrupados por mês
+    async getCompletedHabitsByMonth(request, response) {
+        const user_id = request.params.user_id;
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+        try {
+            const completedHabits = await Habit.findCompletedHabitsByMonth(user_id);
+            response.status(200).json({ completedHabits });
+        } catch (err) {
+            response.status(500).json({ err: "Erro ao buscar hábitos completados por mês." });
+        }
+    }
+
+    async getHabitsActive(request, response) {
+        const user_id = request.params.user_id;
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+        try {
+            const count = await Habit.countActiveHabitsByUser(user_id);
+            response.status(200).json({ active: count });
+        } catch (err) {
+            console.error("Erro ao buscar contagem de hábitos ativos:", err);
+            response.status(500).json({ err: "Erro ao buscar o total de hábitos ativos." });
+        }
+    }
 }
 
 module.exports = new HabitController()

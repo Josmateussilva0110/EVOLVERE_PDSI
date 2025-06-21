@@ -11,6 +11,33 @@ import 'package:image_picker/image_picker.dart'; // Importar image_picker
 import 'dart:io'; // Importar dart:io para File
 import 'package:google_fonts/google_fonts.dart'; // Importar GoogleFonts para estilização
 import '../service/user_service.dart';
+import '../../home/services/home_service.dart'; // Importar o serviço da Home
+
+class CompletedHabit {
+  final int id;
+  final String name;
+  final String description;
+  final String? categoria;
+  final String completedAt;
+
+  CompletedHabit({
+    required this.id,
+    required this.name,
+    required this.description,
+    this.categoria,
+    required this.completedAt,
+  });
+
+  factory CompletedHabit.fromJson(Map<String, dynamic> json) {
+    return CompletedHabit(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      categoria: json['categoria'],
+      completedAt: json['completedAt'],
+    );
+  }
+}
 
 class EditProfileScreen extends StatefulWidget {
   final int userId; // Adicionar userId como propriedade obrigatória
@@ -31,29 +58,151 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String name = '';
   String email = '';
   String createdAt = '';
+  String? profileImagePath; // Adicionar variável para o caminho da imagem
   int activeDays = 0; // Exemplo de nova variável
   int totalXp = 0; // Exemplo de nova variável
+  int _totalHabitsCompleted = 0; // Novo: para o total de hábitos concluídos
   int completedHabitsToday = 0; // Exemplo de nova variável
   int activeHabits = 0; // Exemplo de nova variável
   File? _profileImage; // Variável para armazenar a imagem de perfil selecionada
 
   // Criar controllers para os campos de texto
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController(); // Removido: Edição de email movida para configurações
+  final TextEditingController _emailController =
+      TextEditingController(); // Removido: Edição de email movida para configurações
   bool _isLoading = true; // Estado para controle do carregamento
   final ImagePicker _picker = ImagePicker(); // Instância do ImagePicker
+
+  // Variáveis para hábitos completados
+  Map<String, List<CompletedHabit>> _completedHabitsByMonth = {};
+  bool _isLoadingHabits = false;
 
   @override
   void initState() {
     super.initState();
     _loadUserData(); // Chamar a função para carregar os dados
+    _loadCompletedHabits(); // Carregar hábitos completados
+    _loadHabitsSummary(); // Novo: Carregar o resumo de hábitos
+    _loadActiveHabits(); // NOVO: Carregar hábitos ativos
   }
 
   @override
   void dispose() {
     _usernameController.dispose();
-    _emailController.dispose(); // Removido: Edição de email movida para configurações
+    _emailController
+        .dispose(); // Removido: Edição de email movida para configurações
     super.dispose();
+  }
+
+  // Função para carregar hábitos completados
+  Future<void> _loadCompletedHabits() async {
+    setState(() {
+      _isLoadingHabits = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+          '${dotenv.env['API_URL']}/habits/completed_by_month/${widget.userId}',
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final Map<String, dynamic> rawHabits = data['completedHabits'];
+
+        final Map<String, List<CompletedHabit>> groupedHabits = {};
+        rawHabits.forEach((monthYear, habitsList) {
+          groupedHabits[monthYear] =
+              (habitsList as List)
+                  .map((habit) => CompletedHabit.fromJson(habit))
+                  .toList();
+        });
+
+        setState(() {
+          _completedHabitsByMonth = groupedHabits;
+        });
+      }
+    } catch (e) {
+      print('Erro ao carregar hábitos completados: $e');
+    } finally {
+      setState(() {
+        _isLoadingHabits = false;
+      });
+    }
+  }
+
+  // Função para formatar mês/ano
+  String _formatMonthYear(String monthYear) {
+    final parts = monthYear.split('-');
+    if (parts.length == 2) {
+      final year = parts[0];
+      final month = int.tryParse(parts[1]) ?? 1;
+      final monthNames = [
+        'Janeiro',
+        'Fevereiro',
+        'Março',
+        'Abril',
+        'Maio',
+        'Junho',
+        'Julho',
+        'Agosto',
+        'Setembro',
+        'Outubro',
+        'Novembro',
+        'Dezembro',
+      ];
+      return '${monthNames[month - 1]} $year';
+    }
+    return monthYear;
+  }
+
+  // Função para formatar a data de conclusão
+  String _formatCompletionDate(String dateString) {
+    print('Data recebida para formatação: $dateString');
+    try {
+      // Pega a parte da data (ex: "2025-06-19")
+      final datePart = dateString.split('T')[0];
+      // Divide em ano, mês e dia
+      final dateComponents = datePart.split('-');
+      // Reorganiza para o formato dd/mm/yyyy
+      if (dateComponents.length == 3) {
+        final year = dateComponents[0];
+        final month = dateComponents[1];
+        final day = dateComponents[2];
+        return 'Completado em: $day/$month/$year';
+      }
+      return 'Completado em: $datePart'; // Fallback
+    } catch (e) {
+      // Fallback em caso de erro
+      return 'Completado em: ${dateString.split('T')[0]}';
+    }
+  }
+
+  // Novo: Função para carregar o resumo de hábitos (total e concluídos)
+  Future<void> _loadHabitsSummary() async {
+    try {
+      final summary = await HomeService.fetchHabitsSummary(widget.userId);
+      setState(() {
+        _totalHabitsCompleted = summary['completed'] ?? 0;
+      });
+    } catch (e) {
+      print('Erro ao carregar resumo de hábitos no perfil: $e');
+    }
+  }
+
+  // NOVO: Função para carregar o total de hábitos ativos
+  Future<void> _loadActiveHabits() async {
+    try {
+      final count = await HomeService.fetchActiveHabitsCount(widget.userId);
+      if (mounted) {
+        setState(() {
+          activeHabits = count;
+        });
+      }
+    } catch (e) {
+      print('Erro ao carregar o total de hábitos ativos: $e');
+    }
   }
 
   // Função para carregar os dados do usuário do backend
@@ -81,14 +230,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           name = data['name'] ?? 'Nome não encontrado';
           email = data['email'] ?? 'Email não encontrado';
           createdAt = data['createdAt'] ?? 'Data não encontrada';
+          profileImagePath =
+              data['upload_perfil']; // Carregar caminho da imagem
           // Atribuir valores simulados ou de uma API expandida
           activeDays = 75; // Simulado
           totalXp = 1200; // Simulado
           completedHabitsToday = 5; // Simulado
-          activeHabits = 10; // Simulado
+          // activeHabits = 10; // REMOVIDO
 
           _usernameController.text = name;
-          _emailController.text = email; // Removido: Edição de email movida para configurações
+          _emailController.text =
+              email; // Removido: Edição de email movida para configurações
         });
       } else {
         // Tratar erro ao carregar dados
@@ -182,21 +334,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                           CircleAvatar(
                                             radius: 60,
                                             backgroundColor: Colors.grey[800],
-                                            backgroundImage:
-                                                _profileImage != null
-                                                    ? FileImage(_profileImage!)
-                                                        as ImageProvider<
-                                                          Object
-                                                        >?
-                                                    : null, // Exibe a imagem selecionada ou nulo
+                                            backgroundImage: _getProfileImage(),
                                             child:
-                                                _profileImage == null
+                                                _getProfileImage() == null
                                                     ? Icon(
                                                       Icons.person,
                                                       size: 80,
                                                       color: Colors.white,
                                                     )
-                                                    : null, // Exibe o ícone se nenhuma imagem for selecionada
+                                                    : null,
                                           ),
                                           Positioned(
                                             bottom: 0,
@@ -226,7 +372,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       // Nome e email para visualização, com opção de clique para alterar nome de usuário
                                       _buildEditableInfoTile(
                                         label: 'Nome de Usuário',
-                                        value: name.isNotEmpty ? name : 'Carregando...',
+                                        value:
+                                            name.isNotEmpty
+                                                ? name
+                                                : 'Carregando...',
                                         onTap: () {
                                           _showEditDialog(
                                             'Nome de Usuário',
@@ -237,18 +386,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                               });
 
                                               // Chama o service para atualizar no backend
-                                              final service = UserProfileService();
-                                              bool success = await service.updateUserProfile(
-                                                userId: widget.userId,
-                                                username: newValue,
-                                                context: context,
-                                              );
+                                              final service =
+                                                  UserProfileService();
+                                              bool success = await service
+                                                  .updateUserProfile(
+                                                    userId: widget.userId,
+                                                    username: newValue,
+                                                    context: context,
+                                                  );
 
                                               if (success) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
                                                   const SnackBar(
-                                                    content: Text('Nome atualizado com sucesso!'),
-                                                    backgroundColor: Colors.green,
+                                                    content: Text(
+                                                      'Nome atualizado com sucesso!',
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.green,
                                                   ),
                                                 );
                                               }
@@ -258,9 +414,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       ),
 
                                       // Email (apenas visualização)
-                                    _buildEditableInfoTile(
+                                      _buildEditableInfoTile(
                                         label: 'Email',
-                                        value: email.isNotEmpty ? email : 'Carregando...',
+                                        value:
+                                            email.isNotEmpty
+                                                ? email
+                                                : 'Carregando...',
                                         onTap: () {
                                           _showEditDialog(
                                             'Email',
@@ -271,18 +430,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                               });
 
                                               // Chama o service para atualizar no backend
-                                              final service = UserProfileService();
-                                              bool success = await service.updateEmailProfile(
-                                                userId: widget.userId,
-                                                email: newValue,
-                                                context: context,
-                                              );
+                                              final service =
+                                                  UserProfileService();
+                                              bool success = await service
+                                                  .updateEmailProfile(
+                                                    userId: widget.userId,
+                                                    email: newValue,
+                                                    context: context,
+                                                  );
 
                                               if (success) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
                                                   const SnackBar(
-                                                    content: Text('Email atualizado com sucesso!'),
-                                                    backgroundColor: Colors.green,
+                                                    content: Text(
+                                                      'Email atualizado com sucesso!',
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.green,
                                                   ),
                                                 );
                                               }
@@ -343,8 +509,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   Icons.star,
                                 ),
                                 _buildMetricCard(
-                                  'Hábitos Concluídos Hoje',
-                                  completedHabitsToday.toString(),
+                                  'Hábitos Concluídos',
+                                  _totalHabitsCompleted.toString(),
                                   Icons.check_circle,
                                 ),
                                 _buildMetricCard(
@@ -355,6 +521,288 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               ],
                             ),
                             const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+
+                      // Container de Hábitos Concluídos
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hábitos Concluídos',
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 15),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[850],
+                                borderRadius: BorderRadius.circular(15),
+                                border: Border.all(color: Colors.grey[700]!),
+                              ),
+                              child:
+                                  _isLoadingHabits
+                                      ? Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                      : _completedHabitsByMonth.isEmpty
+                                      ? Center(
+                                        child: Column(
+                                          children: [
+                                            Icon(
+                                              Icons.check_circle_outline,
+                                              color: Colors.grey[400],
+                                              size: 48,
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Text(
+                                              'Nenhum hábito completado ainda',
+                                              style: TextStyle(
+                                                color: Colors.grey[400],
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      : Column(
+                                        children:
+                                            _completedHabitsByMonth.entries.map((
+                                              entry,
+                                            ) {
+                                              final monthYear = entry.key;
+                                              final habits = entry.value;
+
+                                              return Container(
+                                                margin: EdgeInsets.only(
+                                                  bottom: 20,
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    // Cabeçalho do mês
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                            vertical: 8,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.blue
+                                                            .withOpacity(0.1),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8,
+                                                            ),
+                                                        border: Border.all(
+                                                          color: Colors.blue
+                                                              .withOpacity(0.3),
+                                                        ),
+                                                      ),
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons
+                                                                .calendar_month,
+                                                            color: Colors.blue,
+                                                            size: 20,
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 8,
+                                                          ),
+                                                          Text(
+                                                            _formatMonthYear(
+                                                              monthYear,
+                                                            ),
+                                                            style:
+                                                                GoogleFonts.inter(
+                                                                  color:
+                                                                      Colors
+                                                                          .blue,
+                                                                  fontSize: 16,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                          ),
+                                                          Spacer(),
+                                                          Container(
+                                                            padding:
+                                                                EdgeInsets.symmetric(
+                                                                  horizontal: 8,
+                                                                  vertical: 4,
+                                                                ),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                                  color:
+                                                                      Colors
+                                                                          .blue,
+                                                                  borderRadius:
+                                                                      BorderRadius.circular(
+                                                                        12,
+                                                                      ),
+                                                                ),
+                                                            child: Text(
+                                                              '${habits.length} hábito${habits.length != 1 ? 's' : ''}',
+                                                              style: TextStyle(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w500,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 12),
+
+                                                    // Lista de hábitos do mês
+                                                    ...habits
+                                                        .map(
+                                                          (habit) => Container(
+                                                            margin:
+                                                                EdgeInsets.only(
+                                                                  bottom: 8,
+                                                                ),
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                  12,
+                                                                ),
+                                                            decoration: BoxDecoration(
+                                                              color:
+                                                                  Colors
+                                                                      .grey[800],
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    8,
+                                                                  ),
+                                                              border: Border.all(
+                                                                color:
+                                                                    Colors
+                                                                        .grey[600]!,
+                                                              ),
+                                                            ),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: [
+                                                                Row(
+                                                                  children: [
+                                                                    Icon(
+                                                                      Icons
+                                                                          .check_circle,
+                                                                      color:
+                                                                          Colors
+                                                                              .green,
+                                                                      size: 16,
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 8,
+                                                                    ),
+                                                                    Expanded(
+                                                                      child: Text(
+                                                                        habit
+                                                                            .name,
+                                                                        style: GoogleFonts.inter(
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontSize:
+                                                                              14,
+                                                                          fontWeight:
+                                                                              FontWeight.w500,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                                if (habit
+                                                                        .categoria !=
+                                                                    null) ...[
+                                                                  const SizedBox(
+                                                                    height: 6,
+                                                                  ),
+                                                                  Row(
+                                                                    children: [
+                                                                      Icon(
+                                                                        Icons
+                                                                            .category,
+                                                                        color:
+                                                                            Colors.grey[400],
+                                                                        size:
+                                                                            14,
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        width:
+                                                                            4,
+                                                                      ),
+                                                                      Text(
+                                                                        habit
+                                                                            .categoria!,
+                                                                        style: TextStyle(
+                                                                          color:
+                                                                              Colors.grey[400],
+                                                                          fontSize:
+                                                                              12,
+                                                                        ),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ],
+                                                                const SizedBox(
+                                                                  height: 6,
+                                                                ),
+                                                                Row(
+                                                                  children: [
+                                                                    Icon(
+                                                                      Icons
+                                                                          .schedule,
+                                                                      color:
+                                                                          Colors
+                                                                              .grey[400],
+                                                                      size: 14,
+                                                                    ),
+                                                                    const SizedBox(
+                                                                      width: 4,
+                                                                    ),
+                                                                    Text(
+                                                                      _formatCompletionDate(
+                                                                        habit
+                                                                            .completedAt,
+                                                                      ),
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            Colors.grey[400],
+                                                                        fontSize:
+                                                                            12,
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        )
+                                                        .toList(),
+                                                  ],
+                                                ),
+                                              );
+                                            }).toList(),
+                                      ),
+                            ),
                           ],
                         ),
                       ),
@@ -390,7 +838,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-
   // Diálogo para edição de texto
   void _showEditDialog(
     String title,
@@ -424,7 +871,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // Função para selecionar imagem da galeria
+  // Função para selecionar imagem da galeria e fazer upload
   Future<void> _pickImage() async {
     final XFile? pickedFile = await _picker.pickImage(
       source: ImageSource.gallery,
@@ -433,12 +880,68 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {
         _profileImage = File(pickedFile.path);
       });
-      // TODO: Implementar lógica para enviar a imagem para o backend
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Imagem selecionada! Implementar upload para o servidor.',
+
+      // Fazer upload da imagem para o backend
+      await _uploadImage(pickedFile);
+    }
+  }
+
+  // Função para fazer upload da imagem
+  Future<void> _uploadImage(XFile imageFile) async {
+    try {
+      final String? apiURL = dotenv.env['API_URL'];
+      if (apiURL == null) {
+        throw Exception('API_URL não configurado');
+      }
+
+      // Criar requisição multipart
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$apiURL/user/upload_image/${widget.userId}'),
+      );
+
+      // Adicionar arquivo
+      var stream = http.ByteStream(imageFile.openRead());
+      var length = await imageFile.length();
+      var multipartFile = http.MultipartFile(
+        'profile_image',
+        stream,
+        length,
+        filename: imageFile.name,
+      );
+      request.files.add(multipartFile);
+
+      // Enviar requisição
+      var response = await request.send();
+      var responseData = await response.stream.bytesToString();
+
+      if (response.statusCode == 200) {
+        final data = json.decode(responseData);
+        setState(() {
+          profileImagePath = data['imagePath'];
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Imagem de perfil atualizada com sucesso!'),
+            backgroundColor: Colors.green,
           ),
+        );
+      } else {
+        final errorData = json.decode(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorData['err'] ?? 'Erro ao fazer upload da imagem'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Erro ao fazer upload da imagem: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erro ao fazer upload da imagem'),
+          backgroundColor: Colors.red,
         ),
       );
     }
@@ -473,5 +976,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ),
       ),
     );
+  }
+
+  ImageProvider<Object>? _getProfileImage() {
+    if (profileImagePath != null) {
+      final String? apiURL = dotenv.env['API_URL'];
+      if (apiURL != null) {
+        return NetworkImage('$apiURL$profileImagePath');
+      }
+    } else if (_profileImage != null) {
+      return FileImage(_profileImage!);
+    }
+    return null;
   }
 }
