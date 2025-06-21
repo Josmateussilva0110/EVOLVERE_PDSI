@@ -155,6 +155,9 @@ class User {
         } catch(err) {
             console.log('erro em atualizar senha: ', err)
             return false
+        }
+    }
+
     async updateProfileImage(id, imagePath) {
         try {
             await knex.update({upload_perfil: imagePath}).where({id: id}).table("users")
@@ -164,7 +167,6 @@ class User {
             return {status: false, err: err}
         }
     }
-
 }
 
 

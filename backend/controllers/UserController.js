@@ -384,8 +384,9 @@ class UserController {
             }
         } catch (error) {
             return response.status(400).json({ error: "Token inválido ou expirado" })
+        }
+    }
 
-          
     async uploadProfileImage(request, response) {
         const userId = request.params.id;
         
@@ -437,5 +438,4 @@ class UserController {
         }
     }
 }
-
 module.exports = new UserController()
