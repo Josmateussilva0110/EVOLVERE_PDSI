@@ -31,9 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _habitsTotal = 0;
   int _habitsCompleted = 0;
 
-  // Novo: controle de label animada
-  String? _activeLabel;
-  int? _activeIndex; // 0: notificações, 1: home, 2: conta
+
 
   @override
   void initState() {
@@ -132,20 +130,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _showLabel(String label, int index) {
-    setState(() {
-      _activeLabel = label;
-      _activeIndex = index;
-    });
-    Future.delayed(const Duration(milliseconds: 1500), () {
-      if (mounted && _activeLabel == label && _activeIndex == index) {
-        setState(() {
-          _activeLabel = null;
-          _activeIndex = null;
-        });
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -610,108 +594,3 @@ class _FancyIconButtonState extends State<_FancyIconButton>
   }
 }
 
-// Substituir _ZoomIconButton por _FancyIconButton, que faz zoom e mostra círculo colorido animado ao clicar
-class _FancyIconButton extends StatefulWidget {
-  final IconData icon;
-  final Color color;
-  final Color highlightColor;
-  final double size;
-  final VoidCallback onTap;
-
-  const _FancyIconButton({
-    required this.icon,
-    required this.color,
-    required this.highlightColor,
-    required this.size,
-    required this.onTap,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<_FancyIconButton> createState() => _FancyIconButtonState();
-}
-
-class _FancyIconButtonState extends State<_FancyIconButton>
-    with SingleTickerProviderStateMixin {
-  bool _pressed = false;
-  late AnimationController _controller;
-  late Animation<double> _circleAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 250),
-      reverseDuration: const Duration(milliseconds: 350),
-    );
-    _circleAnim = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onTapDown(TapDownDetails details) {
-    setState(() {
-      _pressed = true;
-    });
-    _controller.forward(from: 0);
-  }
-
-  void _onTapUp(TapUpDetails details) {
-    setState(() {
-      _pressed = false;
-    });
-    _controller.reverse();
-  }
-
-  void _onTapCancel() {
-    setState(() {
-      _pressed = false;
-    });
-    _controller.reverse();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
-      child: AnimatedScale(
-        scale: _pressed ? 1.18 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOut,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            AnimatedBuilder(
-              animation: _circleAnim,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _circleAnim.value * 0.5,
-                  child: Container(
-                    width: widget.size * (1.2 + _circleAnim.value * 0.7),
-                    height: widget.size * (1.2 + _circleAnim.value * 0.7),
-                    decoration: BoxDecoration(
-                      color: widget.highlightColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                );
-              },
-            ),
-            Icon(widget.icon, color: widget.color, size: widget.size),
-          ],
-        ),
-      ),
-    );
-  }
-}

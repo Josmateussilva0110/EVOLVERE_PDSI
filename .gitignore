@@ -167,4 +167,6 @@ app.*.symbols
 /uploads/*
 !/uploads/.gitkeep
 **/uploads/
-    
+/uploads/upload_perfil/*
+!/uploads/upload_perfil/
+!/uploads/upload_perfil/.gitkeep   
