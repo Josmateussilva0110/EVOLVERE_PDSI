@@ -2,6 +2,7 @@ const User = require("../models/User")
 const PasswordToken = require("../models/PasswordToken")
 const jwt = require("jsonwebtoken")
 var bcrypt = require("bcrypt")
+const path = require("path")
 
 
 require('dotenv').config({ path: '../.env' })
@@ -249,7 +250,8 @@ class UserController {
             response.status(200).json({
                 name: user.username,
                 email: user.email,
-                createdAt: formattedDate
+                createdAt: formattedDate,
+                upload_perfil: user.upload_perfil || null
             });
         } catch (error) {
             console.error("Erro ao buscar informações do usuário:", error);
@@ -314,6 +316,57 @@ class UserController {
         } catch (error) {
             console.error("Erro ao atualizar perfil:", error);
             response.status(500).json({ err: "Erro interno ao atualizar email" });
+        }
+    }
+
+    async uploadProfileImage(request, response) {
+        const userId = request.params.id;
+        
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return response.status(404).json({ err: "Usuário não encontrado" });
+            }
+
+            let imagePath = null;
+
+            if (request.files && request.files.profile_image) {
+                const imageFile = request.files.profile_image;
+        
+                if (imageFile.size > 5 * 1024 * 1024) {
+                    return response.status(400).json({ err: "A imagem deve ter no máximo 5MB!" });
+                }
+        
+                const fileName = Date.now() + path.extname(imageFile.name);
+                const uploadPath = path.join(__dirname, "..", "public", "uploads", "upload_perfil", fileName);
+        
+                try {
+                    await imageFile.mv(uploadPath);
+                    imagePath = "/uploads/upload_perfil/" + fileName; 
+                } catch (err) {
+                    console.error("Erro ao salvar a imagem:", err);
+                    return response.status(500).json({ err: "Erro ao salvar a imagem." });
+                }
+            } else {
+                return response.status(400).json({ err: "Nenhuma imagem foi enviada." });
+            }
+
+            const result = await User.updateProfileImage(userId, imagePath);
+            if (result.status) {
+                response.status(200).json({ 
+                    message: "Imagem de perfil atualizada com sucesso",
+                    imagePath: imagePath 
+                });
+            } else {
+                response.status(406).json({ err: result.err });
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar imagem de perfil:", error);
+            response.status(500).json({ err: "Erro interno ao atualizar imagem de perfil" });
         }
     }
 }

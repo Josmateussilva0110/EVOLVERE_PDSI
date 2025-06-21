@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:math' as math;
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../user/screens/edit_profile_screen.dart';
+import 'services/home_service.dart';
 
 // Importações dos widgets
 import 'widgets/top_priorities_widget.dart';
@@ -18,6 +22,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String _userName = '';
   int? _userId;
   String _userEmail = '';
+  String? _profileImagePath;
+
+  int _completedTodayCount = 0;
+  bool _loadingCompletedToday = false;
+
+  // Novos estados para o resumo de hábitos
+  int _habitsTotal = 0;
+  int _habitsCompleted = 0;
 
   // Novo: controle de label animada
   String? _activeLabel;
@@ -27,17 +39,97 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadUserData();
-    print('USER ID: ${_userId}');
-    print('EMAIL: ${_userEmail}');
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadCompletedTodayCount();
+      _loadHabitsSummary();
+    });
+  }
+
+  Future<void> _loadCompletedTodayCount() async {
+    if (_userId == null) {
+      print('UserId nulo, não vai buscar contagem');
+      return;
+    }
+    setState(() {
+      _loadingCompletedToday = true;
+    });
+    try {
+      final count = await HomeService.fetchCompletedTodayCount(_userId!);
+      print('Contagem recebida: $count');
+      setState(() {
+        _completedTodayCount = count;
+      });
+    } catch (e) {
+      setState(() {
+        _completedTodayCount = 0;
+      });
+    } finally {
+      setState(() {
+        _loadingCompletedToday = false;
+      });
+    }
+  }
+
+  Future<void> _loadHabitsSummary() async {
+    if (_userId == null) {
+      print('UserId nulo, não vai buscar resumo de hábitos');
+      return;
+    }
+    print('Carregando resumo de hábitos para userId: $_userId');
+    try {
+      final summary = await HomeService.fetchHabitsSummary(_userId!);
+      print('Resumo recebido: $summary');
+      setState(() {
+        _habitsTotal = summary['total'] ?? 0;
+        _habitsCompleted = summary['completed'] ?? 0;
+      });
+      print(
+        'Valores definidos - Total: $_habitsTotal, Completed: $_habitsCompleted',
+      );
+    } catch (e) {
+      print('Erro ao carregar resumo de hábitos: $e');
+      setState(() {
+        _habitsTotal = 0;
+        _habitsCompleted = 0;
+      });
+    }
   }
 
   void _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('loggedInUserId');
     setState(() {
       _userName = prefs.getString('username') ?? 'Usuário';
-      _userId = prefs.getInt('loggedInUserId');
+      _userId = userId;
       _userEmail = prefs.getString('email') ?? 'usuario@example.com';
     });
+    if (userId != null) {
+      _loadCompletedTodayCount();
+      _loadHabitsSummary();
+      _loadUserProfileImage();
+    }
+  }
+
+  Future<void> _loadUserProfileImage() async {
+    if (_userId == null) return;
+
+    try {
+      final String? apiURL = dotenv.env['API_URL'];
+      if (apiURL == null) return;
+
+      final response = await http.get(
+        Uri.parse('$apiURL/user/profile/$_userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        setState(() {
+          _profileImagePath = data['upload_perfil'];
+        });
+      }
+    } catch (e) {
+      print('Erro ao carregar imagem de perfil: $e');
+    }
   }
 
   void _showLabel(String label, int index) {
@@ -98,7 +190,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Expanded(child: _statCard('Sequência Diária', '3')),
                           const SizedBox(width: 15),
-                          Expanded(child: _statCard('Hábitos Completos', '3')),
+                          Expanded(
+                            child:
+                                _loadingCompletedToday
+                                    ? _statCard('Completados Hoje', '...')
+                                    : _statCard(
+                                      'Completados Hoje',
+                                      _completedTodayCount.toString(),
+                                    ),
+                          ),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -111,18 +211,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       // Progresso Diário (MOVIDO PARA CIMA)
                       const Text(
-                        'Progresso Diário',
+                        'Progresso',
                         style: TextStyle(color: Colors.white),
                       ),
                       const SizedBox(height: 5),
-                      const LinearProgressIndicator(
-                        value: 6 / 8,
+                      LinearProgressIndicator(
+                        value:
+                            (_habitsTotal > 0)
+                                ? (_habitsCompleted / _habitsTotal).clamp(
+                                  0.0,
+                                  1.0,
+                                )
+                                : 0.0,
                         color: Colors.white,
                         backgroundColor: Colors.grey,
                       ),
                       const SizedBox(height: 5),
-                      const Text(
-                        '6 de 8 hábitos completados',
+                      Text(
+                        '${_habitsCompleted} de ${_habitsTotal} hábitos completados',
                         style: TextStyle(color: Colors.white70),
                       ),
                       const SizedBox(height: 20),
@@ -132,7 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'Hoje',
+                            'Hábitos',
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -218,9 +324,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.white,
                         highlightColor: Colors.purpleAccent,
                         size: 32,
-                        onTap: () {
+                        onTap: () async {
                           if (_userId != null) {
-                            Navigator.push(
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder:
@@ -230,6 +336,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                               ),
                             );
+                            // Recarregar a imagem de perfil quando retornar
+                            _loadUserProfileImage();
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -313,10 +421,18 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
-                  child: Icon(Icons.person, color: Colors.blueAccent, size: 40),
+                  backgroundImage: _getProfileImage(),
+                  child:
+                      _getProfileImage() == null
+                          ? const Icon(
+                            Icons.person,
+                            color: Colors.blueAccent,
+                            size: 40,
+                          )
+                          : null,
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -375,6 +491,122 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+  }
+
+  ImageProvider? _getProfileImage() {
+    if (_profileImagePath != null) {
+      final String? apiURL = dotenv.env['API_URL'];
+      if (apiURL != null) {
+        return NetworkImage('$apiURL$_profileImagePath');
+      }
+    }
+    return null;
+  }
+}
+
+// Substituir _ZoomIconButton por _FancyIconButton, que faz zoom e mostra círculo colorido animado ao clicar
+class _FancyIconButton extends StatefulWidget {
+  final IconData icon;
+  final Color color;
+  final Color highlightColor;
+  final double size;
+  final VoidCallback onTap;
+
+  const _FancyIconButton({
+    required this.icon,
+    required this.color,
+    required this.highlightColor,
+    required this.size,
+    required this.onTap,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<_FancyIconButton> createState() => _FancyIconButtonState();
+}
+
+class _FancyIconButtonState extends State<_FancyIconButton>
+    with SingleTickerProviderStateMixin {
+  bool _pressed = false;
+  late AnimationController _controller;
+  late Animation<double> _circleAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+      reverseDuration: const Duration(milliseconds: 350),
+    );
+    _circleAnim = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    setState(() {
+      _pressed = true;
+    });
+    _controller.forward(from: 0);
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    setState(() {
+      _pressed = false;
+    });
+    _controller.reverse();
+  }
+
+  void _onTapCancel() {
+    setState(() {
+      _pressed = false;
+    });
+    _controller.reverse();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      child: AnimatedScale(
+        scale: _pressed ? 1.18 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            AnimatedBuilder(
+              animation: _circleAnim,
+              builder: (context, child) {
+                return Opacity(
+                  opacity: _circleAnim.value * 0.5,
+                  child: Container(
+                    width: widget.size * (1.2 + _circleAnim.value * 0.7),
+                    height: widget.size * (1.2 + _circleAnim.value * 0.7),
+                    decoration: BoxDecoration(
+                      color: widget.highlightColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                );
+              },
+            ),
+            Icon(widget.icon, color: widget.color, size: widget.size),
+          ],
+        ),
+      ),
+    );
   }
 }
 
