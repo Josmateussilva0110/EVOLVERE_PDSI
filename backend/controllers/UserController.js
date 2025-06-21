@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken")
 var bcrypt = require("bcrypt")
 const sendEmail = require("../utils/send_email")
 const formatMessageSendPassword = require("../utils/message_email")
+const path = require('path')
+
 
 
 require('dotenv').config({ path: '../.env' })
@@ -321,26 +323,70 @@ class UserController {
 
     
     async send_token(request, response) {
-        const { email } = request.body
+        const { email } = request.body;
 
-        var user = await User.findByEmail(email)
-        if(user) {
-            const result = await PasswordToken.create(user.id)
-            if (result) {
-                const resetLink = `${request.protocol}://${request.get("host")}/redefinir_senha/${result.token}`;
-                const subject = "Redefinição de Senha - Evolvere";
-                const textContent = `Clique no link para redefinir sua senha: ${resetLink}`;
-                const { html } = formatMessageSendPassword(resetLink)
-
-                await sendEmail(email, subject, html, textContent);
-
-                return response.json({ success: true, message: "verifique seu email" })
-            } else {
-                return response.status(500).json({ error: "Erro ao enviar email" })
-            }
+        const user = await User.findByEmail(email);
+        if (!user) {
+            return response.status(404).json({ error: "Usuário não encontrado" });
         }
-        else {
-            return response.status(500).json({ error: "Usuário não encontrado" })
+
+        const code = Math.floor(1000 + Math.random() * 9000); 
+
+        const token = jwt.sign(
+            { email, code },
+            process.env.SECRET,
+            { expiresIn: '10m' }
+        );
+
+        const subject = "Redefinição de Senha - Evolvere";
+        const { html } = formatMessageSendPassword(code);
+        await sendEmail(email, subject, html);
+
+        console.log("Token gerado:", token);
+
+
+        return response.json({
+            success: true,
+            message: "Verifique seu email",
+            token, 
+        });
+
+    }
+
+    async verify_code(request, response) {
+        const { token, code } = request.body;
+
+        try {
+            const decoded = jwt.verify(token, process.env.SECRET);
+
+            if (decoded.code.toString() === code.toString()) {
+                return response.json({ success: true, message: "Código validado com sucesso" });
+            } else {
+                return response.status(400).json({ error: "Código inválido" });
+            }
+        } catch (error) {
+            return response.status(400).json({ error: "Token inválido ou expirado" });
+        }
+    }
+
+    async reset_password(request, response) {
+        const { token, password } = request.body
+        try {
+            const decoded = jwt.verify(token, process.env.SECRET)
+            const user = await User.findByEmail(decoded.email)
+            if (!user) {
+                return response.status(404).json({ error: "Usuário não encontrado" })
+            }
+            const hashedPassword = await bcrypt.hash(password, 10)
+            const done = await User.updatePassword(user.id, hashedPassword)
+            if(done) {
+                return response.json({ success: true, message: "Senha atualizada com sucesso" })
+            }
+            else {
+                return response.status(500).json({ error: "Erro ao salvar nova senha." })
+            }
+        } catch (error) {
+            return response.status(400).json({ error: "Token inválido ou expirado" })
         }
     }
 }

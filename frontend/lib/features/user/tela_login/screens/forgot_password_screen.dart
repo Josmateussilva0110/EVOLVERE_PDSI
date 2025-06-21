@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../service/login_service.dart'; 
+import '../service/login_service.dart';
+import 'Verify_code_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   @override
@@ -9,6 +10,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
   bool _isLoading = false;
+  String? recoveryToken;
 
   @override
   void dispose() {
@@ -20,9 +22,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final email = _emailController.text.trim();
 
     if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Por favor, insira um email')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Por favor, insira um email')));
       return;
     }
 
@@ -32,16 +34,29 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     setState(() => _isLoading = false);
 
+    print('RESULT: ${result}');
+    print('RESULT: ${result}');
+    print('RESULT: ${result}');
+    print('RESULT: ${result}');
+    print('RESULT: ${result}');
+
+    if (result['success']) {
+      recoveryToken = result['token']; // 👉 Guarda o token
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder:
+              (context) =>
+                  VerifyCodeScreen(email: email, token: recoveryToken!),
+        ),
+      );
+    }
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(result['message']),
         backgroundColor: result['success'] ? Colors.green : Colors.red,
       ),
     );
-
-    if (result['success']) {
-      Navigator.of(context).pop();
-    }
   }
 
   @override
@@ -99,14 +114,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               onPressed: _isLoading ? null : _handleSendEmail,
-              child: _isLoading
-                  ? CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    )
-                  : Text(
-                      'Enviar',
-                      style: TextStyle(fontSize: 16, color: Colors.white),
-                    ),
+              child:
+                  _isLoading
+                      ? CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      )
+                      : Text(
+                        'Enviar',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
             ),
           ],
         ),

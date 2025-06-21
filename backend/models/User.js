@@ -146,6 +146,19 @@ class User {
         }
     }
 
+    async updatePassword(id, password) {
+        try {
+            await knex('users')
+                .where({ id: id })
+                .update({ password: password })
+            return true
+        } catch(err) {
+            console.log('erro em atualizar senha: ', err)
+            return false
+        }
+    }
+
 }
+
 
 module.exports = new User()

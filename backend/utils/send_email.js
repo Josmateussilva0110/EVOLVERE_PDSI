@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 require('dotenv').config({ path: '../.env' });
 
 
-const sendEmail = async (to, subject, htmlContent, textContent) => {
+const sendEmail = async (to, subject, htmlContent) => {
   const transport = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
@@ -19,8 +19,7 @@ const sendEmail = async (to, subject, htmlContent, textContent) => {
       from: `Evolvere <${process.env.EMAIL}>`,
       to,
       subject,
-      html: htmlContent,
-      text: textContent,
+      html: htmlContent
     });
 
   } catch (err) {

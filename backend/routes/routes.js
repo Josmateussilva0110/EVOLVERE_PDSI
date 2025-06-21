@@ -40,6 +40,7 @@ router.patch("/habit/:id", HabitController.editHabit)
 router.post("/finished_habit", HabitController.finishedHabitCreate)
 router.post("/habit_progress", HabitController.habitProgressCreate)
 router.post("/send_email", UserController.send_token)
-
+router.post("/verify_code", UserController.verify_code)
+router.post("/reset_password", UserController.reset_password)
 
 module.exports = router
