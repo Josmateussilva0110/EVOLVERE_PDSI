@@ -9,6 +9,7 @@ class CustomTextField extends StatelessWidget {
   final IconData? icon;
   final String? Function(String?)? validator;
   final int? maxLength;
+  final Widget? suffixIcon;
 
   const CustomTextField({
     super.key,
@@ -20,6 +21,7 @@ class CustomTextField extends StatelessWidget {
     this.icon,
     this.validator,
     this.maxLength,
+     this.suffixIcon,
   });
 
   @override
@@ -40,6 +42,7 @@ class CustomTextField extends StatelessWidget {
         filled: true,
         fillColor: const Color(0xFF222222),
         prefixIcon: icon != null ? Icon(icon, color: Colors.white70) : null,
+        suffixIcon: suffixIcon,
         contentPadding: EdgeInsets.symmetric(
           vertical: isMultiline ? 24 : 20,
           horizontal: 14,
