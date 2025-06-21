@@ -38,10 +38,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     print('RESULT: ${result}');
     print('RESULT: ${result}');
     print('RESULT: ${result}');
-    print('RESULT: ${result}');
+    print('RESULT: ${result['token']}');
 
     if (result['success']) {
-      recoveryToken = result['token']; // 👉 Guarda o token
+      recoveryToken = result['token'];
       Navigator.of(context).push(
         MaterialPageRoute(
           builder:

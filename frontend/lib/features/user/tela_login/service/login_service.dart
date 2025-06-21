@@ -15,16 +15,25 @@ class AuthService {
         body: jsonEncode({'email': email}),
       );
 
+      final data = jsonDecode(response.body);
+
       if (response.statusCode == 200) {
-        return {'success': true, 'message': jsonDecode(response.body)['message']};
+        return {
+          'success': true,
+          'message': data['message'],
+          'token': data['token'], 
+        };
       } else {
-        final data = jsonDecode(response.body);
-        return {'success': false, 'message': data['error'] ?? 'Erro desconhecido'};
+        return {
+          'success': false,
+          'message': data['error'] ?? 'Erro desconhecido'
+        };
       }
     } catch (e) {
       return {'success': false, 'message': 'Erro de conexão: $e'};
     }
   }
+
 
   static Future<Map<String, dynamic>> verifyRecoveryCode(String token, String code) async {
     final url = Uri.parse('$baseUrl/verify_code');
@@ -52,7 +61,7 @@ class AuthService {
 
 
   static Future<Map<String, dynamic>> resetPassword(
-    String token, String newPassword) async {
+    String token, String password) async {
     final url = Uri.parse('$baseUrl/reset_password');
 
     try {
@@ -61,7 +70,7 @@ class AuthService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'token': token,
-          'newPassword': newPassword,
+          'password': password,
         }),
       );
 

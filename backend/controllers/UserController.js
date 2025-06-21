@@ -342,15 +342,11 @@ class UserController {
         const { html } = formatMessageSendPassword(code);
         await sendEmail(email, subject, html);
 
-        console.log("Token gerado:", token);
-
-
         return response.json({
             success: true,
             message: "Verifique seu email",
             token, 
         });
-
     }
 
     async verify_code(request, response) {
