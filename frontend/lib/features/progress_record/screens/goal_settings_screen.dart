@@ -50,7 +50,6 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
     return 1; // manual não tem total
   }
 
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -102,8 +101,8 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
                                 ),
                                 child: Center(
                                   child: FloatingActionButton(
-                                    onPressed: () {
-                                      Navigator.push(
+                                    onPressed: () async {
+                                      final result = await Navigator.push(
                                         context,
                                         MaterialPageRoute(
                                           builder:
@@ -112,6 +111,10 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
                                               ),
                                         ),
                                       );
+
+                                      if (result == true) {
+                                        fetchGoals();
+                                      }
                                     },
                                     backgroundColor: Colors.transparent,
                                     elevation: 0,
