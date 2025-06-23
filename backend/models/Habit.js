@@ -323,6 +323,102 @@ class Habit {
             return undefined;
         }
     }
+
+    // Busca a contagem de hábitos concluídos hoje por usuário
+    async countCompletedToday(user_id) {
+        try {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+
+            const result = await knex('habits as h')
+                .where('h.status', '=', 4)
+                .andWhere('h.user_id', user_id)
+                .andWhereRaw('DATE(h.updated_at) = ?', [todayStr])
+                .count('h.id as count');
+
+            return result[0].count || 0;
+        } catch (err) {
+            console.error('Erro em contar hábitos concluídos hoje:', err);
+            return 0;
+        }
+    }
+
+    // Função para contar o total de hábitos cadastrados por usuário
+    async countAllHabitsByUser(user_id) {
+        try {
+            const result = await knex('habits').where({ user_id }).count('id as total');
+            return result[0].total || 0;
+        } catch (err) {
+            console.error('Erro ao contar o total de hábitos por usuário:', err);
+            return 0;
+        }
+    }
+
+    // Função para contar o total de hábitos concluídos (status 4) por usuário
+    async countCompletedHabitsByUser(user_id) {
+        try {
+            const result = await knex('habits').where({ user_id, status: 4 }).count('id as total');
+            return result[0].total || 0;
+        } catch (err) {
+            console.error('Erro ao contar hábitos concluídos por usuário:', err);
+            return 0;
+        }
+    }
+
+    // Função para contar o total de hábitos ativos (status 1) por usuário
+    async countActiveHabitsByUser(user_id) {
+        try {
+            const result = await knex('habits').where({ user_id, status: 1 }).count('id as total');
+            return result[0].total || 0;
+        } catch (err) {
+            console.error('Erro ao contar hábitos ativos por usuário:', err);
+            return 0;
+        }
+    }
+
+    // Função para buscar hábitos completados agrupados por mês
+    async findCompletedHabitsByMonth(user_id) {
+        try {
+            const result = await knex('habits as h')
+                .leftJoin('category as c', 'h.category_id', 'c.id')
+                .where('h.status', '=', 4)
+                .andWhere('h.user_id', user_id)
+                .select(
+                    'h.id',
+                    'h.name',
+                    'h.description',
+                    'c.name as categoria',
+                    // Converte a data de UTC para o fuso de Brasília (-03:00)
+                    knex.raw("CONVERT_TZ(h.updated_at, '+00:00', '-03:00') as updated_at"),
+                    knex.raw("DATE_FORMAT(CONVERT_TZ(h.updated_at, '+00:00', '-03:00'), '%Y-%m') as month_year")
+                )
+                .orderBy('h.updated_at', 'desc');
+
+            // Agrupar por mês
+            const groupedByMonth = {};
+            result.forEach(habit => {
+                const monthYear = habit.month_year;
+                if (!groupedByMonth[monthYear]) {
+                    groupedByMonth[monthYear] = [];
+                }
+                groupedByMonth[monthYear].push({
+                    id: habit.id,
+                    name: habit.name,
+                    description: habit.description,
+                    categoria: habit.categoria,
+                    completedAt: habit.updated_at
+                });
+            });
+
+            return groupedByMonth;
+        } catch (err) {
+            console.error('Erro ao buscar hábitos completados por mês:', err);
+            return {};
+        }
+    }
 }
 
 module.exports = new Habit()

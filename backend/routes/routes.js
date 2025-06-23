@@ -35,10 +35,17 @@ router.post("/habit/active/:id", HabitController.setHabitToActive)
 router.put("/user/edit/:id", UserController.editProfile)
 router.put("/user/edit_name/:id", UserController.editUsername)
 router.put("/user/edit_email/:id", UserController.editEmail)
+router.post("/user/upload_image/:id", UserController.uploadProfileImage)
 router.get("/user/profile/:id", UserController.getLoggedUserInfo)
 router.patch("/habit/:id", HabitController.editHabit)
 router.post("/finished_habit", HabitController.finishedHabitCreate)
 router.post("/habit_progress", HabitController.habitProgressCreate)
-
+router.post("/send_email", UserController.send_token)
+router.post("/verify_code", UserController.verify_code)
+router.post("/reset_password", UserController.reset_password)
+router.get("/habits/completed_today/:user_id", HabitController.getHabitsCompletedToday)
+router.get("/habits/total/:user_id", HabitController.getHabitsSummaryByUser)
+router.get("/habits/completed_by_month/:user_id", HabitController.getCompletedHabitsByMonth)
+router.get("/habits/active/:user_id", HabitController.getHabitsActive)
 
 module.exports = router

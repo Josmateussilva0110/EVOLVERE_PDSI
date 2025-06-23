@@ -3,12 +3,67 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../components/auth_header.dart';
 import '../../widgets/form_container.dart';
 import '../../../components/neon_background.dart';
+import '../service/login_service.dart';
+import 'Verify_code_screen.dart';
+
 
 class ForgotPasswordScreen extends StatefulWidget {
-  const ForgotPasswordScreen({super.key});
-
   @override
   State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final _emailController = TextEditingController();
+  bool _isLoading = false;
+  String? recoveryToken;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _handleSendEmail() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Por favor, insira um email')));
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final result = await AuthService.sendRecoveryEmail(email);
+
+    setState(() => _isLoading = false);
+
+    print('RESULT: ${result}');
+    print('RESULT: ${result}');
+    print('RESULT: ${result}');
+    print('RESULT: ${result}');
+    print('RESULT: ${result['token']}');
+
+    if (result['success']) {
+      recoveryToken = result['token'];
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder:
+              (context) =>
+                  VerifyCodeScreen(email: email, token: recoveryToken!),
+        ),
+      );
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result['message']),
+        backgroundColor: result['success'] ? Colors.green : Colors.red,
+      ),
+    );
+  }
+
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {

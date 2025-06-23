@@ -2,6 +2,10 @@ const User = require("../models/User")
 const PasswordToken = require("../models/PasswordToken")
 const jwt = require("jsonwebtoken")
 var bcrypt = require("bcrypt")
+const sendEmail = require("../utils/send_email")
+const formatMessageSendPassword = require("../utils/message_email")
+const path = require('path')
+
 
 
 require('dotenv').config({ path: '../.env' })
@@ -249,7 +253,8 @@ class UserController {
             response.status(200).json({
                 name: user.username,
                 email: user.email,
-                createdAt: formattedDate
+                createdAt: formattedDate,
+                upload_perfil: user.upload_perfil || null
             });
         } catch (error) {
             console.error("Erro ao buscar informações do usuário:", error);
@@ -316,6 +321,121 @@ class UserController {
             response.status(500).json({ err: "Erro interno ao atualizar email" });
         }
     }
-}
 
+    
+    async send_token(request, response) {
+        const { email } = request.body;
+
+        const user = await User.findByEmail(email);
+        if (!user) {
+            return response.status(404).json({ error: "Usuário não encontrado" });
+        }
+
+        const code = Math.floor(1000 + Math.random() * 9000); 
+
+        const token = jwt.sign(
+            { email, code },
+            process.env.SECRET,
+            { expiresIn: '3m' }
+        );
+
+        const subject = "Redefinição de Senha - Evolvere";
+        const { html } = formatMessageSendPassword(code, user.username);
+        await sendEmail(email, subject, html);
+
+        return response.json({
+            success: true,
+            message: "Verifique seu email",
+            token, 
+        });
+    }
+
+    async verify_code(request, response) {
+        const { token, code } = request.body;
+
+        try {
+            const decoded = jwt.verify(token, process.env.SECRET);
+
+            if (decoded.code.toString() === code.toString()) {
+                return response.json({ success: true, message: "Código validado com sucesso" });
+            } else {
+                return response.status(400).json({ error: "Código inválido" });
+            }
+        } catch (error) {
+            return response.status(400).json({ error: "Token inválido ou expirado" });
+        }
+    }
+
+    async reset_password(request, response) {
+        const { token, password } = request.body
+        try {
+            const decoded = jwt.verify(token, process.env.SECRET)
+            const user = await User.findByEmail(decoded.email)
+            if (!user) {
+                return response.status(404).json({ error: "Usuário não encontrado" })
+            }
+            const hashedPassword = await bcrypt.hash(password, 10)
+            const done = await User.updatePassword(user.id, hashedPassword)
+            if(done) {
+                return response.json({ success: true, message: "Senha atualizada com sucesso" })
+            }
+            else {
+                return response.status(500).json({ error: "Erro ao salvar nova senha." })
+            }
+        } catch (error) {
+            return response.status(400).json({ error: "Token inválido ou expirado" })
+        }
+    }
+
+    async uploadProfileImage(request, response) {
+        const userId = request.params.id;
+        
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                return response.status(404).json({ err: "Usuário não encontrado" });
+            }
+
+            let imagePath = null;
+
+            if (request.files && request.files.profile_image) {
+                const imageFile = request.files.profile_image;
+        
+                if (imageFile.size > 5 * 1024 * 1024) {
+                    return response.status(400).json({ err: "A imagem deve ter no máximo 5MB!" });
+                }
+        
+                const fileName = Date.now() + path.extname(imageFile.name);
+                const uploadPath = path.join(__dirname, "..", "public", "uploads", "upload_perfil", fileName);
+        
+                try {
+                    await imageFile.mv(uploadPath);
+                    imagePath = "/uploads/upload_perfil/" + fileName; 
+                } catch (err) {
+                    console.error("Erro ao salvar a imagem:", err);
+                    return response.status(500).json({ err: "Erro ao salvar a imagem." });
+                }
+            } else {
+                return response.status(400).json({ err: "Nenhuma imagem foi enviada." });
+            }
+
+            const result = await User.updateProfileImage(userId, imagePath);
+            if (result.status) {
+                response.status(200).json({ 
+                    message: "Imagem de perfil atualizada com sucesso",
+                    imagePath: imagePath 
+                });
+            } else {
+                response.status(406).json({ err: result.err });
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar imagem de perfil:", error);
+            response.status(500).json({ err: "Erro interno ao atualizar imagem de perfil" });
+        }
+    }
+}
 module.exports = new UserController()

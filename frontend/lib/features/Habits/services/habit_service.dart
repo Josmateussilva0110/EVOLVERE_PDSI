@@ -36,7 +36,7 @@ class HabitService {
       'priority': habitData.priority,
       if (habitData.selectedCategory != null)
         'category_id': habitData.selectedCategory,
-      'user_id': habitData.userId
+      'user_id': habitData.userId,
     };
     try {
       final response = await http.post(
@@ -57,7 +57,9 @@ class HabitService {
   }
 
   static Future<String?> editHabit(HabitData habitData) async {
-    final url = Uri.parse('${dotenv.env['API_URL']}/habit/${habitData.habitId}',);
+    final url = Uri.parse(
+      '${dotenv.env['API_URL']}/habit/${habitData.habitId}',
+    );
 
     final body = {
       'habitId': habitData.habitId,
@@ -69,7 +71,7 @@ class HabitService {
       'reminders': habitData.reminders.map((r) => r.toIso8601String()).toList(),
       'priority': habitData.priority,
       'category_id': habitData.selectedCategory,
-      'user_id': habitData.userId
+      'user_id': habitData.userId,
     };
     try {
       final response = await http.patch(
