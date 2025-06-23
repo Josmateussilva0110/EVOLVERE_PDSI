@@ -273,20 +273,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     String formattedCreatedAt = 'Desde ${createdAt}';
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        elevation: Theme.of(context).appBarTheme.elevation,
         title: Text(
           'Minha Conta',
           style: GoogleFonts.inter(
-            color: Colors.white,
+            color: Theme.of(context).appBarTheme.foregroundColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).appBarTheme.foregroundColor,
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -311,14 +314,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Text(
                               'Informações do Perfil',
                               style: GoogleFonts.inter(
-                                color: Colors.white,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge?.color,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 15),
                             Card(
-                              color: Colors.grey[850], // Cor de fundo do card
+                              color: Theme.of(context).cardTheme.color,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
@@ -333,14 +339,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                         children: [
                                           CircleAvatar(
                                             radius: 60,
-                                            backgroundColor: Colors.grey[800],
-                                            backgroundImage: _getProfileImage(),
+                                            backgroundColor:
+                                                Theme.of(context).brightness ==
+                                                        Brightness.light
+                                                    ? Colors.grey.shade300
+                                                    : Colors.grey[800],
+                                            backgroundImage:
+                                                _profileImage != null
+                                                    ? FileImage(_profileImage!)
+                                                        as ImageProvider<
+                                                          Object
+                                                        >?
+                                                    : null, // Exibe a imagem selecionada ou nulo
                                             child:
                                                 _getProfileImage() == null
                                                     ? Icon(
                                                       Icons.person,
                                                       size: 80,
-                                                      color: Colors.white,
+                                                      color:
+                                                          Theme.of(
+                                                                    context,
+                                                                  ).brightness ==
+                                                                  Brightness
+                                                                      .light
+                                                              ? Colors
+                                                                  .grey
+                                                                  .shade600
+                                                              : Colors.white,
                                                     )
                                                     : null,
                                           ),
@@ -485,7 +510,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Text(
                               'Estatísticas de Hábitos',
                               style: GoogleFonts.inter(
-                                color: Colors.white,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge?.color,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),

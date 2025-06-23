@@ -18,21 +18,28 @@ class CustomPasswordField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: isLightMode ? Colors.black87 : Colors.white),
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70),
+        labelStyle: TextStyle(
+          color: isLightMode ? Colors.black54 : Colors.white70,
+        ),
         filled: true,
-        fillColor: const Color(0xFF2C2C2C),
-        prefixIcon: const Icon(Icons.lock, color: Colors.white70),
+        fillColor: isLightMode ? Colors.grey.shade50 : const Color(0xFF2C2C2C),
+        prefixIcon: Icon(
+          Icons.lock,
+          color: isLightMode ? Colors.black54 : Colors.white70,
+        ),
         suffixIcon: IconButton(
           icon: Icon(
             obscureText ? Icons.visibility : Icons.visibility_off,
-            color: Colors.white70,
+            color: isLightMode ? Colors.black54 : Colors.white70,
           ),
           onPressed: toggle,
         ),
@@ -46,7 +53,10 @@ class CustomPasswordField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF2196F3), width: 2),
+          borderSide: BorderSide(
+            color: isLightMode ? Colors.blue : const Color(0xFF2196F3),
+            width: 2,
+          ),
         ),
       ),
     );

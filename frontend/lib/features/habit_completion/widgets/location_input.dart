@@ -4,10 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class LocationInput extends StatelessWidget {
   final TextEditingController controller;
 
-  const LocationInput({
-    super.key,
-    required this.controller,
-  });
+  const LocationInput({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +13,7 @@ class LocationInput extends StatelessWidget {
       style: GoogleFonts.inter(color: Colors.white, fontSize: 14),
       decoration: InputDecoration(
         hintText: 'Casa, Biblioteca, Academia...',
-        hintStyle: GoogleFonts.inter(
-          color: Colors.white54,
-          fontSize: 14,
-        ),
+        hintStyle: GoogleFonts.inter(color: Colors.white54, fontSize: 14),
         filled: true,
         fillColor: const Color(0xFF232B3E),
         border: OutlineInputBorder(
@@ -29,6 +23,11 @@ class LocationInput extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Colors.blue, width: 2),
+        ),
+        prefixIcon: const Icon(
+          Icons.location_on_outlined,
+          color: Colors.white54,
+          size: 20,
         ),
       ),
     );

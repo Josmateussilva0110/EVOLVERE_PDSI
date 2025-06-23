@@ -19,6 +19,22 @@ class HabitService {
     }
   }
 
+  static Future<List<Habit>> fetchAllHabits(int userId) async {
+    try {
+      // Buscar hábitos ativos e arquivados separadamente
+      final activeHabits = await fetchHabits(userId);
+      final archivedHabits = await fetchHabitsArchived(userId);
+
+      // Combinar as duas listas
+      final allHabits = [...activeHabits, ...archivedHabits];
+
+      return allHabits;
+    } catch (e) {
+      print('Erro ao buscar todos os hábitos: $e');
+      return [];
+    }
+  }
+
   static Future<bool> deleteHabit(int habitId) async {
     final response = await http.delete(
       Uri.parse('${dotenv.env['API_URL']}/habit/$habitId'),

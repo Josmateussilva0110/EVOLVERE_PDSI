@@ -8,12 +8,11 @@ class FormContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      padding: const EdgeInsets.all(20.0),
       decoration: BoxDecoration(
-        color: const Color(0xFF1C1C1C),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(color: Color(0x0A00FFFF), blurRadius: 10, spreadRadius: 2),
-        ],
+        color: Colors.black.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
       ),
       child: child,
     );

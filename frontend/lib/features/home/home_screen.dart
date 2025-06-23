@@ -108,6 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+
   Future<void> _loadUserProfileImage() async {
     if (_userId == null) return;
 
@@ -125,10 +126,12 @@ class _HomeScreenState extends State<HomeScreen> {
           _profileImagePath = data['upload_perfil'];
         });
       }
+
     } catch (e) {
       print('Erro ao carregar imagem de perfil: $e');
     }
   }
+
 
 
   @override

@@ -31,38 +31,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  ThemeMode _themeMode = ThemeMode.dark;
-
-  void toggleTheme() {
-    setState(() {
-      _themeMode =
-          _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'App com Rotas',
       initialRoute: '/',
-      themeMode: ThemeMode.dark,
       theme: ThemeData(
-        brightness: Brightness.light,
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          color: Colors.white,
-          foregroundColor: Colors.black,
-        ),
-        textTheme: const TextTheme(
-          bodyLarge: TextStyle(color: Colors.black),
-          bodyMedium: TextStyle(color: Colors.black),
-          titleLarge: TextStyle(color: Colors.black),
-          titleMedium: TextStyle(color: Colors.black),
-          titleSmall: TextStyle(color: Colors.black),
-        ),
-      ),
-      darkTheme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: Colors.black,
         appBarTheme: const AppBarTheme(
@@ -90,7 +64,7 @@ class _MyAppState extends State<MyApp> {
         '/editar_categoria': (context) => EditCategoryScreen(),
         '/explanation_screen': (context) => ExplanationScreen(),
         '/notificacoes': (context) => NotificationsScreen(),
-        '/configuracoes': (context) => SettingsScreen()
+        '/configuracoes': (context) => SettingsScreen(),
       },
 
       onGenerateRoute: (settings) {
