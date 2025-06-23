@@ -45,7 +45,7 @@ class ProgressRecordService {
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       print('DECODED: ${decoded}');
-      final List<dynamic> progress_list = decoded['habits'];
+      final List<dynamic> progress_list = decoded['habit_progress'];
       print('PROGRESS LIST: $progress_list');
 
       return progress_list

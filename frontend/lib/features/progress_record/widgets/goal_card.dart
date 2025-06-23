@@ -86,13 +86,6 @@ class _GoalCardState extends State<GoalCard> {
                     },
                   ),
                   ActionIcon(
-                    icon: Icons.remove_circle_outline,
-                    label: 'Remover',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ActionIcon(
                     icon: Icons.delete,
                     label: 'Excluir',
                     onTap: () {
@@ -157,58 +150,65 @@ class _GoalCardState extends State<GoalCard> {
             ),
           ),
         ),
-        const Icon(Icons.more_vert, color: Colors.white24, size: 22),
       ],
     );
   }
 
   Widget _buildProgressOrInfo() {
-    if (widget.goal.isProgressBar) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            widget.goal.type,
-            style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+  final type = widget.goal.type.toLowerCase();
+
+  if (type == 'automático') {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.goal.type,
+          style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+        ),
+        const SizedBox(height: 6),
+        LinearProgressIndicator(
+          value: (widget.goal.progress ?? 0) / (widget.goal.total ?? 1),
+          minHeight: 8,
+          backgroundColor: Colors.white12,
+          color: Colors.blue,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          '${widget.goal.progress} h / ${widget.goal.total} h',
+          style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+        ),
+      ],
+    );
+  } else if (type == 'acumulativa') {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          widget.goal.type,
+          style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+        ),
+        Text(
+          '${widget.goal.progress ?? 0}',
+          style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 17,
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 6),
-          LinearProgressIndicator(
-            value: (widget.goal.progress ?? 0) / (widget.goal.total ?? 1),
-            minHeight: 8,
-            backgroundColor: Colors.white12,
-            color: Colors.blue,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${widget.goal.progress} h / ${widget.goal.total} h',
-            style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-          ),
-        ],
-      );
-    } else if (widget.goal.progress != null && widget.goal.total != null) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            widget.goal.type,
-            style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-          ),
-          Text(
-            '${widget.goal.progress}/${widget.goal.total}',
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      );
-    } else {
-      return Text(
-        widget.goal.type,
-        style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-      );
-    }
+        ),
+      ],
+    );
+  } else if (type == 'manual') {
+    return Text(
+      widget.goal.type,
+      style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+    );
+  } else {
+    return Text(
+      widget.goal.type,
+      style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
+    );
   }
+}
+
 }
