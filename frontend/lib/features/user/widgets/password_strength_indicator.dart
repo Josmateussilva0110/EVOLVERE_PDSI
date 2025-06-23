@@ -38,6 +38,8 @@ class PasswordStrengthIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     if (password.isEmpty) return SizedBox.shrink();
 
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -48,7 +50,8 @@ class PasswordStrengthIndicator extends StatelessWidget {
                   : strength == PasswordStrength.medium
                   ? 0.66
                   : 1.0,
-          backgroundColor: Colors.grey[800],
+          backgroundColor:
+              isLightMode ? Colors.grey.shade300 : Colors.grey[800],
           valueColor: AlwaysStoppedAnimation<Color>(strengthColor),
           minHeight: 4,
         ),

@@ -25,18 +25,9 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  InkWell(
-                    onTap: () {
-                      showDialog(
-                        context: context,
-                        barrierColor: Colors.black.withOpacity(0.7),
-                        builder: (context) => const LogoDialog(),
-                      );
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      child: const AuthHeader(title: "Acessar"),
-                    ),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    child: const AuthHeader(title: "Acessar"),
                   ),
                   SizedBox(height: isSmallScreen ? 16 : 24),
                   LoginForm(),

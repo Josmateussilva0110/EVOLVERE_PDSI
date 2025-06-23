@@ -19,6 +19,8 @@ class LoginOptionsRow extends StatefulWidget {
 class _LoginOptionsRowState extends State<LoginOptionsRow> {
   @override
   Widget build(BuildContext context) {
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
+
     return Wrap(
       alignment: WrapAlignment.spaceBetween,
       crossAxisAlignment: WrapCrossAlignment.center,
@@ -38,9 +40,12 @@ class _LoginOptionsRowState extends State<LoginOptionsRow> {
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               visualDensity: VisualDensity.compact,
             ),
-            const Text(
+            Text(
               "Lembrar-me",
-              style: TextStyle(color: Colors.white, fontSize: 11),
+              style: TextStyle(
+                color: isLightMode ? Colors.black87 : Colors.white,
+                fontSize: 11,
+              ),
             ),
           ],
         ),
@@ -51,9 +56,12 @@ class _LoginOptionsRowState extends State<LoginOptionsRow> {
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-          child: const Text(
+          child: Text(
             "Esqueci a senha?",
-            style: TextStyle(color: Colors.blue, fontSize: 11),
+            style: TextStyle(
+              color: isLightMode ? Colors.blue.shade700 : Colors.blue,
+              fontSize: 11,
+            ),
           ),
         ),
       ],

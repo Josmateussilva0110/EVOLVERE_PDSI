@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,21 +86,6 @@ class SettingsScreen extends StatelessWidget {
                   SnackBar(
                     content: Text('Gerenciar preferências de notificações.'),
                   ),
-                );
-              },
-            ),
-            Divider(color: Colors.grey[700]),
-            ListTile(
-              leading: Icon(Icons.palette, color: Colors.blueAccent),
-              title: Text(
-                'Tema do Aplicativo',
-                style: TextStyle(color: Colors.white, fontSize: 16),
-              ),
-              trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
-              onTap: () {
-                // TODO: Implementar seleção de tema (claro/escuro/cores)
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Personalizar o tema do aplicativo.')),
                 );
               },
             ),

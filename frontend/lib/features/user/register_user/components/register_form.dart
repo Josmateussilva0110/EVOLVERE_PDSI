@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../widgets/password_field.dart';
-import '../../widgets/text_field.dart';
-import 'terms_checkbox.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/form_container.dart';
-import '../../widgets/password_strength_indicator.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -16,253 +10,256 @@ class RegisterForm extends StatefulWidget {
 }
 
 class _RegisterFormState extends State<RegisterForm> {
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
-
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  bool _isLoading = false;
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  bool _acceptTerms = false;
-  bool _isButtonEnabled = false;
-  PasswordStrength _passwordStrength = PasswordStrength.weak;
-
-  final _formKey = GlobalKey<FormState>();
-
-  PasswordStrength _calculatePasswordStrength(String password) {
-    if (password.isEmpty) return PasswordStrength.weak;
-
-    int score = 0;
-
-    // Comprimento
-    if (password.length >= 8) score++;
-    if (password.length >= 12) score++;
-
-    // Complexidade
-    if (password.contains(RegExp(r'[A-Z]'))) score++;
-    if (password.contains(RegExp(r'[a-z]'))) score++;
-    if (password.contains(RegExp(r'[0-9]'))) score++;
-    if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) score++;
-
-    if (score <= 2) return PasswordStrength.weak;
-    if (score <= 4) return PasswordStrength.medium;
-    return PasswordStrength.strong;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _usernameController.addListener(_updateButtonState);
-    _emailController.addListener(_updateButtonState);
-    _passwordController.addListener(() {
-      setState(() {
-        _passwordStrength = _calculatePasswordStrength(
-          _passwordController.text,
-        );
-      });
-      _updateButtonState();
-    });
-    _confirmPasswordController.addListener(_updateButtonState);
-    _updateButtonState();
-  }
 
   @override
   void dispose() {
-    _usernameController.removeListener(_updateButtonState);
-    _emailController.removeListener(_updateButtonState);
-    _passwordController.removeListener(_updateButtonState);
-    _confirmPasswordController.removeListener(_updateButtonState);
-    _usernameController.dispose();
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _updateButtonState() {
+  Future<void> _handleRegister() async {
+    if (!_formKey.currentState!.validate()) return;
+
     setState(() {
-      _isButtonEnabled =
-          _usernameController.text.isNotEmpty &&
-          _emailController.text.isNotEmpty &&
-          _passwordController.text.isNotEmpty &&
-          _confirmPasswordController.text.isNotEmpty &&
-          _acceptTerms;
+      _isLoading = true;
     });
+
+    try {
+      // Simular delay de cadastro
+      await Future.delayed(Duration(seconds: 2));
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Conta criada com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao criar conta: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.height < 600;
-
     return FormContainer(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              CustomTextField(
-                label: "Usuário",
-                controller: _usernameController,
-                icon: Icons.person,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu nome de usuário';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: isSmallScreen ? 12 : 16),
-              CustomTextField(
-                label: "Email",
-                controller: _emailController,
-                icon: Icons.email,
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu email';
-                  }
-                  if (!RegExp(
-                    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+",
-                  ).hasMatch(value)) {
-                    return 'Por favor, insira um email válido';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: isSmallScreen ? 12 : 16),
-              CustomPasswordField(
-                label: "Senha",
-                obscureText: _obscurePassword,
-                toggle:
-                    () => setState(() => _obscurePassword = !_obscurePassword),
-                controller: _passwordController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira sua senha';
-                  }
-                  if (value.length < 6) {
-                    return 'A senha deve ter pelo menos 6 caracteres';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: isSmallScreen ? 6 : 8),
-              PasswordStrengthIndicator(
-                password: _passwordController.text,
-                strength: _passwordStrength,
-              ),
-              SizedBox(height: isSmallScreen ? 12 : 16),
-              CustomPasswordField(
-                label: "Confirmar senha",
-                obscureText: _obscureConfirmPassword,
-                toggle:
-                    () => setState(
-                      () => _obscureConfirmPassword = !_obscureConfirmPassword,
-                    ),
-                controller: _confirmPasswordController,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, confirme sua senha';
-                  }
-                  if (value != _passwordController.text) {
-                    return 'As senhas não coincidem';
-                  }
-                  return null;
-                },
-              ),
-              if (_confirmPasswordController.text.isNotEmpty &&
-                  _confirmPasswordController.text != _passwordController.text)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    'As senhas não coincidem',
-                    style: TextStyle(color: Colors.red, fontSize: 12),
-                  ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _nameController,
+              style: GoogleFonts.inter(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Nome completo',
+                labelStyle: GoogleFonts.inter(color: Colors.white70),
+                prefixIcon: Icon(Icons.person, color: Colors.white70),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
                 ),
-              SizedBox(height: isSmallScreen ? 12 : 16),
-              TermsCheckbox(
-                value: _acceptTerms,
-                onChanged: (value) {
-                  setState(() => _acceptTerms = value ?? false);
-                  _updateButtonState();
-                },
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white, width: 2),
+                ),
               ),
-              SizedBox(height: isSmallScreen ? 24 : 32),
-              ElevatedButton(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor, insira seu nome';
+                }
+                if (value.length < 3) {
+                  return 'Nome deve ter pelo menos 3 caracteres';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              style: GoogleFonts.inter(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                labelStyle: GoogleFonts.inter(color: Colors.white70),
+                prefixIcon: Icon(Icons.email, color: Colors.white70),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white, width: 2),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor, insira seu email';
+                }
+                if (!RegExp(
+                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                ).hasMatch(value)) {
+                  return 'Por favor, insira um email válido';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _passwordController,
+              obscureText: _obscurePassword,
+              style: GoogleFonts.inter(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Senha',
+                labelStyle: GoogleFonts.inter(color: Colors.white70),
+                prefixIcon: Icon(Icons.lock, color: Colors.white70),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.white70,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white, width: 2),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor, insira uma senha';
+                }
+                if (value.length < 6) {
+                  return 'Senha deve ter pelo menos 6 caracteres';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _confirmPasswordController,
+              obscureText: _obscureConfirmPassword,
+              style: GoogleFonts.inter(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Confirmar senha',
+                labelStyle: GoogleFonts.inter(color: Colors.white70),
+                prefixIcon: Icon(Icons.lock_outline, color: Colors.white70),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureConfirmPassword
+                        ? Icons.visibility
+                        : Icons.visibility_off,
+                    color: Colors.white70,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    });
+                  },
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white, width: 2),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor, confirme sua senha';
+                }
+                if (value != _passwordController.text) {
+                  return 'Senhas não coincidem';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _handleRegister,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      _isButtonEnabled ? const Color(0xFF2196F3) : Colors.grey,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed:
-                    _isButtonEnabled
-                        ? () async {
-                          if (_formKey.currentState!.validate()) {
-                            if (!_acceptTerms) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "Você precisa aceitar os termos",
-                                  ),
-                                ),
-                              );
-                              return;
-                            }
-
-                            final response = await http.post(
-                              Uri.parse('${dotenv.env['API_URL']}/user'),
-                              headers: {'Content-Type': 'application/json'},
-                              body: jsonEncode({
-                                'username': _usernameController.text,
-                                'email': _emailController.text,
-                                'password': _passwordController.text,
-                              }),
-                            );
-
-                            if (response.statusCode == 200) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Cadastro realizado com sucesso!',
-                                  ),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                              Navigator.pushReplacementNamed(context, '/');
-                            } else {
-                              String errorMessage =
-                                  'Erro ao cadastrar. Tente novamente.';
-                              try {
-                                final Map<String, dynamic> data = jsonDecode(
-                                  response.body,
-                                );
-                                if (data.containsKey('err')) {
-                                  errorMessage = data['err'];
-                                }
-                              } catch (_) {}
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(errorMessage),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          }
-                        }
-                        : null,
-                child: const Text('Cadastrar', style: TextStyle(fontSize: 16)),
+                child:
+                    _isLoading
+                        ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.black,
+                            ),
+                          ),
+                        )
+                        : Text(
+                          'Criar Conta',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

@@ -39,7 +39,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   // Criar controllers para os campos de texto
   final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController(); // Removido: Edição de email movida para configurações
+  final TextEditingController _emailController =
+      TextEditingController(); // Removido: Edição de email movida para configurações
   bool _isLoading = true; // Estado para controle do carregamento
   final ImagePicker _picker = ImagePicker(); // Instância do ImagePicker
 
@@ -52,7 +53,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void dispose() {
     _usernameController.dispose();
-    _emailController.dispose(); // Removido: Edição de email movida para configurações
+    _emailController
+        .dispose(); // Removido: Edição de email movida para configurações
     super.dispose();
   }
 
@@ -88,7 +90,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           activeHabits = 10; // Simulado
 
           _usernameController.text = name;
-          _emailController.text = email; // Removido: Edição de email movida para configurações
+          _emailController.text =
+              email; // Removido: Edição de email movida para configurações
         });
       } else {
         // Tratar erro ao carregar dados
@@ -121,20 +124,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     String formattedCreatedAt = 'Desde ${createdAt}';
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        elevation: Theme.of(context).appBarTheme.elevation,
         title: Text(
           'Minha Conta',
           style: GoogleFonts.inter(
-            color: Colors.white,
+            color: Theme.of(context).appBarTheme.foregroundColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).appBarTheme.foregroundColor,
+          ),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -159,14 +165,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Text(
                               'Informações do Perfil',
                               style: GoogleFonts.inter(
-                                color: Colors.white,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge?.color,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                             const SizedBox(height: 15),
                             Card(
-                              color: Colors.grey[850], // Cor de fundo do card
+                              color: Theme.of(context).cardTheme.color,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
@@ -181,7 +190,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                         children: [
                                           CircleAvatar(
                                             radius: 60,
-                                            backgroundColor: Colors.grey[800],
+                                            backgroundColor:
+                                                Theme.of(context).brightness ==
+                                                        Brightness.light
+                                                    ? Colors.grey.shade300
+                                                    : Colors.grey[800],
                                             backgroundImage:
                                                 _profileImage != null
                                                     ? FileImage(_profileImage!)
@@ -194,7 +207,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                                     ? Icon(
                                                       Icons.person,
                                                       size: 80,
-                                                      color: Colors.white,
+                                                      color:
+                                                          Theme.of(
+                                                                    context,
+                                                                  ).brightness ==
+                                                                  Brightness
+                                                                      .light
+                                                              ? Colors
+                                                                  .grey
+                                                                  .shade600
+                                                              : Colors.white,
                                                     )
                                                     : null, // Exibe o ícone se nenhuma imagem for selecionada
                                           ),
@@ -226,7 +248,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       // Nome e email para visualização, com opção de clique para alterar nome de usuário
                                       _buildEditableInfoTile(
                                         label: 'Nome de Usuário',
-                                        value: name.isNotEmpty ? name : 'Carregando...',
+                                        value:
+                                            name.isNotEmpty
+                                                ? name
+                                                : 'Carregando...',
                                         onTap: () {
                                           _showEditDialog(
                                             'Nome de Usuário',
@@ -237,18 +262,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                               });
 
                                               // Chama o service para atualizar no backend
-                                              final service = UserProfileService();
-                                              bool success = await service.updateUserProfile(
-                                                userId: widget.userId,
-                                                username: newValue,
-                                                context: context,
-                                              );
+                                              final service =
+                                                  UserProfileService();
+                                              bool success = await service
+                                                  .updateUserProfile(
+                                                    userId: widget.userId,
+                                                    username: newValue,
+                                                    context: context,
+                                                  );
 
                                               if (success) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
                                                   const SnackBar(
-                                                    content: Text('Nome atualizado com sucesso!'),
-                                                    backgroundColor: Colors.green,
+                                                    content: Text(
+                                                      'Nome atualizado com sucesso!',
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.green,
                                                   ),
                                                 );
                                               }
@@ -258,9 +290,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                       ),
 
                                       // Email (apenas visualização)
-                                    _buildEditableInfoTile(
+                                      _buildEditableInfoTile(
                                         label: 'Email',
-                                        value: email.isNotEmpty ? email : 'Carregando...',
+                                        value:
+                                            email.isNotEmpty
+                                                ? email
+                                                : 'Carregando...',
                                         onTap: () {
                                           _showEditDialog(
                                             'Email',
@@ -271,18 +306,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                               });
 
                                               // Chama o service para atualizar no backend
-                                              final service = UserProfileService();
-                                              bool success = await service.updateEmailProfile(
-                                                userId: widget.userId,
-                                                email: newValue,
-                                                context: context,
-                                              );
+                                              final service =
+                                                  UserProfileService();
+                                              bool success = await service
+                                                  .updateEmailProfile(
+                                                    userId: widget.userId,
+                                                    email: newValue,
+                                                    context: context,
+                                                  );
 
                                               if (success) {
-                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
                                                   const SnackBar(
-                                                    content: Text('Email atualizado com sucesso!'),
-                                                    backgroundColor: Colors.green,
+                                                    content: Text(
+                                                      'Email atualizado com sucesso!',
+                                                    ),
+                                                    backgroundColor:
+                                                        Colors.green,
                                                   ),
                                                 );
                                               }
@@ -319,7 +361,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             Text(
                               'Estatísticas de Hábitos',
                               style: GoogleFonts.inter(
-                                color: Colors.white,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodyLarge?.color,
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -389,7 +434,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       onTap: onTap,
     );
   }
-
 
   // Diálogo para edição de texto
   void _showEditDialog(
