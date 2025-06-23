@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../model/Goal.dart';
-import '../screens/add_goal_screen.dart';
-import 'action_icon.dart';
+import 'goal_actions_bottom_sheet.dart';
+import 'goal_header.dart';
+import 'goal_progress_info.dart';
 
 class GoalCard extends StatefulWidget {
   final Goal goal;
@@ -37,67 +37,11 @@ class _GoalCardState extends State<GoalCard> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: 24,
-                runSpacing: 16,
-                children: [
-                  ActionIcon(
-                    icon: Icons.check,
-                    label: 'Concluir',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ActionIcon(
-                    icon: Icons.edit,
-                    label: 'Editar',
-                    onTap: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => AddGoalScreen(
-                                habitId: widget.habitId,
-                                initialName: widget.goal.title,
-                                initialType: _goalTypeToIndex(widget.goal.type),
-                                initialParameter: widget.goal.progress ?? 10,
-                                initialInterval: 0,
-                                isEditing: true,
-                              ),
-                        ),
-                      );
-                    },
-                  ),
-                  ActionIcon(
-                    icon: Icons.delete,
-                    label: 'Excluir',
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      },
+      builder: (context) => GoalActionsBottomSheet(
+        goal: widget.goal,
+        habitId: widget.habitId,
+        goalTypeToIndex: _goalTypeToIndex,
+      ),
     );
   }
 
@@ -127,88 +71,12 @@ class _GoalCardState extends State<GoalCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
+            GoalHeader(title: widget.goal.title),
             const SizedBox(height: 8),
-            _buildProgressOrInfo(),
+            GoalProgressInfo(goal: widget.goal),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(
-          child: Text(
-            widget.goal.title,
-            style: GoogleFonts.inter(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              fontSize: 17,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildProgressOrInfo() {
-  final type = widget.goal.type.toLowerCase();
-
-  if (type == 'automático') {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          widget.goal.type,
-          style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-        ),
-        const SizedBox(height: 6),
-        LinearProgressIndicator(
-          value: (widget.goal.progress ?? 0) / (widget.goal.total ?? 1),
-          minHeight: 8,
-          backgroundColor: Colors.white12,
-          color: Colors.blue,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          '${widget.goal.progress} h / ${widget.goal.total} h',
-          style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-        ),
-      ],
-    );
-  } else if (type == 'acumulativa') {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          widget.goal.type,
-          style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-        ),
-        Text(
-          '${widget.goal.progress ?? 0}',
-          style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  } else if (type == 'manual') {
-    return Text(
-      widget.goal.type,
-      style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-    );
-  } else {
-    return Text(
-      widget.goal.type,
-      style: GoogleFonts.inter(color: Colors.white70, fontSize: 13),
-    );
-  }
-}
-
 }
