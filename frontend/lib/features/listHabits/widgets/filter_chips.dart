@@ -20,7 +20,7 @@ class FilterChipsWidget extends StatefulWidget {
 
 class _FilterChipsWidgetState extends State<FilterChipsWidget> {
   final ScrollController _scrollController = ScrollController();
-  double _dragStartPosition = 0.0;
+  //double _dragStartPosition = 0.0;
 
   final List<FilterOption> filters = [
     FilterOption(label: 'Todos', icon: Icons.all_inclusive, color: Colors.blue),
@@ -199,7 +199,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget> {
 
 class FilterOption {
   final String label;
-  final IconData icon;
+  final IconData? icon;
   final Color color;
 
   FilterOption({required this.label, required this.icon, required this.color});

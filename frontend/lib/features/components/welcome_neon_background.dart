@@ -21,9 +21,9 @@ class _WelcomeNeonBackgroundState extends State<WelcomeNeonBackground>
   late AnimationController _controller;
   final List<NeonCircle> _circles = [];
   final int _numberOfCircles = 8;
-  Offset? _touchPosition;
-  double _touchRadius = 350.0;
-  double _touchForce = 0.25;
+  //Offset? _touchPosition;
+  //double _touchRadius = 350.0;
+  //double _touchForce = 0.25;
   int? _draggedCircleIndex;
   double _circleTouchSensitivity = 1.2; // Aumenta a área de toque
 
@@ -245,10 +245,10 @@ class WelcomeNeonPainter extends CustomPainter {
           math.sin(t) * 0.22 + 1.08; // menos variação, mais suave, maior base
       double opacityVar = math.cos(t) * 0.18 + 1.0; // menos variação
       double dynamicSize = circle.baseSize * sizeVar;
-      double dynamicOpacity = (circle.baseOpacity * opacityVar).clamp(
-        0.10,
-        0.32,
-      );
+      //double dynamicOpacity = (circle.baseOpacity * opacityVar).clamp(
+      //  0.10,
+      //  0.32,
+      //);
 
       // Seleciona a cor baseada no modo
       final color =

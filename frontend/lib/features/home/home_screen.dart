@@ -20,8 +20,8 @@ class _HomeScreenState extends State<HomeScreen> {
   String _userEmail = '';
 
   // Novo: controle de label animada
-  String? _activeLabel;
-  int? _activeIndex; // 0: notificações, 1: home, 2: conta
+  //String? _activeLabel;
+  //int? _activeIndex; // 0: notificações, 1: home, 2: conta
 
   @override
   void initState() {
@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _showLabel(String label, int index) {
+  /*void _showLabel(String label, int index) {
     setState(() {
       _activeLabel = label;
       _activeIndex = index;
@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     });
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {

@@ -18,7 +18,7 @@ class DifficultyChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isSelected = selectedDifficulty == index;
-
+    final emojis = ['😃', '😐', '😣'];
     return GestureDetector(
       onTap: () => onTap(index),
       child: AnimatedContainer(
@@ -26,9 +26,10 @@ class DifficultyChip extends StatelessWidget {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Colors.blue.withOpacity(0.2)
-              : const Color(0xFF232B3E),
+          color:
+              isSelected
+                  ? Colors.blue.withOpacity(0.2)
+                  : const Color(0xFF232B3E),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected ? Colors.blue : Colors.transparent,
@@ -43,13 +44,20 @@ class DifficultyChip extends StatelessWidget {
               ),
           ],
         ),
-        child: Text(
-          label,
-          style: GoogleFonts.inter(
-            color: isSelected ? Colors.blue : Colors.white,
-            fontWeight: FontWeight.w500,
-            fontSize: 14,
-          ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(emojis[index], style: const TextStyle(fontSize: 16)),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                color: isSelected ? Colors.blue : Colors.white,
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
       ),
     );
