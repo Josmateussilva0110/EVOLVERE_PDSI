@@ -8,12 +8,14 @@ class GoalActionsBottomSheet extends StatelessWidget {
   final Goal goal;
   final int habitId;
   final int Function(String) goalTypeToIndex;
+  final VoidCallback onDeleteSuccess;
 
   const GoalActionsBottomSheet({
     super.key,
     required this.goal,
     required this.habitId,
     required this.goalTypeToIndex,
+    required this.onDeleteSuccess,
   });
 
   @override
@@ -75,11 +77,15 @@ class GoalActionsBottomSheet extends StatelessWidget {
 
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Progresso excluído com sucesso')),
+                      const SnackBar(
+                        content: Text('Progresso excluído com sucesso!'),
+                        backgroundColor: Colors.green,
+                      ),
                     );
+                    onDeleteSuccess();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Erro ao excluir progresso')),
+                      SnackBar(content: Text('Erro ao excluir progresso'), backgroundColor: Colors.red,),
                     );
                   }
                 },

@@ -7,8 +7,14 @@ import 'goal_progress_info.dart';
 class GoalCard extends StatefulWidget {
   final Goal goal;
   final int habitId;
+  final VoidCallback onDeleteSuccess;
 
-  const GoalCard({super.key, required this.goal, required this.habitId});
+    const GoalCard({
+      super.key,
+      required this.goal,
+      required this.habitId,
+      required this.onDeleteSuccess, 
+    });
 
   @override
   State<GoalCard> createState() => _GoalCardState();
@@ -41,6 +47,7 @@ class _GoalCardState extends State<GoalCard> {
         goal: widget.goal,
         habitId: widget.habitId,
         goalTypeToIndex: _goalTypeToIndex,
+        onDeleteSuccess: widget.onDeleteSuccess,
       ),
     );
   }

@@ -94,6 +94,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
                               return GoalCard(
                                 goal: goal,
                                 habitId: widget.habitId,
+                                onDeleteSuccess: fetchGoals, 
                               );
                             } else {
                               return Padding(
