@@ -38,7 +38,7 @@ class FinishHabitForm extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         sectionTitle('Nível de dificuldade'),
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: List.generate(3, (index) {
@@ -51,54 +51,47 @@ class FinishHabitForm extends StatelessWidget {
             );
           }),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         sectionTitle('Humor'),
-        const SizedBox(height: 12),
+        const SizedBox(height: 18),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             MoodOption(
               label: 'Motivado',
-              iconData: Icons.sentiment_satisfied_alt_rounded,
               index: 1,
               selectedMood: selectedMood,
               onTap: onSelectMood,
             ),
             MoodOption(
               label: 'Neutro',
-              iconData: Icons.sentiment_neutral_rounded,
               index: 0,
               selectedMood: selectedMood,
               onTap: onSelectMood,
             ),
             MoodOption(
               label: 'Desanimado',
-              iconData: Icons.sentiment_dissatisfied_rounded,
               index: 2,
               selectedMood: selectedMood,
               onTap: onSelectMood,
             ),
           ],
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         sectionTitle('Reflexão'),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         ReflectionInput(
           controller: reflectionController,
           onChanged: onReflectionChanged,
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         sectionTitle('Local da realização'),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         LocationInput(controller: locationController),
-        const SizedBox(height: 24),
+        const SizedBox(height: 32),
         sectionTitle('Tempo dedicado'),
-        const SizedBox(height: 12),
-        TimeSelector(
-          hours: hours,
-          minutes: minutes,
-          onTap: onPickTime,
-        ),
+        const SizedBox(height: 14),
+        TimeSelector(hours: hours, minutes: minutes, onTap: onPickTime),
       ],
     );
   }

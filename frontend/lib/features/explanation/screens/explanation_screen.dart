@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
+import 'package:google_fonts/google_fonts.dart';
 
 class ExplanationScreen extends StatelessWidget {
-  const ExplanationScreen({Key? key}) : super(key: key);
+  const ExplanationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF121217),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        title: Text(
+          'Como Funciona',
+          style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -19,98 +27,82 @@ class ExplanationScreen extends StatelessWidget {
         ),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Bem-vindo ao EVOLVERE!',
-              style: TextStyle(
+              style: GoogleFonts.inter(
                 color: Colors.white,
-                fontSize: math.max(
-                  28.0,
-                  MediaQuery.of(context).size.width * 0.08,
-                ),
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 1.5,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
-              'Seu guia para construir hábitos reais e duradouros.',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: math.max(
-                  16.0,
-                  MediaQuery.of(context).size.width * 0.045,
+              'Este aplicativo foi desenvolvido para ajudá-lo a construir hábitos saudáveis e alcançar seus objetivos pessoais.',
+              style: GoogleFonts.inter(color: Colors.white70, fontSize: 16),
+            ),
+            const SizedBox(height: 24),
+            _buildFeatureCard(
+              icon: Icons.category,
+              title: 'Categorias',
+              description:
+                  'Organize seus hábitos em categorias personalizadas para melhor controle e acompanhamento.',
+            ),
+            const SizedBox(height: 16),
+            _buildFeatureCard(
+              icon: Icons.repeat,
+              title: 'Frequência',
+              description:
+                  'Defina a frequência ideal para cada hábito e acompanhe seu progresso diariamente.',
+            ),
+            const SizedBox(height: 16),
+            _buildFeatureCard(
+              icon: Icons.timeline,
+              title: 'Progresso',
+              description:
+                  'Visualize seu progresso através de gráficos e estatísticas detalhadas.',
+            ),
+            const SizedBox(height: 16),
+            _buildFeatureCard(
+              icon: Icons.notifications,
+              title: 'Lembretes',
+              description:
+                  'Configure lembretes personalizados para nunca esquecer de praticar seus hábitos.',
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.blue.withOpacity(0.3),
+                  width: 1,
                 ),
               ),
-            ),
-            const SizedBox(height: 40),
-            _buildInfoSection(
-              context: context,
-              icon: Icons.track_changes,
-              title: 'Acompanhe seu Progresso',
-              description:
-                  'Monitore seus hábitos diários e veja sua evolução de forma clara e intuitiva.',
-            ),
-            const SizedBox(height: 20),
-            _buildInfoSection(
-              context: context,
-              icon: Icons.lightbulb_outline,
-              title: 'Inspire-se e Motive-se',
-              description:
-                  'Receba dicas e insights para manter o foco e superar desafios.',
-            ),
-            const SizedBox(height: 20),
-            _buildInfoSection(
-              context: context,
-              icon: Icons.emoji_events_outlined,
-              title: 'Metas e Conquistas',
-              description:
-                  'Estabeleça objetivos claros e celebre cada conquista em sua jornada de transformação!',
-            ),
-            const SizedBox(height: 40),
-            Center(
-              child: Text(
-                'Comece hoje mesmo sua jornada de transformação!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: math.max(
-                    18.0,
-                    MediaQuery.of(context).size.width * 0.055,
-                  ),
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width * 0.1,
-                    vertical: 15,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: Text(
-                  'Entendi!',
-                  style: TextStyle(
-                    fontSize: math.max(
-                      16.0,
-                      MediaQuery.of(context).size.width * 0.045,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '💡 Dica',
+                    style: GoogleFonts.inter(
+                      color: Colors.blue,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                    color: Colors.white,
                   ),
-                ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Comece com poucos hábitos e aumente gradualmente. A consistência é mais importante que a quantidade!',
+                    style: GoogleFonts.inter(
+                      color: Colors.white70,
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -119,65 +111,45 @@ class ExplanationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoSection({
-    required BuildContext context,
+  Widget _buildFeatureCard({
     required IconData icon,
     required String title,
     required String description,
   }) {
     return Container(
-      padding: EdgeInsets.all(
-        math.max(16.0, MediaQuery.of(context).size.width * 0.04),
-      ),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
       ),
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(
-              math.max(10.0, MediaQuery.of(context).size.width * 0.025),
-            ),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.blue.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: Colors.blueAccent,
-              size: math.max(24.0, MediaQuery.of(context).size.width * 0.07),
-            ),
+            child: Icon(icon, color: Colors.blue, size: 24),
           ),
-          SizedBox(
-            width: math.max(12.0, MediaQuery.of(context).size.width * 0.03),
-          ),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     color: Colors.white,
-                    fontSize: math.max(
-                      16.0,
-                      MediaQuery.of(context).size.width * 0.048,
-                    ),
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   description,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: math.max(
-                      12.0,
-                      MediaQuery.of(context).size.width * 0.035,
-                    ),
-                  ),
+                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),

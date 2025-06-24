@@ -11,10 +11,16 @@ class TermsCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
 
     return Row(
       children: [
-        Checkbox(value: value, onChanged: onChanged),
+        Checkbox(
+          value: value,
+          onChanged: onChanged,
+          activeColor: Colors.blue,
+          checkColor: Colors.white,
+        ),
         Expanded(
           child: GestureDetector(
             onTap: () {
@@ -23,7 +29,7 @@ class TermsCheckbox extends StatelessWidget {
             child: Text(
               'Li e aceito os termos e condições',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.blue,
+                color: isLightMode ? Colors.blue.shade700 : Colors.blue,
                 decoration: TextDecoration.underline,
               ),
             ),

@@ -27,6 +27,7 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isMultiline = maxLines > 1;
+    final isLightMode = Theme.of(context).brightness == Brightness.light;
 
     return TextFormField(
       controller: controller,
@@ -34,15 +35,22 @@ class CustomTextField extends StatelessWidget {
       obscureText: obscureText,
       maxLines: maxLines,
       maxLength: maxLength,
-      style: const TextStyle(color: Colors.white),
+      style: TextStyle(color: isLightMode ? Colors.black87 : Colors.white),
       validator: validator,
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Colors.white70),
+        labelStyle: TextStyle(
+          color: isLightMode ? Colors.black54 : Colors.white70,
+        ),
         filled: true,
-        fillColor: const Color(0xFF222222),
-        prefixIcon: icon != null ? Icon(icon, color: Colors.white70) : null,
-        suffixIcon: suffixIcon,
+        fillColor: isLightMode ? Colors.grey.shade50 : const Color(0xFF222222),
+        prefixIcon:
+            icon != null
+                ? Icon(
+                  icon,
+                  color: isLightMode ? Colors.black54 : Colors.white70,
+                )
+                : null,
         contentPadding: EdgeInsets.symmetric(
           vertical: isMultiline ? 24 : 20,
           horizontal: 14,
@@ -53,9 +61,14 @@ class CustomTextField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Color(0xFF007AFF), width: 2),
+          borderSide: BorderSide(
+            color: isLightMode ? Colors.blue : const Color(0xFF007AFF),
+            width: 2,
+          ),
         ),
-        counterStyle: const TextStyle(color: Colors.white54),
+        counterStyle: TextStyle(
+          color: isLightMode ? Colors.black45 : Colors.white54,
+        ),
         errorStyle: const TextStyle(color: Colors.red),
       ),
     );

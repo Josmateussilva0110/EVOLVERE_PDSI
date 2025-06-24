@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../widgets/form_container.dart';
-import '../widgets/login_options.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginForm extends StatefulWidget {
@@ -17,207 +17,200 @@ class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
   bool _obscurePassword = true;
-  bool _lembrarSenha = false;
-  bool _isButtonEnabled = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _emailController.addListener(_updateButtonState);
-    _passwordController.addListener(_updateButtonState);
-    _updateButtonState();
-  }
 
   @override
   void dispose() {
-    _emailController.removeListener(_updateButtonState);
-    _passwordController.removeListener(_updateButtonState);
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _updateButtonState() {
-    setState(() {
-      _isButtonEnabled =
-          _emailController.text.isNotEmpty &&
-          _passwordController.text.isNotEmpty;
-    });
+  Future<void> _handleLogin() async {
+    if (_formKey.currentState!.validate()) {
+      final response = await http.post(
+        Uri.parse('${dotenv.env['API_URL']}/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData =
+            jsonDecode(response.body);
+        final int? userId = responseData['userId'];
+        final String? username = responseData['username'];
+        final String? email = responseData['email'];
+
+        if (userId != null && username != null && email != null) {
+          final SharedPreferences prefs =
+              await SharedPreferences.getInstance();
+          await prefs.setInt('loggedInUserId', userId);
+          await prefs.setString('username', username);
+          await prefs.setString('email', email);
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login realizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pushReplacementNamed(
+          context,
+          '/inicio',
+        );
+      } else {
+        String errorMessage = 'Erro no login';
+        try {
+          final Map<String, dynamic> data = jsonDecode(
+            response.body,
+          );
+          if (data.containsKey('err')) {
+            errorMessage = data['err'];
+          }
+        } catch (_) {}
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final isSmallScreen = size.height < 600;
-
     return FormContainer(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'E-mail',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.email, color: Colors.white70),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white30),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.blue),
-                  ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            TextFormField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              style: GoogleFonts.inter(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                labelStyle: GoogleFonts.inter(color: Colors.white70),
+                prefixIcon: Icon(Icons.email, color: Colors.white70),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira seu e-mail';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Por favor, insira um e-mail válido';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: isSmallScreen ? 8 : 12),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Senha',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                  prefixIcon: const Icon(Icons.lock, color: Colors.white70),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Colors.white70,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.white30),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: const BorderSide(color: Colors.blue),
-                  ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, insira sua senha';
-                  }
-                  return null;
-                },
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white, width: 2),
+                ),
               ),
-              SizedBox(height: isSmallScreen ? 8 : 12),
-              LoginOptionsRow(
-                lembrarSenha: _lembrarSenha,
-                onLembrarSenhaChanged: (value) {
-                  setState(() => _lembrarSenha = value);
-                },
-                onEsqueciSenha: () {
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor, insira seu email';
+                }
+                if (!RegExp(
+                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                ).hasMatch(value)) {
+                  return 'Por favor, insira um email válido';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _passwordController,
+              obscureText: _obscurePassword,
+              style: GoogleFonts.inter(color: Colors.white),
+              decoration: InputDecoration(
+                labelText: 'Senha',
+                labelStyle: GoogleFonts.inter(color: Colors.white70),
+                prefixIcon: Icon(Icons.lock, color: Colors.white70),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                    color: Colors.white70,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white30),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.white, width: 2),
+                ),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor, insira sua senha';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton(
+                onPressed: () {
                   Navigator.pushNamed(context, '/esqueci_senha');
                 },
-              ),
-              SizedBox(height: isSmallScreen ? 16 : 24),
-              ElevatedButton(
-                onPressed:
-                    _isButtonEnabled
-                        ? () async {
-                          if (_formKey.currentState!.validate()) {
-                            final response = await http.post(
-                              Uri.parse('${dotenv.env['API_URL']}/login'),
-                              headers: {'Content-Type': 'application/json'},
-                              body: jsonEncode({
-                                'email': _emailController.text,
-                                'password': _passwordController.text,
-                              }),
-                            );
-
-                            if (response.statusCode == 200) {
-                              final Map<String, dynamic> responseData =
-                                  jsonDecode(response.body);
-                              final int? userId = responseData['userId'];
-                              final String? username = responseData['username'];
-                              final String? email = responseData['email'];
-
-                              if (userId != null && username != null && email != null) {
-                                final SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                await prefs.setInt('loggedInUserId', userId);
-                                await prefs.setString('username', username);
-                                await prefs.setString('email', email);
-                              }
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Login realizado com sucesso!'),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                              Navigator.pushReplacementNamed(
-                                context,
-                                '/inicio',
-                              );
-                            } else {
-                              String errorMessage = 'Erro no login';
-                              try {
-                                final Map<String, dynamic> data = jsonDecode(
-                                  response.body,
-                                );
-                                if (data.containsKey('err')) {
-                                  errorMessage = data['err'];
-                                }
-                              } catch (_) {}
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(errorMessage),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          }
-                        }
-                        : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
                 child: Text(
-                  'Entrar',
-                  style: TextStyle(
-                    fontSize: isSmallScreen ? 16 : 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  'Esqueceu a senha?',
+                  style: GoogleFonts.inter(color: Colors.white70, fontSize: 12),
                 ),
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _handleLogin,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child:
+                    _isLoading
+                        ? SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.black,
+                            ),
+                          ),
+                        )
+                        : Text(
+                          'Entrar',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+              ),
+            ),
+          ],
         ),
       ),
     );
