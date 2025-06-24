@@ -3,7 +3,6 @@ import '../../../components/auth_header.dart';
 import '../components/login_form.dart';
 import '../../widgets/footer.dart';
 import '../../../components/neon_background.dart';
-import '../widgets/logo_dialog.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});

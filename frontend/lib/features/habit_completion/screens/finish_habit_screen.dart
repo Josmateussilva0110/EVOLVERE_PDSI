@@ -4,8 +4,6 @@ import '../../listHabits/models/HabitModel.dart';
 import '../model/Finish_habit_model.dart';
 import '../service/finish_habit_service.dart';
 import '../components/finish_habit_form.dart';
-import '../widgets/reflection_input.dart';
-import '../widgets/location_input.dart';
 
 class FinishHabitScreen extends StatefulWidget {
   final Habit habit;

@@ -16,7 +16,6 @@ class HabitsListPage extends StatefulWidget {
 }
 
 class _HabitsListPageState extends State<HabitsListPage> {
-  Future<List<Habit>> _habitsFuture = Future.value([]);
   String? searchQuery = '';
   String selectedFilter = 'Todos';
   int? userId;
@@ -279,8 +278,6 @@ class _HabitsListPageState extends State<HabitsListPage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenHeight < 700 || screenWidth < 500;
-    final isVerySmallScreen = screenHeight < 600 || screenWidth < 400;
-    final isNarrowScreen = screenWidth < 400;
     final isLandscape = screenWidth > screenHeight;
     final isTablet = screenWidth > 700;
 
@@ -294,9 +291,6 @@ class _HabitsListPageState extends State<HabitsListPage> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final useGrid = isLandscape || isTablet;
-        final crossAxisCount = useGrid ? (isTablet ? 3 : 2) : 1;
-        final cardAspectRatio = useGrid ? 1.7 : 2.8;
         return Scaffold(
           backgroundColor: const Color(0xFF0A0A0A),
           appBar: AppBar(

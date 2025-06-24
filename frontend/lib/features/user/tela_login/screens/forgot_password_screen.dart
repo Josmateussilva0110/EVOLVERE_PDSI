@@ -4,8 +4,7 @@ import '../../../components/auth_header.dart';
 import '../../widgets/form_container.dart';
 import '../../../components/neon_background.dart';
 import '../service/login_service.dart';
-import 'Verify_code_screen.dart';
-
+import 'verify_code_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   @override
@@ -14,6 +13,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
   bool _isLoading = false;
   String? recoveryToken;
 
@@ -26,10 +27,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _handleSendEmail() async {
     final email = _emailController.text.trim();
 
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Por favor, insira um email')));
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
@@ -40,21 +38,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     setState(() => _isLoading = false);
 
     print('RESULT: ${result}');
-    print('RESULT: ${result}');
-    print('RESULT: ${result}');
-    print('RESULT: ${result}');
-    print('RESULT: ${result['token']}');
-
-    if (result['success']) {
-      recoveryToken = result['token'];
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder:
-              (context) =>
-                  VerifyCodeScreen(email: email, token: recoveryToken!),
-        ),
-      );
-    }
+    print('TOKEN: ${result['token']}');
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -62,56 +46,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         backgroundColor: result['success'] ? Colors.green : Colors.red,
       ),
     );
-  }
 
-}
-
-class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleResetPassword() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      // Simular delay de envio
-      await Future.delayed(Duration(seconds: 2));
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Email de redefinição enviado com sucesso!'),
-            backgroundColor: Colors.green,
+    if (result['success']) {
+      recoveryToken = result['token'];
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => VerifyCodeScreen(
+            email: email,
+            token: recoveryToken!,
           ),
-        );
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao enviar email: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+        ),
+      );
     }
   }
 
@@ -123,8 +68,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+            size: 28,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: NeonBackground(
@@ -159,21 +108,21 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               labelStyle: GoogleFonts.inter(
                                 color: Colors.white70,
                               ),
-                              prefixIcon: Icon(
+                              prefixIcon: const Icon(
                                 Icons.email,
                                 color: Colors.white70,
                               ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(color: Colors.white30),
+                                borderSide: const BorderSide(color: Colors.white30),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(color: Colors.white30),
+                                borderSide: const BorderSide(color: Colors.white30),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide(
+                                borderSide: const BorderSide(
                                   color: Colors.white,
                                   width: 2,
                                 ),
@@ -183,9 +132,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor, insira seu email';
                               }
-                              if (!RegExp(
-                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                              ).hasMatch(value)) {
+                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                  .hasMatch(value)) {
                                 return 'Por favor, insira um email válido';
                               }
                               return null;
@@ -196,8 +144,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             width: double.infinity,
                             height: 48,
                             child: ElevatedButton(
-                              onPressed:
-                                  _isLoading ? null : _handleResetPassword,
+                              onPressed: _isLoading ? null : _handleSendEmail,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
                                 foregroundColor: Colors.black,
@@ -205,26 +152,25 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
-                              child:
-                                  _isLoading
-                                      ? SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                Colors.black,
-                                              ),
-                                        ),
-                                      )
-                                      : Text(
-                                        'Enviar Email',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
+                              child: _isLoading
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                          Colors.black,
                                         ),
                                       ),
+                                    )
+                                  : Text(
+                                      'Enviar Email',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                             ),
                           ),
                         ],
