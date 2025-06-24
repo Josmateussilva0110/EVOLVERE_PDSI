@@ -332,6 +332,25 @@ class HabitController {
             response.status(500).json({ err: "Erro ao buscar o total de hábitos ativos." });
         }
     }
+
+    async getHabitsProgress(request, response) {
+        const habit_id = request.params.habit_id
+        if (!habit_id || isNaN(habit_id)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+
+        try {
+            const habit_progress = await Habit.getAllProgressHabits(habit_id)
+            if(habit_progress != undefined) {
+                response.status(200).json({habit_progress: habit_progress})
+            }
+            else {
+                response.status(404).json({ err: "progressos não encontrados."})
+            }
+        } catch(err) {
+            response.status(500).json({ err: "Erro ao buscar progresso de habitos."})
+        }
+    }
 }
 
 module.exports = new HabitController()

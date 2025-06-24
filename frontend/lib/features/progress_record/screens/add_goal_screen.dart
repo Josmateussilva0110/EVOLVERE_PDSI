@@ -159,7 +159,7 @@ class AddGoalScreenState extends State<AddGoalScreen>
         );
       }
       await Future.delayed(const Duration(milliseconds: 500));
-      if (mounted) Navigator.pop(context);
+      if (mounted) Navigator.pop(context, true);
     } else {
       // Erro
       if (mounted) {

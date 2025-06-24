@@ -1,9 +1,6 @@
 var knex = require("../database/connection")
 const formatDateForMySQL = require("../utils/format_date")
 
-
-
-
 class Habit {
 
     async findName(name) {
@@ -417,6 +414,39 @@ class Habit {
         } catch (err) {
             console.error('Erro ao buscar hábitos completados por mês:', err);
             return {};
+        }
+    }
+
+    async getAllProgressHabits(habit_id) {
+        try {
+            const result = await knex.raw(`
+                SELECT 
+                    id, 
+                    habit_id, 
+                    name, 
+                    parameter,
+                    type,
+                    CASE 
+                        WHEN type = 0 THEN 'automático'
+                        WHEN type = 1 THEN 'manual'
+                        WHEN type = 2 THEN 'acumulativa'
+                        ELSE 'desconhecido'
+                    END AS type_description
+                FROM habit_progress 
+                WHERE habit_id = ?
+            `, [habit_id]);
+
+            const rows = result[0]
+
+            if(rows.length > 0) {
+                return rows
+            }
+            else {
+                return undefined
+            }
+        } catch(err) {
+            console.log('erro em buscar progressos do habito.', err)
+            return undefined
         }
     }
 }
