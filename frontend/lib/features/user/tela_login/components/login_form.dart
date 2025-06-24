@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/form_container.dart';
-import '../../../user/tela_login/screens/forgot_password_screen.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -25,33 +28,58 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (_formKey.currentState!.validate()) {
+      final response = await http.post(
+        Uri.parse('${dotenv.env['API_URL']}/login'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailController.text,
+          'password': _passwordController.text,
+        }),
+      );
 
-    setState(() {
-      _isLoading = true;
-    });
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData =
+            jsonDecode(response.body);
+        final int? userId = responseData['userId'];
+        final String? username = responseData['username'];
+        final String? email = responseData['email'];
 
-    try {
-      // Simular delay de login
-      await Future.delayed(Duration(seconds: 2));
+        if (userId != null && username != null && email != null) {
+          final SharedPreferences prefs =
+              await SharedPreferences.getInstance();
+          await prefs.setInt('loggedInUserId', userId);
+          await prefs.setString('username', username);
+          await prefs.setString('email', email);
+        }
 
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/inicio');
-      }
-    } catch (e) {
-      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao fazer login: $e'),
+            content: Text('Login realizado com sucesso!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pushReplacementNamed(
+          context,
+          '/inicio',
+        );
+      } else {
+        String errorMessage = 'Erro no login';
+        try {
+          final Map<String, dynamic> data = jsonDecode(
+            response.body,
+          );
+          if (data.containsKey('err')) {
+            errorMessage = data['err'];
+          }
+        } catch (_) {}
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
             backgroundColor: Colors.red,
           ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
       }
     }
   }

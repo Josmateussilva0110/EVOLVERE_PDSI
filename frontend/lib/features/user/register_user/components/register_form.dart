@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../widgets/form_container.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class RegisterForm extends StatefulWidget {
   const RegisterForm({super.key});
@@ -29,40 +33,49 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 
   Future<void> _handleRegister() async {
-    if (!_formKey.currentState!.validate()) return;
+
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/user'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'username': _nameController.text,
+        'email': _emailController.text,
+        'password': _passwordController.text,
+      }),
+    );
 
     setState(() {
       _isLoading = true;
     });
 
-    try {
-      // Simular delay de cadastro
-      await Future.delayed(Duration(seconds: 2));
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Cadastro realizado com sucesso!',
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pushReplacementNamed(context, '/');
+    } else {
+      String errorMessage =
+          'Erro ao cadastrar. Tente novamente.';
+      try {
+        final Map<String, dynamic> data = jsonDecode(
+          response.body,
+        );
+        if (data.containsKey('err')) {
+          errorMessage = data['err'];
+        }
+      } catch (_) {}
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Conta criada com sucesso!'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.pushReplacementNamed(context, '/login');
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao criar conta: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 

@@ -243,7 +243,6 @@ class WelcomeNeonPainter extends CustomPainter {
       double t = animation * 2 * math.pi + circle.phase;
       double sizeVar =
           math.sin(t) * 0.22 + 1.08; // menos variação, mais suave, maior base
-      double opacityVar = math.cos(t) * 0.18 + 1.0; // menos variação
       double dynamicSize = circle.baseSize * sizeVar;
       //double dynamicOpacity = (circle.baseOpacity * opacityVar).clamp(
       //  0.10,
