@@ -23,6 +23,14 @@ class Habit {
     required this.status
   });
 
+  @override
+  String toString() {
+    return 'Habit(id: $id, name: $name, description: $description, '
+          'categoryName: $categoryName, frequency: $frequency, '
+          'startDate: $startDate, endDate: $endDate, '
+          'priority: $priority, reminders: $reminders, status: $status)';
+  }
+
   factory Habit.fromJson(Map<String, dynamic> json) {
     return Habit(
       id: json['id'],
@@ -50,6 +58,11 @@ class Frequency {
   final String option;
 
   Frequency({required this.value, required this.option});
+
+  @override
+  String toString() {
+    return 'Frequency(option: $option, value: $value)';
+  }
 
   factory Frequency.fromJson(Map<String, dynamic> json) {
   final value = json['value'];
