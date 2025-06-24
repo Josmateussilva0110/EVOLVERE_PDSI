@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../screens/add_goal_screen.dart';
 import '../widgets/action_icon.dart';
 import '../model/Goal.dart';
+import '../service/progress_record_service.dart';
 
 class GoalActionsBottomSheet extends StatelessWidget {
   final Goal goal;
@@ -51,14 +52,15 @@ class GoalActionsBottomSheet extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => AddGoalScreen(
-                        habitId: habitId,
-                        initialName: goal.title,
-                        initialType: goalTypeToIndex(goal.type),
-                        initialParameter: goal.progress ?? 10,
-                        initialInterval: 0,
-                        isEditing: true,
-                      ),
+                      builder:
+                          (_) => AddGoalScreen(
+                            habitId: habitId,
+                            initialName: goal.title,
+                            initialType: goalTypeToIndex(goal.type),
+                            initialParameter: goal.progress ?? 10,
+                            initialInterval: 0,
+                            isEditing: true,
+                          ),
                     ),
                   );
                 },
@@ -66,10 +68,23 @@ class GoalActionsBottomSheet extends StatelessWidget {
               ActionIcon(
                 icon: Icons.delete,
                 label: 'Excluir',
-                onTap: () {
-                  Navigator.pop(context);
+                onTap: () async {
+                  Navigator.pop(context); 
+
+                  final success = await ProgressRecordService.deleteProgress(goal.id!);
+
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Progresso excluído com sucesso')),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Erro ao excluir progresso')),
+                    );
+                  }
                 },
               ),
+
             ],
           ),
         ],

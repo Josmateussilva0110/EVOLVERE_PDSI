@@ -33,6 +33,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
       goals =
           progressList.map((e) {
             return Goal(
+              id: e.id,
               title: e.name ?? 'Meta sem nome',
               type: e.type_description ?? 'Monitorado',
               progress: e.parameter ?? 0,
