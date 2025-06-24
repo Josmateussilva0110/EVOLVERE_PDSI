@@ -64,6 +64,30 @@ class ProgressController {
         }
     }
 
+    async removeProgress(request, response) {
+        const id = request.params.id
+        if (!id || isNaN(id)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+
+        try {
+            const progress = await Progress.progressExists(id)
+            if(!progress) {
+                return response.status(404).json({err: "progresso não encontrado."})
+            }
+            var result = await Progress.delete(id)
+            if(result) {
+                response.status(200).json({message: "Progresso removido com sucesso."})
+            }
+            else {
+                response.status(500).json({err: "Erro ao remover progresso"})
+            }
+
+        } catch(err) {
+            response.status(500).json({ err: "falha ao remover progresso."})
+        }
+    }
+
 }
 
 module.exports = new ProgressController()

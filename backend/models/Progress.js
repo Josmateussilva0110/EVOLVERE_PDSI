@@ -58,6 +58,31 @@ class Progress {
             return undefined
         }
     }
+
+    async progressExists(id) {
+        try {
+            var result = await knex.select(["id"]).from("habit_progress").where({id: id})
+            if(result.length > 0) {
+                return true
+            }
+            else {
+                return false
+            }
+        } catch(err) {
+            console.log('erro em buscar id do progresso: ', err)
+            return false
+        }
+    }
+
+    async delete(id) {
+        try {
+            await knex("habit_progress").where({id: id}).del()
+            return true
+        } catch(err) {
+            console.log('erro ao deletar habito: ', err)
+            return false
+        }
+    }
 }
 
 module.exports = new Progress()
