@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../services/category_service.dart';
 import '../widgets/category_list_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CategoryList extends StatefulWidget {
   const CategoryList({super.key});
@@ -13,16 +14,29 @@ class CategoryList extends StatefulWidget {
 class CategoryListState extends State<CategoryList> {
   List<Category> _categories = []; // Nova lista para categorias arquivadas
   bool _isLoading = true;
+  int? _userId;
+
+  void _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('loggedInUserId');
+    if (userId != null) {
+      setState(() {
+        _userId = userId;
+      });
+      await loadCategories(); 
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    loadCategories();
+    _loadUserData();
   }
+
 
   Future<void> loadCategories() async {
     try {
-      final categories = await CategoryService.getCategories();
+      final categories = await CategoryService.getCategories(_userId!);
       // Separa as categorias ativas e arquivadas
       final activeCategories =
           categories.where((category) => !category.archived).toList();

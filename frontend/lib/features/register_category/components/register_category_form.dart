@@ -8,6 +8,7 @@ import '../widgets/icon_picker.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterFormCategory extends StatefulWidget {
   final dynamic category;
@@ -20,6 +21,7 @@ class RegisterFormCategory extends StatefulWidget {
 class _RegisterFormCategoryState extends State<RegisterFormCategory> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  int? _userId;
   final List<Color> _colorsAvailable = [
     Colors.red,
     Colors.green,
@@ -32,9 +34,20 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
   Color _selectedColor = Colors.red;
   File? _image;
 
+  void _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('loggedInUserId');
+    setState(() {
+      _userId = userId;
+    });
+    print('USER ID: $_userId');
+  }
+
+
   @override
   void initState() {
     super.initState();
+    _loadUserData();
     if (widget.category != null) {
       _nameController.text = widget.category.name ?? '';
       _descriptionController.text = widget.category.description ?? '';
@@ -67,7 +80,8 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
           )
           ..fields['name'] = _nameController.text
           ..fields['description'] = _descriptionController.text
-          ..fields['color'] = colorToHex(_selectedColor);
+          ..fields['color'] = colorToHex(_selectedColor)
+          ..fields['user_id'] = _userId.toString();
 
     if (_image != null) {
       request.files.add(
@@ -178,7 +192,7 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            onPressed: _submitCategory,
+            onPressed: _userId == null ? null : _submitCategory,
             child: const Text(
               'Cadastrar',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),

@@ -19,6 +19,23 @@ class Habit {
     }
 
 
+    async findNameByIdUser(name, user_id) {
+        try {
+            var result = await knex.select("*").from("habits").where({name: name}).andWhere('user_id', user_id)
+            if(result.length > 0) {
+                return true
+            }
+            else {
+                return false
+            }
+        } catch(err) {
+            console.log('erro em buscar nome do habito: ', err)
+            return false
+        }
+    }
+
+
+
 
     async habitExist(id) {
         try {

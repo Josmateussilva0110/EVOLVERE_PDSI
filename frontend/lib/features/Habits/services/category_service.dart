@@ -4,12 +4,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 
 class CategoryService {
-  static Future<List<Map<String, dynamic>>> fetchCategories() async {
+  static Future<List<Map<String, dynamic>>> fetchCategories(int user_id) async {
     List<Map<String, dynamic>> loadedCategories = [];
 
     try {
       final response = await http.get(
-        Uri.parse('${dotenv.env['API_URL']}/categories'),
+        Uri.parse('${dotenv.env['API_URL']}/categories/$user_id'),
       );
 
       if (response.statusCode == 200) {

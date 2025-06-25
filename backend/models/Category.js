@@ -2,7 +2,7 @@ var knex = require("../database/connection")
 
 class Category {
 
-    async findAll() {
+    async findAll(user_id) {
         try {
             const result = await knex.select([
                 "id",
@@ -10,7 +10,7 @@ class Category {
                 "description",
                 "color",
                 "icon"
-            ]).where('archived', false).from("category");
+            ]).where('archived', false).andWhere('user_id', user_id).from("category");
             return result;
         } catch(err) {
             console.log(err);
@@ -29,6 +29,21 @@ class Category {
             }
         } catch(err) {
             console.log('erro em buscar categoria: ', err)
+            return false
+        }
+    }
+
+    async findNameByIdUser(name, user_id) {
+        try {
+            var result = await knex.select("*").from("category").where({name: name}).andWhere('user_id', user_id)
+            if(result.length > 0) {
+                return true
+            }
+            else {
+                return false
+            }
+        } catch(err) {
+            console.log('erro em buscar nome de categoria: ', err)
             return false
         }
     }
@@ -61,9 +76,9 @@ class Category {
         }
     }
 
-    async new(name, description, color, icon) {
+    async new(name, description, color, icon, user_id) {
         try {
-            await knex.insert({name, description, color, icon}).table("category")
+            await knex.insert({name, description, color, icon, user_id}).table("category")
             return true
         } catch(err) {
             console.log('erro em adicionar categoria: ', err)
@@ -92,7 +107,7 @@ class Category {
         }
     }
 
-    async findArchived() {
+    async findArchived(user_id) {
         try {
             const result = await knex.select([
                 "id",
@@ -100,7 +115,7 @@ class Category {
                 "description",
                 "color",
                 "icon"
-            ]).where('archived', true).from("category");
+            ]).where('archived', true).andWhere('user_id', user_id).from("category");
             if(result.length > 0)
                 return result;
             else 
@@ -111,7 +126,7 @@ class Category {
         }
     }
 
-    async findNotArchived() {
+    async findNotArchived(user_id) {
         try {
             const result = await knex.select([
                 "id",
@@ -119,7 +134,7 @@ class Category {
                 "description",
                 "color",
                 "icon"
-            ]).where('archived', false).from("category");
+            ]).where('archived', false).knex.andWhere('user_id', user_id).from("category");
             if(result.length > 0)
                 return result;
             else 
