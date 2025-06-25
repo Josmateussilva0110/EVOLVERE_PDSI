@@ -18,6 +18,7 @@ class Habit {
         }
     }
 
+
     async findNameByIdUser(name, user_id) {
         try {
             var result = await knex.select("*").from("habits").where({name: name}).andWhere('user_id', user_id)
@@ -32,6 +33,7 @@ class Habit {
             return false
         }
     }
+
 
 
 
