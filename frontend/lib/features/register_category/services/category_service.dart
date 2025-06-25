@@ -4,10 +4,10 @@ import 'dart:convert';
 import '../models/category.dart';
 
 class CategoryService {
-  static Future<List<Category>> getCategories() async {
+  static Future<List<Category>> getCategories(int user_id) async {
     try {
       final response = await http.get(
-        Uri.parse('${dotenv.env['API_URL']}/categories'),
+        Uri.parse('${dotenv.env['API_URL']}/categories/$user_id'),
         headers: {'Content-Type': 'application/json'},
       );
 
@@ -33,10 +33,10 @@ class CategoryService {
     }
   }
 
-  static Future<List<Category>> getArchivedCategories() async {
+  static Future<List<Category>> getArchivedCategories(int user_id) async {
     try {
       final response = await http.get(
-        Uri.parse('${dotenv.env['API_URL']}/categories/archived'),
+        Uri.parse('${dotenv.env['API_URL']}/categories/archived/$user_id'),
       );
 
       if (response.statusCode == 200) {

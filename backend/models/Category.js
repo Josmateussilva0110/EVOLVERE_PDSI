@@ -2,7 +2,7 @@ var knex = require("../database/connection")
 
 class Category {
 
-    async findAll() {
+    async findAll(user_id) {
         try {
             const result = await knex.select([
                 "id",
@@ -10,7 +10,7 @@ class Category {
                 "description",
                 "color",
                 "icon"
-            ]).where('archived', false).from("category");
+            ]).where('archived', false).andWhere('user_id', user_id).from("category");
             return result;
         } catch(err) {
             console.log(err);
@@ -107,7 +107,7 @@ class Category {
         }
     }
 
-    async findArchived() {
+    async findArchived(user_id) {
         try {
             const result = await knex.select([
                 "id",
@@ -115,7 +115,7 @@ class Category {
                 "description",
                 "color",
                 "icon"
-            ]).where('archived', true).from("category");
+            ]).where('archived', true).andWhere('user_id', user_id).from("category");
             if(result.length > 0)
                 return result;
             else 
@@ -126,7 +126,7 @@ class Category {
         }
     }
 
-    async findNotArchived() {
+    async findNotArchived(user_id) {
         try {
             const result = await knex.select([
                 "id",
@@ -134,7 +134,7 @@ class Category {
                 "description",
                 "color",
                 "icon"
-            ]).where('archived', false).from("category");
+            ]).where('archived', false).knex.andWhere('user_id', user_id).from("category");
             if(result.length > 0)
                 return result;
             else 

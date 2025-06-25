@@ -55,8 +55,13 @@ class CategoryController {
     }
   
     async getCategories(request, response) {
+        const id = request.params.id;
+        if (!id || isNaN(id)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
         try {
-            const categories = await Category.findAll();
+            const categories = await Category.findAll(id);
             if (categories.length > 0) {
                 response.status(200).json({ categories: categories });
             } else {
@@ -140,8 +145,13 @@ class CategoryController {
     }
 
     async getArchivedCategories(request, response) {
+        const id = request.params.id;
+        if (!id || isNaN(id)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
         try {
-            const categories = await Category.findArchived();
+            const categories = await Category.findArchived(id);
             if(categories)
                 response.status(200).json({ categories: categories });
             else {
@@ -162,7 +172,7 @@ class CategoryController {
             return response.status(400).json({ err: "ID inválido" });
         }
         try {
-            const categories = await Category.findNotArchived()
+            const categories = await Category.findNotArchived(id)
             if(categories)
                 response.status(200).json({ categories: categories })
             else {

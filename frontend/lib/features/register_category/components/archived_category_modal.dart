@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/category.dart';
 import '../services/category_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ArchivedCategoryModal extends StatefulWidget {
   final VoidCallback onCategoryRestoredOrDeleted;
@@ -15,15 +16,27 @@ class ArchivedCategoryModal extends StatefulWidget {
 class _ArchivedCategoryModalState extends State<ArchivedCategoryModal> {
   bool isLoading = true;
   List<Category> archivedCategories = [];
+  int? _userId;
+
+  void _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('loggedInUserId');
+    if (userId != null) {
+      setState(() {
+        _userId = userId;
+      });
+      await _loadArchived();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _loadArchived();
+    _loadUserData();
   }
 
   Future<void> _loadArchived() async {
-    archivedCategories = await CategoryService.getArchivedCategories();
+    archivedCategories = await CategoryService.getArchivedCategories(_userId!);
     setState(() => isLoading = false);
   }
 
