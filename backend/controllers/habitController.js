@@ -237,48 +237,6 @@ class HabitController {
         }
     }
 
-    async habitProgressCreate(request, response) {
-        var {habit_id, name, type, parameter} = request.body
-        habit_id = Number(habit_id)
-        type = Number(type)
-        parameter = Number(parameter)
-        if (!name || name.trim() === '') { 
-            response.status(400)
-            response.json({err: "nome invalido."})
-            return
-        }
-        if (isNaN(habit_id)) {
-            return response.status(400).json({ err: "Hábito invalido." })
-        }
-
-        if (isNaN(type)) {
-            return response.status(400).json({ err: "Tipo invalido." })
-        }
-
-        if (isNaN(parameter)) {
-            return response.status(400).json({ err: "Parâmetro invalido." })
-        }
-
-        var valid = await Habit.habitExist(habit_id)
-        if(!valid) {
-            response.status(404)
-            response.json({err: "Nenhum habito encontrado."})
-            return 
-        }
-        var nameExists = await Habit.findNameProgress(name)
-        if(nameExists) {
-            return response.status(406).json({err: "nome de progresso ja existe."})
-        }
-        var done = await Habit.newHabitProgress(habit_id, name, type, parameter)
-        if(done) {
-            response.status(200)
-            response.send('Progresso de habito adicionado com sucesso.')
-        }
-        else {
-            response.status(500)
-            response.json({err: "erro ao cadastrar progresso de habito."})
-        }
-    }
 
     async getHabitsCompletedToday(request, response) {
         const user_id = request.params.user_id;
@@ -333,24 +291,6 @@ class HabitController {
         }
     }
 
-    async getHabitsProgress(request, response) {
-        const habit_id = request.params.habit_id
-        if (!habit_id || isNaN(habit_id)) {
-            return response.status(400).json({ err: "Usuário inválido." });
-        }
-
-        try {
-            const habit_progress = await Habit.getAllProgressHabits(habit_id)
-            if(habit_progress != undefined) {
-                response.status(200).json({habit_progress: habit_progress})
-            }
-            else {
-                response.status(404).json({ err: "progressos não encontrados."})
-            }
-        } catch(err) {
-            response.status(500).json({ err: "Erro ao buscar progresso de habitos."})
-        }
-    }
 }
 
 module.exports = new HabitController()

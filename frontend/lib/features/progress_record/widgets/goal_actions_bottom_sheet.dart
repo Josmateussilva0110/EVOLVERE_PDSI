@@ -2,17 +2,26 @@ import 'package:flutter/material.dart';
 import '../screens/add_goal_screen.dart';
 import '../widgets/action_icon.dart';
 import '../model/Goal.dart';
+import '../service/progress_record_service.dart';
 
 class GoalActionsBottomSheet extends StatelessWidget {
   final Goal goal;
   final int habitId;
   final int Function(String) goalTypeToIndex;
+  final VoidCallback onDeleteSuccess;
+  final VoidCallback onCompleted;
+  final VoidCallback onCancel;
+  final VoidCallback onEdit;
 
   const GoalActionsBottomSheet({
     super.key,
     required this.goal,
     required this.habitId,
     required this.goalTypeToIndex,
+    required this.onDeleteSuccess,
+    required this.onCompleted,
+    required this.onCancel,
+    required this.onEdit,
   });
 
   @override
@@ -39,20 +48,42 @@ class GoalActionsBottomSheet extends StatelessWidget {
               ActionIcon(
                 icon: Icons.check,
                 label: 'Concluir',
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
+
+                  final success = await ProgressRecordService.completeProgress(
+                    goal.id!,
+                  );
+
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Progresso concluído com sucesso!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    onCompleted();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Erro ao completar progresso'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
               ActionIcon(
                 icon: Icons.edit,
                 label: 'Editar',
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  Navigator.push(
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (_) => AddGoalScreen(
                         habitId: habitId,
+                        goalId: goal.id,
                         initialName: goal.title,
                         initialType: goalTypeToIndex(goal.type),
                         initialParameter: goal.progress ?? 10,
@@ -60,14 +91,67 @@ class GoalActionsBottomSheet extends StatelessWidget {
                         isEditing: true,
                       ),
                     ),
-                  );
+                    );
+
+                    if (result == true) {
+                      onEdit();
+                    }
                 },
               ),
               ActionIcon(
                 icon: Icons.delete,
                 label: 'Excluir',
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
+
+                  final success = await ProgressRecordService.deleteProgress(
+                    goal.id!,
+                  );
+
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Progresso excluído com sucesso!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    onDeleteSuccess();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Erro ao excluir progresso'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                },
+              ),
+              ActionIcon(
+                icon: Icons.close,
+                label: 'Cancelar',
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  final success = await ProgressRecordService.cancelProgress(
+                    goal.id!,
+                  );
+
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Progresso cancelado'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    onCancel();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Erro ao cancelar progresso'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
             ],

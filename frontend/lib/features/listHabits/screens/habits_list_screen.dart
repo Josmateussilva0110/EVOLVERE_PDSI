@@ -38,6 +38,7 @@ class _HabitsListPageState extends State<HabitsListPage> {
     final allHabits = await HabitService.fetchAllHabits(userId!);
     // Buscar apenas hábitos ativos para exibição
     final activeHabits = await HabitService.fetchHabits(userId!);
+    print('HABIT: $activeHabits');
 
     setState(() {
       _allHabits = allHabits;

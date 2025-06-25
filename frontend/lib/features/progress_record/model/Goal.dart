@@ -1,4 +1,5 @@
 class Goal {
+  final int? id;
   final String title;
   final String type;
   final int? progress;
@@ -6,6 +7,7 @@ class Goal {
   final bool isProgressBar;
 
   Goal({
+    this.id,
     required this.title,
     required this.type,
     this.progress,

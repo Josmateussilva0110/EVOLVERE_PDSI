@@ -52,9 +52,7 @@ class _ArchivedHabitsModalState extends State<ArchivedHabitsModal> {
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenHeight < 700;
-    final isVerySmallScreen = screenHeight < 600;
 
     return Container(
       decoration: const BoxDecoration(

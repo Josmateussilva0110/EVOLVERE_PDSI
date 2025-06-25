@@ -27,8 +27,6 @@ class HabitCardWidget extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenHeight < 700;
-    final isVerySmallScreen = screenHeight < 600;
-    final isNarrowScreen = screenWidth < 400;
     final isGrid = screenWidth > screenHeight || screenWidth > 700;
 
     return Container(

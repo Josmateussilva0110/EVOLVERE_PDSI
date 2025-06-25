@@ -55,4 +55,65 @@ class ProgressRecordService {
       return [];
     }
   }
+
+  static Future<bool> deleteProgress(int id) async {
+    final response = await http.delete(
+      Uri.parse('${dotenv.env['API_URL']}/habit/progress/$id'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<bool> completeProgress(int id) async {
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/habit/progress/complete/$id'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<bool> cancelProgress(int id) async {
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/habit/progress/cancel/$id'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<String?> editProgressHabit(
+    ProgressRecordData habitData,
+  ) async {
+    final url = Uri.parse('${dotenv.env['API_URL']}/habit/progress/edit/${habitData.id}');
+
+    final body = {
+      'name': habitData.name,
+      'type': habitData.type,
+      'parameter': habitData.parameter,
+    };
+    try {
+      final response = await http.patch(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        return null; // sucesso
+      } else {
+        final json = jsonDecode(response.body);
+        return json['err'] ?? 'Erro desconhecido';
+      }
+    } catch (e) {
+      return 'Erro de conexão: $e';
+    }
+  }
 }

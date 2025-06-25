@@ -7,8 +7,20 @@ import 'goal_progress_info.dart';
 class GoalCard extends StatefulWidget {
   final Goal goal;
   final int habitId;
+  final VoidCallback onDeleteSuccess;
+  final VoidCallback onCompletedSuccess;
+  final VoidCallback onCanceledSuccess;
+  final VoidCallback onEditSuccess;
 
-  const GoalCard({super.key, required this.goal, required this.habitId});
+  const GoalCard({
+    super.key,
+    required this.goal,
+    required this.habitId,
+    required this.onDeleteSuccess,
+    required this.onCompletedSuccess,
+    required this.onCanceledSuccess,
+    required this.onEditSuccess,
+  });
 
   @override
   State<GoalCard> createState() => _GoalCardState();
@@ -37,11 +49,16 @@ class _GoalCardState extends State<GoalCard> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => GoalActionsBottomSheet(
-        goal: widget.goal,
-        habitId: widget.habitId,
-        goalTypeToIndex: _goalTypeToIndex,
-      ),
+      builder:
+          (context) => GoalActionsBottomSheet(
+            goal: widget.goal,
+            habitId: widget.habitId,
+            goalTypeToIndex: _goalTypeToIndex,
+            onDeleteSuccess: widget.onDeleteSuccess,
+            onCompleted: widget.onCompletedSuccess,
+            onCancel: widget.onCanceledSuccess,
+            onEdit: widget.onEditSuccess,
+          ),
     );
   }
 
