@@ -42,7 +42,7 @@ class Progress {
                         ELSE 'desconhecido'
                     END AS type_description
                 FROM habit_progress 
-                WHERE habit_id = ?
+                WHERE habit_id = ? and status = 1
             `, [habit_id]);
 
             const rows = result[0]
@@ -80,6 +80,16 @@ class Progress {
             return true
         } catch(err) {
             console.log('erro ao deletar habito: ', err)
+            return false
+        }
+    }
+
+    async complete(id) {
+        try {
+            await knex("habit_progress").where({id: id}).update({status: 2})
+            return true
+        } catch(err) {
+            console.log('erro ao completar habito: ', err)
             return false
         }
     }

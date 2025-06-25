@@ -88,6 +88,26 @@ class ProgressController {
         }
     }
 
+    async completeProgress(request, response) {
+        const id = request.params.id
+        if (!id || isNaN(id)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+        const progress = await Progress.progressExists(id)
+        if(!progress) {
+            return response.status(404).json({ err: "habito não encontrada" });
+        }
+        var result = await Progress.complete(id)
+        if(result) {
+            response.status(200)
+            response.json({message: "Habito concluído com sucesso."})
+        }
+        else {
+            response.status(500)
+            response.json({err: "Erro ao concluir habito."})
+        }
+    }
+
 }
 
 module.exports = new ProgressController()

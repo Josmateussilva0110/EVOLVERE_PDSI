@@ -66,4 +66,15 @@ class ProgressRecordService {
       return false;
     }
   }
+
+  static Future<bool> completeProgress(int id) async {
+    final response = await http.post(
+      Uri.parse('${dotenv.env['API_URL']}/habit/progress/complete/$id'),
+    );
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }

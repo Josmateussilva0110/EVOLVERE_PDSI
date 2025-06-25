@@ -9,6 +9,7 @@ class GoalActionsBottomSheet extends StatelessWidget {
   final int habitId;
   final int Function(String) goalTypeToIndex;
   final VoidCallback onDeleteSuccess;
+  final VoidCallback onCompleted;
 
   const GoalActionsBottomSheet({
     super.key,
@@ -16,6 +17,7 @@ class GoalActionsBottomSheet extends StatelessWidget {
     required this.habitId,
     required this.goalTypeToIndex,
     required this.onDeleteSuccess,
+    required this.onCompleted,
   });
 
   @override
@@ -42,8 +44,29 @@ class GoalActionsBottomSheet extends StatelessWidget {
               ActionIcon(
                 icon: Icons.check,
                 label: 'Concluir',
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
+
+                  final success = await ProgressRecordService.completeProgress(
+                    goal.id!,
+                  );
+
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Progresso concluído com sucesso!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    onCompleted();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Erro ao completar progresso'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
               ActionIcon(
@@ -71,9 +94,11 @@ class GoalActionsBottomSheet extends StatelessWidget {
                 icon: Icons.delete,
                 label: 'Excluir',
                 onTap: () async {
-                  Navigator.pop(context); 
+                  Navigator.pop(context);
 
-                  final success = await ProgressRecordService.deleteProgress(goal.id!);
+                  final success = await ProgressRecordService.deleteProgress(
+                    goal.id!,
+                  );
 
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -85,12 +110,21 @@ class GoalActionsBottomSheet extends StatelessWidget {
                     onDeleteSuccess();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Erro ao excluir progresso'), backgroundColor: Colors.red,),
+                      SnackBar(
+                        content: Text('Erro ao excluir progresso'),
+                        backgroundColor: Colors.red,
+                      ),
                     );
                   }
                 },
               ),
-
+              ActionIcon(
+                icon: Icons.close,
+                label: 'Cancelar',
+                onTap: () {
+                  Navigator.pop(context);
+                },
+              ),
             ],
           ),
         ],

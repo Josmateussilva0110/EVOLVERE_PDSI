@@ -8,13 +8,15 @@ class GoalCard extends StatefulWidget {
   final Goal goal;
   final int habitId;
   final VoidCallback onDeleteSuccess;
+  final VoidCallback onCompletedSuccess;
 
-    const GoalCard({
-      super.key,
-      required this.goal,
-      required this.habitId,
-      required this.onDeleteSuccess, 
-    });
+  const GoalCard({
+    super.key,
+    required this.goal,
+    required this.habitId,
+    required this.onDeleteSuccess,
+    required this.onCompletedSuccess,
+  });
 
   @override
   State<GoalCard> createState() => _GoalCardState();
@@ -43,12 +45,14 @@ class _GoalCardState extends State<GoalCard> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (context) => GoalActionsBottomSheet(
-        goal: widget.goal,
-        habitId: widget.habitId,
-        goalTypeToIndex: _goalTypeToIndex,
-        onDeleteSuccess: widget.onDeleteSuccess,
-      ),
+      builder:
+          (context) => GoalActionsBottomSheet(
+            goal: widget.goal,
+            habitId: widget.habitId,
+            goalTypeToIndex: _goalTypeToIndex,
+            onDeleteSuccess: widget.onDeleteSuccess,
+            onCompleted: widget.onCompletedSuccess,
+          ),
     );
   }
 
