@@ -103,6 +103,29 @@ class Progress {
             return false
         }
     }
+
+    async update(id, name, type, parameter) {
+        try {
+            const updates = {
+                name,
+                type,
+                parameter,
+            }
+
+            // Remove valor undefined ou null
+            Object.keys(updates).forEach(key => {
+                if (updates[key] === undefined) {
+                    delete updates[key]
+                }
+            })
+            
+            await knex.table("habit_progress").where({ id }).update(updates)
+            return true
+        } catch (err) {
+            console.log('erro em editar habito: ', err)
+            return false
+        }
+    }
 }
 
 module.exports = new Progress()

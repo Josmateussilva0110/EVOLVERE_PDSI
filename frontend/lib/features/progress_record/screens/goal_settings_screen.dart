@@ -97,6 +97,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
                                 onDeleteSuccess: fetchGoals, 
                                 onCompletedSuccess: fetchGoals,
                                 onCanceledSuccess: fetchGoals,
+                                onEditSuccess: fetchGoals,
                               );
                             } else {
                               return Padding(

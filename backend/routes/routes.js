@@ -67,6 +67,6 @@ router.get("/habits/progress/all/:habit_id", ProgressController.getHabitsProgres
 router.delete("/habit/progress/:id", ProgressController.removeProgress)
 router.post("/habit/progress/complete/:id", ProgressController.completeProgress)
 router.post("/habit/progress/cancel/:id", ProgressController.cancelProgress)
-
+router.patch("/habit/progress/edit/:id", ProgressController.editProgress)
 
 module.exports = router

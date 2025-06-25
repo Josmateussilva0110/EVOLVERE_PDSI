@@ -88,4 +88,32 @@ class ProgressRecordService {
       return false;
     }
   }
+
+  static Future<String?> editProgressHabit(
+    ProgressRecordData habitData,
+  ) async {
+    final url = Uri.parse('${dotenv.env['API_URL']}/habit/progress/edit/${habitData.id}');
+
+    final body = {
+      'name': habitData.name,
+      'type': habitData.type,
+      'parameter': habitData.parameter,
+    };
+    try {
+      final response = await http.patch(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        return null; // sucesso
+      } else {
+        final json = jsonDecode(response.body);
+        return json['err'] ?? 'Erro desconhecido';
+      }
+    } catch (e) {
+      return 'Erro de conexão: $e';
+    }
+  }
 }

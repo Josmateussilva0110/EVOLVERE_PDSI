@@ -10,6 +10,7 @@ class GoalCard extends StatefulWidget {
   final VoidCallback onDeleteSuccess;
   final VoidCallback onCompletedSuccess;
   final VoidCallback onCanceledSuccess;
+  final VoidCallback onEditSuccess;
 
   const GoalCard({
     super.key,
@@ -18,6 +19,7 @@ class GoalCard extends StatefulWidget {
     required this.onDeleteSuccess,
     required this.onCompletedSuccess,
     required this.onCanceledSuccess,
+    required this.onEditSuccess,
   });
 
   @override
@@ -55,6 +57,7 @@ class _GoalCardState extends State<GoalCard> {
             onDeleteSuccess: widget.onDeleteSuccess,
             onCompleted: widget.onCompletedSuccess,
             onCancel: widget.onCanceledSuccess,
+            onEdit: widget.onEditSuccess,
           ),
     );
   }

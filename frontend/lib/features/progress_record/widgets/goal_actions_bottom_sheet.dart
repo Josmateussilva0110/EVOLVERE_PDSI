@@ -11,6 +11,7 @@ class GoalActionsBottomSheet extends StatelessWidget {
   final VoidCallback onDeleteSuccess;
   final VoidCallback onCompleted;
   final VoidCallback onCancel;
+  final VoidCallback onEdit;
 
   const GoalActionsBottomSheet({
     super.key,
@@ -20,6 +21,7 @@ class GoalActionsBottomSheet extends StatelessWidget {
     required this.onDeleteSuccess,
     required this.onCompleted,
     required this.onCancel,
+    required this.onEdit,
   });
 
   @override
@@ -74,22 +76,26 @@ class GoalActionsBottomSheet extends StatelessWidget {
               ActionIcon(
                 icon: Icons.edit,
                 label: 'Editar',
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
-                  Navigator.push(
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder:
-                          (_) => AddGoalScreen(
-                            habitId: habitId,
-                            initialName: goal.title,
-                            initialType: goalTypeToIndex(goal.type),
-                            initialParameter: goal.progress ?? 10,
-                            initialInterval: 0,
-                            isEditing: true,
-                          ),
+                      builder: (_) => AddGoalScreen(
+                        habitId: habitId,
+                        goalId: goal.id,
+                        initialName: goal.title,
+                        initialType: goalTypeToIndex(goal.type),
+                        initialParameter: goal.progress ?? 10,
+                        initialInterval: 0,
+                        isEditing: true,
+                      ),
                     ),
-                  );
+                    );
+
+                    if (result == true) {
+                      onEdit();
+                    }
                 },
               ),
               ActionIcon(

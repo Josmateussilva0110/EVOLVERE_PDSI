@@ -13,6 +13,7 @@ class AddGoalScreen extends StatefulWidget {
   final int? initialParameter;
   final int? initialInterval;
   final bool isEditing;
+  final int? goalId;
 
   const AddGoalScreen({
     Key? key,
@@ -22,6 +23,7 @@ class AddGoalScreen extends StatefulWidget {
     this.initialParameter,
     this.initialInterval,
     this.isEditing = false,
+    this.goalId,
   }) : super(key: key);
 
   @override
@@ -125,6 +127,7 @@ class AddGoalScreenState extends State<AddGoalScreen>
     if (!_nameValid) return;
 
     final data = ProgressRecordData(
+      id: widget.goalId,
       habitId: widget.habitId, 
       name: _nameController.text.trim(),
       type: _selectedType,
@@ -134,7 +137,12 @@ class AddGoalScreenState extends State<AddGoalScreen>
               : _parameter, 
     );
 
-    final error = await ProgressRecordService.createProgressHabit(data);
+    final error = widget.isEditing
+    ? await ProgressRecordService.editProgressHabit(
+        data.copyWith(id: widget.goalId),
+      )
+    : await ProgressRecordService.createProgressHabit(data);
+
 
     if (error == null) {
       // Sucesso

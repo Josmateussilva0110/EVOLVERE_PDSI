@@ -128,6 +128,44 @@ class ProgressController {
         }
     }
 
+    async editProgress(request, response) {
+        const id = request.params.id
+        if (!id || isNaN(id)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
+
+        var {name, type, parameter} = request.body
+        type = Number(type)
+        parameter = Number(parameter)
+        if (!name || name.trim() === '') { 
+            response.status(400)
+            response.json({err: "nome invalido."})
+            return
+        }
+
+        if (isNaN(type)) {
+            return response.status(400).json({ err: "Tipo invalido." })
+        }
+
+        if (isNaN(parameter)) {
+            return response.status(400).json({ err: "Parâmetro invalido." })
+        }
+
+        var nameExists = await Progress.findNameProgress(name)
+        if(nameExists) {
+            return response.status(406).json({err: "nome de progresso ja existe."})
+        }
+        var done = await Progress.update(id, name, type, parameter)
+        if(done) {
+            response.status(200)
+            response.send('Progresso editado com sucesso.')
+        }
+        else {
+            response.status(500)
+            response.json({err: "erro ao editar progresso de habito."})
+        }
+    }
+
 }
 
 module.exports = new ProgressController()
