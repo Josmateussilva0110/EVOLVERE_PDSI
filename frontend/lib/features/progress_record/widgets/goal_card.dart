@@ -9,6 +9,7 @@ class GoalCard extends StatefulWidget {
   final int habitId;
   final VoidCallback onDeleteSuccess;
   final VoidCallback onCompletedSuccess;
+  final VoidCallback onCanceledSuccess;
 
   const GoalCard({
     super.key,
@@ -16,6 +17,7 @@ class GoalCard extends StatefulWidget {
     required this.habitId,
     required this.onDeleteSuccess,
     required this.onCompletedSuccess,
+    required this.onCanceledSuccess,
   });
 
   @override
@@ -52,6 +54,7 @@ class _GoalCardState extends State<GoalCard> {
             goalTypeToIndex: _goalTypeToIndex,
             onDeleteSuccess: widget.onDeleteSuccess,
             onCompleted: widget.onCompletedSuccess,
+            onCancel: widget.onCanceledSuccess,
           ),
     );
   }

@@ -10,6 +10,7 @@ class GoalActionsBottomSheet extends StatelessWidget {
   final int Function(String) goalTypeToIndex;
   final VoidCallback onDeleteSuccess;
   final VoidCallback onCompleted;
+  final VoidCallback onCancel;
 
   const GoalActionsBottomSheet({
     super.key,
@@ -18,6 +19,7 @@ class GoalActionsBottomSheet extends StatelessWidget {
     required this.goalTypeToIndex,
     required this.onDeleteSuccess,
     required this.onCompleted,
+    required this.onCancel,
   });
 
   @override
@@ -121,8 +123,29 @@ class GoalActionsBottomSheet extends StatelessWidget {
               ActionIcon(
                 icon: Icons.close,
                 label: 'Cancelar',
-                onTap: () {
+                onTap: () async {
                   Navigator.pop(context);
+
+                  final success = await ProgressRecordService.cancelProgress(
+                    goal.id!,
+                  );
+
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Progresso cancelado'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                    onCancel();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Erro ao cancelar progresso'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 },
               ),
             ],

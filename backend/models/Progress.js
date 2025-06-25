@@ -93,6 +93,16 @@ class Progress {
             return false
         }
     }
+
+    async cancel(id) {
+        try {
+            await knex("habit_progress").where({id: id}).update({status: 0})
+            return true
+        } catch(err) {
+            console.log('erro ao cancelar progresso: ', err)
+            return false
+        }
+    }
 }
 
 module.exports = new Progress()
