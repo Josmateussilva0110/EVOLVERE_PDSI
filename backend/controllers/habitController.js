@@ -32,7 +32,7 @@ class HabitController {
             category_id = null;
         }   
 
-        var valid = await Habit.findName(name) 
+        var valid = await Habit.findNameByIdUser(name, user_id)
         if(valid) {
             response.status(406)
             response.json({err: "habito já existe."})
@@ -179,7 +179,7 @@ class HabitController {
         if(!habit) {
             return response.status(404).json({ err: "habito não encontrada." })
         }
-        var nameExists = await Habit.findByName(name)
+        var nameExists = await Habit.findNameByIdUser(name, user_id)
         if(nameExists && nameExists.id !== Number(id)) {
             return response.status(409).json({err: "nome de habito já existe."})
         }

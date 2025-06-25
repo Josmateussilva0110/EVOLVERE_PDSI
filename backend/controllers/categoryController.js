@@ -4,14 +4,18 @@ const path = require('path')
 class CategoryController {
 
     async create(request, response) {
-        var {name, description, color} = request.body
+        var {name, description, color, user_id} = request.body
         if(name == undefined) {
             response.status(400)
             response.json({err: "categoria invalida."})
             return
         }
 
-        var valid = await Category.findCategoryByName(name)
+        if (!user_id || isNaN(user_id)) {
+            return response.status(400).json({ err: "Usuário invalido." });
+        }
+
+        var valid = await Category.findNameByIdUser(name, user_id)
         if(valid) {
             response.status(406)
             response.json({err: "categoria já existe."})
@@ -39,7 +43,7 @@ class CategoryController {
             }
         }
 
-        var done = await Category.new(name, description, color, iconPath)
+        var done = await Category.new(name, description, color, iconPath, user_id)
         if(done) {
             response.status(200)
             response.send('Cadastro realizado com sucesso.')
@@ -153,6 +157,10 @@ class CategoryController {
     }
 
     async getNotArchivedCategories(request, response) {
+        const id = request.params.id;
+        if (!id || isNaN(id)) {
+            return response.status(400).json({ err: "ID inválido" });
+        }
         try {
             const categories = await Category.findNotArchived()
             if(categories)

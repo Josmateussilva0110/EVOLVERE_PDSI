@@ -33,6 +33,21 @@ class Category {
         }
     }
 
+    async findNameByIdUser(name, user_id) {
+        try {
+            var result = await knex.select("*").from("category").where({name: name}).andWhere('user_id', user_id)
+            if(result.length > 0) {
+                return true
+            }
+            else {
+                return false
+            }
+        } catch(err) {
+            console.log('erro em buscar nome de categoria: ', err)
+            return false
+        }
+    }
+
     async getIdByName(name) {
         try {
             var result = await knex.select(["id"]).from("category").where({name: name})
@@ -61,9 +76,9 @@ class Category {
         }
     }
 
-    async new(name, description, color, icon) {
+    async new(name, description, color, icon, user_id) {
         try {
-            await knex.insert({name, description, color, icon}).table("category")
+            await knex.insert({name, description, color, icon, user_id}).table("category")
             return true
         } catch(err) {
             console.log('erro em adicionar categoria: ', err)
