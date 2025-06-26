@@ -11,7 +11,8 @@ app.use(fileUpload())
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')))
+app.use('/category_images', express.static(path.join(__dirname, 'public', 'category_images')))
+app.use('/user_profile_images', express.static(path.join(__dirname, 'public', 'user_profile_images')))
 app.use(cors())
 
 

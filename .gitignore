@@ -164,9 +164,18 @@ app.*.symbols
 
 **/node_modules/
 .env
-/uploads/*
-!/uploads/.gitkeep
-**/uploads/
-/uploads/upload_perfil/*
-!/uploads/upload_perfil/
-!/uploads/upload_perfil/.gitkeep   
+
+public/category_images/*
+!public/category_images/.gitkeep
+
+
+public/user_profile_images/*
+!public/user_profile_images/.gitkeep
+/category_images/*
+!/category_images/.gitkeep
+**/category_images/
+
+
+/user_profile_images/*
+!/user_profile_images/.gitkeep
+**/user_profile_images/
