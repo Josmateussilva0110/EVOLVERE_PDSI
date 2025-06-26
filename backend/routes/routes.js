@@ -5,6 +5,7 @@ const UserController = require("../controllers/UserController")
 const CategoryController = require("../controllers/categoryController")
 const HabitController = require("../controllers/habitController")
 const ProgressController = require("../controllers/ProgressController")
+const NotificationController = require("../controllers/NotificationController")
 
 
 // rotas para o usuário
@@ -68,5 +69,15 @@ router.delete("/habit/progress/:id", ProgressController.removeProgress)
 router.post("/habit/progress/complete/:id", ProgressController.completeProgress)
 router.post("/habit/progress/cancel/:id", ProgressController.cancelProgress)
 router.patch("/habit/progress/edit/:id", ProgressController.editProgress)
+
+// -------------------------------------------------------------------------
+
+//rotas para notificações
+router.post("/notification", NotificationController.create)
+router.get("/notifications", NotificationController.index)
+router.get("/notification/:id", NotificationController.findById)
+router.get("/notifications/user/:userId", NotificationController.findByUserId)
+router.delete("/notification/:id", NotificationController.remove)
+router.delete("/notifications/user/:userId", NotificationController.removeByUserId)
 
 module.exports = router

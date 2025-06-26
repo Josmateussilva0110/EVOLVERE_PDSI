@@ -1,4 +1,5 @@
 const Habit = require("../models/Habit")
+const Notification = require("../models/Notification")
 
 
 class HabitController {
@@ -228,6 +229,28 @@ class HabitController {
             if(!completed) {
                 return response.status(500).json({err: "erro ao completar habito"})
             }
+
+            // Buscar informações do hábito para criar a notificação
+            var habit = await Habit.findById(habit_id)
+            if(habit) {
+                // Criar notificação
+                const notificationData = {
+                    type: 'habit_completed',
+                    title: `Hábito "${habit.name}" Concluído`,
+                    message: `Parabéns! Você concluiu o hábito "${habit.name}" com sucesso.`,
+                    habitId: habit_id,
+                    habitName: habit.name,
+                    completedAt: new Date().toISOString(),
+                    difficulty: difficulty,
+                    mood: mood,
+                    reflection: reflection,
+                    location: location,
+                    timeSpent: hour
+                }
+                
+                await Notification.create(habit.user_id, notificationData)
+            }
+
             response.status(200)
             response.send('Habito finalizado com sucesso.')
         }
