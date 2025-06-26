@@ -39,18 +39,20 @@ class _LoginFormState extends State<LoginForm> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData =
-            jsonDecode(response.body);
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
         final int? userId = responseData['userId'];
         final String? username = responseData['username'];
         final String? email = responseData['email'];
 
         if (userId != null && username != null && email != null) {
-          final SharedPreferences prefs =
-              await SharedPreferences.getInstance();
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setInt('loggedInUserId', userId);
           await prefs.setString('username', username);
           await prefs.setString('email', email);
+
+          print('🔐 Login realizado - UserId salvo: $userId');
+          print('👤 Username salvo: $username');
+          print('📧 Email salvo: $email');
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -59,26 +61,18 @@ class _LoginFormState extends State<LoginForm> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pushReplacementNamed(
-          context,
-          '/inicio',
-        );
+        Navigator.pushReplacementNamed(context, '/inicio');
       } else {
         String errorMessage = 'Erro no login';
         try {
-          final Map<String, dynamic> data = jsonDecode(
-            response.body,
-          );
+          final Map<String, dynamic> data = jsonDecode(response.body);
           if (data.containsKey('err')) {
             errorMessage = data['err'];
           }
         } catch (_) {}
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
         );
       }
     }
