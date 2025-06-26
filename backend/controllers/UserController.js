@@ -242,7 +242,7 @@ class UserController {
             if (!user) {
                 return response.status(404).json({ err: "Usuário não encontrado" });
             }
-
+            
             // Formata a data de criação
             const createdAt = new Date(user.created_at);
             const formattedDate = createdAt.toLocaleDateString('pt-BR', {
@@ -410,11 +410,11 @@ class UserController {
                 }
         
                 const fileName = Date.now() + path.extname(imageFile.name);
-                const uploadPath = path.join(__dirname, "..", "public", "uploads", "upload_perfil", fileName);
+                const uploadPath = path.join(__dirname, "..", "public", "user_profile_images", fileName);
         
                 try {
                     await imageFile.mv(uploadPath);
-                    imagePath = "/uploads/upload_perfil/" + fileName; 
+                    imagePath = "/user_profile_images/" + fileName; 
                 } catch (err) {
                     console.error("Erro ao salvar a imagem:", err);
                     return response.status(500).json({ err: "Erro ao salvar a imagem." });

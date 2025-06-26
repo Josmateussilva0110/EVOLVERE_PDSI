@@ -32,11 +32,11 @@ class CategoryController {
             }
     
             const fileName = Date.now() + path.extname(imageFile.name);
-            const uploadPath = path.join(__dirname, "..", "public", "uploads", fileName);
+            const uploadPath = path.join(__dirname, "..", "public", "category_images", fileName);
     
             try {
                 await imageFile.mv(uploadPath);
-                iconPath = "/uploads/" + fileName; 
+                iconPath = "/category_images/" + fileName; 
             } catch (err) {
                 console.error("Erro ao salvar a imagem:", err);
                 return response.status(500).json({ err: "Erro ao salvar a imagem." });
@@ -227,10 +227,10 @@ class CategoryController {
                     return response.status(400).json({ err: "A imagem deve ter no máximo 5MB!" });
                 }
                 const fileName = Date.now() + path.extname(imageFile.name);
-                const uploadPath = path.join(__dirname, "..", "public", "uploads", fileName);
+                const uploadPath = path.join(__dirname, "..", "public", "category_images", fileName);
                 try {
                     await imageFile.mv(uploadPath);
-                    iconPath = "/uploads/" + fileName;
+                    iconPath = "/category_images/" + fileName;
                 } catch (err) {
                     console.error("Erro ao salvar a imagem:", err);
                     return response.status(500).json({ err: "Erro ao salvar a imagem." });

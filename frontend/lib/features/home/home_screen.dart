@@ -31,8 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
   int _habitsTotal = 0;
   int _habitsCompleted = 0;
 
-
-
   @override
   void initState() {
     super.initState();
@@ -108,7 +106,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   Future<void> _loadUserProfileImage() async {
     if (_userId == null) return;
 
@@ -126,13 +123,10 @@ class _HomeScreenState extends State<HomeScreen> {
           _profileImagePath = data['upload_perfil'];
         });
       }
-
     } catch (e) {
       print('Erro ao carregar imagem de perfil: $e');
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -596,4 +590,3 @@ class _FancyIconButtonState extends State<_FancyIconButton>
     );
   }
 }
-
