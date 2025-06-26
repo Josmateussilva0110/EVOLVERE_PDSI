@@ -105,7 +105,7 @@ class NotificationsScreen extends StatelessWidget {
           child: const Text(
             'Definir Lembrete',
             style: TextStyle(
-              fontSize: 16.0,  
+              fontSize: 16.0,
               color: Colors.white,
             ), // Mudar a cor do texto para branco
           ),
@@ -113,7 +113,8 @@ class NotificationsScreen extends StatelessWidget {
       ),
     );
   }
-     //
+
+  //
   Widget _buildNotificationItem(
     String title,
     String subtitle,
