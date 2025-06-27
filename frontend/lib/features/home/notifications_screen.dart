@@ -96,10 +96,13 @@ class _NotificationsScreenState extends State<NotificationsScreen>
               vsync: this,
             );
 
-            // Marcar como lida se o status for true
-            if (notification.status) {
+            // Marcar como lida se o status for true (1)
+            if (notification.status == true) {
               readNotifications[notification.id] = true;
               animationControllers[notification.id]?.forward();
+            } else {
+              // Se status for false (0), marcar como não lida
+              readNotifications[notification.id] = false;
             }
           }
 

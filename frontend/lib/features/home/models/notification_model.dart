@@ -55,7 +55,7 @@ class NotificationModel {
         timeSpent: json['timeSpent'],
         createdAt: json['created_at'] ?? '',
         updatedAt: json['updated_at'] ?? '',
-        status: json['status'] ?? false,
+        status: json['status'] == 1 || json['status'] == true,
       );
     } catch (e) {
       print('❌ Erro no NotificationModel.fromJson: $e');

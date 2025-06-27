@@ -46,6 +46,7 @@ class NotificationService {
                 'user_id': notification['user_id'],
                 'created_at': notification['created_at'],
                 'updated_at': notification['updated_at'],
+                'status': notification['status'] == 1 || notification['status'] == true,
                 ...data,
               };
 
