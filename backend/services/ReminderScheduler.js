@@ -16,16 +16,6 @@ class ReminderScheduler {
                 return;
             }
             
-            console.log(`📋 Encontrados ${habits.length} hábitos com lembretes:`);
-            
-            // Mostrar detalhes dos hábitos encontrados
-            habits.forEach((habit, index) => {
-                console.log(`   ${index + 1}. Hábito ID: ${habit.id} - "${habit.name}"`);
-                console.log(`      Lembretes: ${JSON.stringify(habit.reminders)}`);
-                console.log(`      Usuário: ${habit.user_id}`);
-                console.log('');
-            });
-            
             const now = new Date();
             let notificationsCreated = 0;
             
