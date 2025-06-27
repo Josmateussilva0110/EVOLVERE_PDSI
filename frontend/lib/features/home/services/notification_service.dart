@@ -127,4 +127,18 @@ class NotificationService {
       return false;
     }
   }
+
+  static Future<int> getUnreadCount(int userId) async {
+    final url = Uri.parse('${dotenv.env['API_URL']}/notifications/unread/count/$userId');
+    try {
+      final response = await http.get(url, headers: {'Content-Type': 'application/json'});
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return int.tryParse(data['unread'].toString()) ?? 0;
+      }
+      return 0;
+    } catch (e) {
+      return 0;
+    }
+  }
 }

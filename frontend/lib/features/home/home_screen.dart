@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../user/screens/edit_profile_screen.dart';
 import 'services/home_service.dart';
+import 'services/notification_service.dart';
 
 // Importações dos widgets
 import 'widgets/top_priorities_widget.dart';
@@ -31,6 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int _habitsTotal = 0;
   int _habitsCompleted = 0;
 
+  int _unreadNotifications = 0;
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadCompletedTodayCount();
       _loadHabitsSummary();
+      _fetchUnreadNotifications();
     });
   }
 
@@ -87,6 +91,15 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _habitsTotal = 0;
         _habitsCompleted = 0;
+      });
+    }
+  }
+
+  Future<void> _fetchUnreadNotifications() async {
+    if (_userId != null) {
+      final count = await NotificationService.getUnreadCount(_userId!);
+      setState(() {
+        _unreadNotifications = count;
       });
     }
   }
@@ -284,39 +297,47 @@ class _HomeScreenState extends State<HomeScreen> {
                             highlightColor: Colors.blueAccent,
                             size: 32,
                             onTap: () {
-                              Navigator.pushNamed(context, '/notificacoes');
+                              Navigator.pushNamed(
+                                context,
+                                '/notificacoes',
+                              ).then((_) {
+                                _fetchUnreadNotifications();
+                              });
                             },
                           ),
-                          IgnorePointer(
-                            ignoring: true,
-                            child: Positioned(
-                              right: 2,
-                              top: 2,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                constraints: const BoxConstraints(
-                                  minWidth: 24,
-                                  minHeight: 16,
-                                ),
-                                child: const Text(
-                                  '3',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
+                          if (_unreadNotifications > 0)
+                            IgnorePointer(
+                              ignoring: true,
+                              child: Positioned(
+                                right: 2,
+                                top: 2,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
                                   ),
-                                  textAlign: TextAlign.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 24,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    _unreadNotifications > 99
+                                        ? '99+'
+                                        : '$_unreadNotifications',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                       // Relatórios centralizado
