@@ -78,6 +78,28 @@ class Notification {
             return {status: false, err: err}
         }
     }
+
+    async countReadByUserId(userId) {
+        try {
+            const result = await knex('notification')
+                .where({ user_id: userId, status: true })
+                .count('id as count');
+            return parseInt(result[0].count, 10) || 0;
+        } catch (err) {
+            return 0;
+        }
+    }
+
+    async countUnreadByUserId(userId) {
+        try {
+            const result = await knex('notification')
+                .where({ user_id: userId, status: false })
+                .count('id as count');
+            return parseInt(result[0].count, 10) || 0;
+        } catch (err) {
+            return 0;
+        }
+    }
 }
 
 module.exports = new Notification() 

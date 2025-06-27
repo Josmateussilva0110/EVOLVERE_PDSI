@@ -80,5 +80,7 @@ router.get("/notifications/user/:userId", NotificationController.findByUserId)
 router.delete("/notification/:id", NotificationController.remove)
 router.delete("/notifications/user/:userId", NotificationController.removeByUserId)
 router.patch("/notification/:id/status", NotificationController.updateStatus)
+router.get("/notifications/read/count/:userId", NotificationController.countReadByUserId)
+router.get("/notifications/unread/count/:userId", NotificationController.countUnreadByUserId);
 
 module.exports = router

@@ -110,6 +110,34 @@ class NotificationController {
             response.json({err: "Id invalido"})
         }
     }
+
+    async countReadByUserId(request, response) {
+        var userId = request.params.userId;
+        if (!isNaN(userId)) {
+            try {
+                const count = await Notification.countReadByUserId(userId);
+                response.status(200).json({ read: count });
+            } catch (err) {
+                response.status(500).json({ err: "Erro ao contar notificações lidas." });
+            }
+        } else {
+            response.status(400).json({ err: "Id do usuário inválido" });
+        }
+    }
+
+    async countUnreadByUserId(request, response) {
+        var userId = request.params.userId;
+        if (!isNaN(userId)) {
+            try {
+                const count = await Notification.countUnreadByUserId(userId);
+                response.status(200).json({ unread: count });
+            } catch (err) {
+                response.status(500).json({ err: "Erro ao contar notificações não lidas." });
+            }
+        } else {
+            response.status(400).json({ err: "Id do usuário inválido" });
+        }
+    }
 }
 
 module.exports = new NotificationController() 
