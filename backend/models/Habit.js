@@ -198,6 +198,7 @@ class Habit {
             return undefined
         }
     }
+    
     async findByName(name) {
         try {
             var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status", "user_id"]).where({name: name}).table("habits")

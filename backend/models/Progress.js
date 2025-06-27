@@ -16,6 +16,20 @@ class Progress {
         }
     }
 
+    async findNameByIdUser(name, user_id) {
+        try {
+            const result = await knex('habit_progress as p')
+                .join('habits as h', 'p.habit_id', 'h.id')
+                .where('p.name', name)
+                .andWhere('h.user_id', user_id)
+                .select('p.id');
+            return result.length > 0;
+        } catch(err) {
+            console.log('erro ao buscar nome de progresso do usuário:', err)
+            return false
+        }
+    }
+
     async newHabitProgress(habit_id, name, type, parameter) {
         try {
             await knex.insert({habit_id, name, type, parameter}).table("habit_progress")
@@ -73,6 +87,7 @@ class Progress {
             return false
         }
     }
+
 
     async delete(id) {
         try {

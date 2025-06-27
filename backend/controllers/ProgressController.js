@@ -24,13 +24,13 @@ class ProgressController {
             return response.status(400).json({ err: "Parâmetro invalido." })
         }
 
-        var valid = await Habit.habitExist(habit_id)
+        var valid = await Habit.findById(habit_id)
         if(!valid) {
             response.status(404)
             response.json({err: "Nenhum habito encontrado."})
             return 
         }
-        var nameExists = await Progress.findNameProgress(name)
+        var nameExists = await Progress.findNameByIdUser(name, valid.user_id)
         if(nameExists) {
             return response.status(406).json({err: "nome de progresso ja existe."})
         }
