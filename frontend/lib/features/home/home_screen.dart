@@ -8,6 +8,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../user/screens/edit_profile_screen.dart';
 import 'services/home_service.dart';
 import 'services/notification_service.dart';
+import 'dart:async'; // Adicione esta linha junto com os imports
 
 // Importações dos widgets
 import 'widgets/top_priorities_widget.dart';
@@ -34,6 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   int _unreadNotifications = 0;
 
+  Timer? _notificationTimer; // Adicione este campo
+
   @override
   void initState() {
     super.initState();
@@ -42,6 +45,16 @@ class _HomeScreenState extends State<HomeScreen> {
       _loadCompletedTodayCount();
       _loadHabitsSummary();
       _fetchUnreadNotifications();
+      _startNotificationAutoRefresh(); // Chame o método aqui
+    });
+  }
+
+  void _startNotificationAutoRefresh() {
+    _notificationTimer?.cancel();
+    _notificationTimer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      if (_userId != null) {
+        _fetchUnreadNotifications();
+      }
     });
   }
 
@@ -537,6 +550,12 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     return null;
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel(); // Cancele o timer ao destruir o widget
+    super.dispose();
   }
 }
 
