@@ -12,15 +12,27 @@ class NotificationsScreen extends StatefulWidget {
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class _NotificationsScreenState extends State<NotificationsScreen>
+    with TickerProviderStateMixin {
   List<NotificationModel> notifications = [];
   bool isLoading = true;
   int? userId;
+  Map<int, bool> readNotifications = {};
+  Map<int, AnimationController> animationControllers = {};
 
   @override
   void initState() {
     super.initState();
     _loadNotifications();
+  }
+
+  @override
+  void dispose() {
+    // Dispose de todos os controllers de animação
+    for (var controller in animationControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   Future<void> _loadNotifications() async {
@@ -75,6 +87,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           print(
             '🎉 Total de notificações convertidas: ${convertedNotifications.length}',
           );
+
+          // Inicializar animações e status de leitura
+          for (var notification in convertedNotifications) {
+            // Criar controller de animação para cada notificação
+            animationControllers[notification.id] = AnimationController(
+              duration: const Duration(milliseconds: 300),
+              vsync: this,
+            );
+
+            // Marcar como lida se o status for true
+            if (notification.status) {
+              readNotifications[notification.id] = true;
+              animationControllers[notification.id]?.forward();
+            }
+          }
 
           setState(() {
             notifications = convertedNotifications;
@@ -204,6 +231,38 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  Future<void> _markAsRead(NotificationModel notification) async {
+    // Se já está lida, não fazer nada
+    if (readNotifications[notification.id] == true) {
+      return;
+    }
+
+    // Animar a transição para "lida"
+    final controller = animationControllers[notification.id];
+    if (controller != null) {
+      await controller.forward();
+    }
+
+    // Marcar como lida localmente
+    setState(() {
+      readNotifications[notification.id] = true;
+    });
+
+    // Atualizar no backend
+    try {
+      final success = await NotificationService.updateNotificationStatus(
+        notification.id,
+      );
+      if (success) {
+        print('✅ Notificação marcada como lida no backend');
+      } else {
+        print('❌ Erro ao marcar notificação como lida no backend');
+      }
+    } catch (e) {
+      print('💥 Erro ao atualizar status da notificação: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -327,102 +386,147 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildNotificationItem(NotificationModel notification) {
+    final isRead = readNotifications[notification.id] ?? false;
+    final controller = animationControllers[notification.id];
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12.0),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _showNotificationDetails(notification),
+          onTap: () {
+            _markAsRead(notification);
+            _showNotificationDetails(notification);
+          },
           borderRadius: BorderRadius.circular(12.0),
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2C2C2C),
-              borderRadius: BorderRadius.circular(12.0),
-              border: Border.all(color: Colors.grey[800]!, width: 1),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.celebration,
-                    color: Colors.blue,
-                    size: 24,
+          child: AnimatedBuilder(
+            animation: controller ?? const AlwaysStoppedAnimation(0),
+            builder: (context, child) {
+              return Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color:
+                      isRead
+                          ? const Color(0xFF2C2C2C).withOpacity(0.7)
+                          : const Color(0xFF2C2C2C),
+                  borderRadius: BorderRadius.circular(12.0),
+                  border: Border.all(
+                    color:
+                        isRead
+                            ? Colors.grey[600]!
+                            : Colors.blue.withOpacity(0.3),
+                    width: isRead ? 1 : 2,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        notification.title,
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.0,
-                        ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color:
+                            isRead
+                                ? Colors.grey.withOpacity(0.2)
+                                : Colors.blue.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        notification.message,
-                        style: GoogleFonts.inter(
-                          color: Colors.white70,
-                          fontSize: 14.0,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      child: Icon(
+                        isRead ? Icons.mark_email_read : Icons.celebration,
+                        color: isRead ? Colors.grey : Colors.blue,
+                        size: 24,
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        notification.formattedDate,
-                        style: GoogleFonts.inter(
-                          color: Colors.white54,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert, color: Colors.white70),
-                  color: const Color(0xFF2C2C2C),
-                  onSelected: (value) {
-                    if (value == 'delete') {
-                      _deleteNotification(notification);
-                    }
-                  },
-                  itemBuilder:
-                      (context) => [
-                        PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Row(
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              const Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Remover',
-                                style: GoogleFonts.inter(
-                                  color: Colors.red,
-                                  fontSize: 14,
+                              Expanded(
+                                child: Text(
+                                  notification.title,
+                                  style: GoogleFonts.inter(
+                                    color:
+                                        isRead ? Colors.white70 : Colors.white,
+                                    fontWeight:
+                                        isRead
+                                            ? FontWeight.normal
+                                            : FontWeight.bold,
+                                    fontSize: 16.0,
+                                  ),
                                 ),
                               ),
+                              if (!isRead)
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.blue,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
                             ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Text(
+                            notification.message,
+                            style: GoogleFonts.inter(
+                              color: isRead ? Colors.white54 : Colors.white70,
+                              fontSize: 14.0,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            notification.formattedDate,
+                            style: GoogleFonts.inter(
+                              color: isRead ? Colors.white38 : Colors.white54,
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: isRead ? Colors.white54 : Colors.white70,
+                      ),
+                      color: const Color(0xFF2C2C2C),
+                      onSelected: (value) {
+                        if (value == 'delete') {
+                          _deleteNotification(notification);
+                        }
+                      },
+                      itemBuilder:
+                          (context) => [
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Remover',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.red,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),

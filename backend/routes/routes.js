@@ -79,5 +79,6 @@ router.get("/notification/:id", NotificationController.findById)
 router.get("/notifications/user/:userId", NotificationController.findByUserId)
 router.delete("/notification/:id", NotificationController.remove)
 router.delete("/notifications/user/:userId", NotificationController.removeByUserId)
+router.patch("/notification/:id/status", NotificationController.updateStatus)
 
 module.exports = router

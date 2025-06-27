@@ -91,6 +91,25 @@ class NotificationController {
             response.send(result.err)
         }
     }
+
+    async updateStatus(request, response) {
+        var id = request.params.id
+        if(!isNaN(id)) {
+            var result = await Notification.updateStatus(id, true)
+            if(result.status) {
+                response.status(200)
+                response.json({message: "Status da notificação atualizado com sucesso."})
+            }
+            else {
+                response.status(500)
+                response.json({err: "Erro ao atualizar status da notificação."})
+            }
+        }
+        else {
+            response.status(400)
+            response.json({err: "Id invalido"})
+        }
+    }
 }
 
 module.exports = new NotificationController() 

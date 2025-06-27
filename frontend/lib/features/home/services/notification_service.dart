@@ -13,7 +13,7 @@ class NotificationService {
     try {
       print('🔍 Buscando notificações para usuário: $userId');
       print('🌐 URL: $url');
-      
+
       final response = await http.get(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -25,33 +25,34 @@ class NotificationService {
       if (response.statusCode == 200) {
         final List<dynamic> notifications = jsonDecode(response.body);
         print('📋 Notificações encontradas: ${notifications.length}');
-        
-        final result = notifications.map<Map<String, dynamic>>((notification) {
-          print('🔍 Processando notificação: ${notification['id']}');
-          print('📊 Dados brutos: $notification');
-          
-          // Verificar se data é string ou já é objeto
-          Map<String, dynamic> data;
-          if (notification['data'] is String) {
-            data = jsonDecode(notification['data']);
-            print('🔄 Data convertida de string: $data');
-          } else {
-            data = Map<String, dynamic>.from(notification['data']);
-            print('📊 Data já é objeto: $data');
-          }
-          
-          final result = {
-            'id': notification['id'],
-            'user_id': notification['user_id'],
-            'created_at': notification['created_at'],
-            'updated_at': notification['updated_at'],
-            ...data,
-          };
-          
-          print('✅ Resultado final: $result');
-          return result;
-        }).toList();
-        
+
+        final result =
+            notifications.map<Map<String, dynamic>>((notification) {
+              print('🔍 Processando notificação: ${notification['id']}');
+              print('📊 Dados brutos: $notification');
+
+              // Verificar se data é string ou já é objeto
+              Map<String, dynamic> data;
+              if (notification['data'] is String) {
+                data = jsonDecode(notification['data']);
+                print('🔄 Data convertida de string: $data');
+              } else {
+                data = Map<String, dynamic>.from(notification['data']);
+                print('📊 Data já é objeto: $data');
+              }
+
+              final result = {
+                'id': notification['id'],
+                'user_id': notification['user_id'],
+                'created_at': notification['created_at'],
+                'updated_at': notification['updated_at'],
+                ...data,
+              };
+
+              print('✅ Resultado final: $result');
+              return result;
+            }).toList();
+
         print('🎉 Total de notificações processadas: ${result.length}');
         return result;
       } else {
@@ -100,6 +101,26 @@ class NotificationService {
       return response.statusCode == 200;
     } catch (e) {
       print('💥 Erro ao deletar todas as notificações: $e');
+      return false;
+    }
+  }
+
+  static Future<bool> updateNotificationStatus(int notificationId) async {
+    final url = Uri.parse(
+      '${dotenv.env['API_URL']}/notification/$notificationId/status',
+    );
+
+    try {
+      print('✅ Atualizando status da notificação: $notificationId');
+      final response = await http.patch(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('📡 Status code: ${response.statusCode}');
+      return response.statusCode == 200;
+    } catch (e) {
+      print('💥 Erro ao atualizar status da notificação: $e');
       return false;
     }
   }

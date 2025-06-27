@@ -68,6 +68,16 @@ class Notification {
             return {status: false, err: err}
         }
     }
+
+    async updateStatus(id, status) {
+        try {
+            await knex.update({status: status}).where({id: id}).table("notification")
+            return {status: true}
+        } catch(err) {
+            console.log('erro ao atualizar status da notificação', err)
+            return {status: false, err: err}
+        }
+    }
 }
 
 module.exports = new Notification() 
