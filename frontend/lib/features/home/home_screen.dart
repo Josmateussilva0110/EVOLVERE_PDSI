@@ -276,14 +276,48 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Notificações à esquerda
-                      _FancyIconButton(
-                        icon: Icons.notifications,
-                        color: Colors.white,
-                        highlightColor: Colors.blueAccent,
-                        size: 32,
-                        onTap: () {
-                          Navigator.pushNamed(context, '/notificacoes');
-                        },
+                      Stack(
+                        children: [
+                          _FancyIconButton(
+                            icon: Icons.notifications,
+                            color: Colors.white,
+                            highlightColor: Colors.blueAccent,
+                            size: 32,
+                            onTap: () {
+                              Navigator.pushNamed(context, '/notificacoes');
+                            },
+                          ),
+                          IgnorePointer(
+                            ignoring: true,
+                            child: Positioned(
+                              right: 2,
+                              top: 2,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 24,
+                                  minHeight: 16,
+                                ),
+                                child: const Text(
+                                  '3',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       // Relatórios centralizado
                       Expanded(
