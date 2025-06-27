@@ -100,6 +100,19 @@ class Notification {
             return 0;
         }
     }
+
+    async findByHabitIdAndDateRange(habitId, startDate, endDate) {
+        try {
+            const result = await knex('notification')
+                .whereRaw('JSON_EXTRACT(data, "$.habitId") = ?', [habitId.toString()])
+                .whereBetween('created_at', [startDate, endDate])
+                .select('*');
+            return result;
+        } catch (err) {
+            console.log('erro no findByHabitIdAndDateRange', err);
+            return [];
+        }
+    }
 }
 
 module.exports = new Notification() 

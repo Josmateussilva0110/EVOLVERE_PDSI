@@ -6,6 +6,7 @@ const CategoryController = require("../controllers/categoryController")
 const HabitController = require("../controllers/habitController")
 const ProgressController = require("../controllers/ProgressController")
 const NotificationController = require("../controllers/NotificationController")
+const ReminderController = require("../controllers/ReminderController")
 
 
 // rotas para o usuário
@@ -81,6 +82,11 @@ router.delete("/notification/:id", NotificationController.remove)
 router.delete("/notifications/user/:userId", NotificationController.removeByUserId)
 router.patch("/notification/:id/status", NotificationController.updateStatus)
 router.get("/notifications/read/count/:userId", NotificationController.countReadByUserId)
-router.get("/notifications/unread/count/:userId", NotificationController.countUnreadByUserId);
+router.get("/notifications/unread/count/:userId", NotificationController.countUnreadByUserId)
+
+// -------------------------------------------------------------------------
+
+//rota para processar lembretes
+router.post("/reminders/process", ReminderController.processReminders)
 
 module.exports = router

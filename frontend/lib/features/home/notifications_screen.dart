@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/notification_service.dart';
+import 'services/reminder_service.dart';
 import 'models/notification_model.dart';
 import 'widgets/notification_detail_dialog.dart';
 
@@ -283,6 +284,12 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ),
         ),
         actions: [
+          // Botão para testar processamento de lembretes
+          IconButton(
+            icon: const Icon(Icons.schedule, color: Colors.blueAccent),
+            onPressed: _testReminderProcessing,
+            tooltip: 'Testar lembretes',
+          ),
           if (notifications.isNotEmpty)
             TextButton(
               onPressed: _deleteAllNotifications,
@@ -534,5 +541,90 @@ class _NotificationsScreenState extends State<NotificationsScreen>
         ),
       ),
     );
+  }
+
+  // Método para testar o processamento de lembretes
+  Future<void> _testReminderProcessing() async {
+    try {
+      // Mostrar indicador de carregamento
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => const Center(
+              child: CircularProgressIndicator(color: Colors.blue),
+            ),
+      );
+
+      // Processar lembretes
+      final result = await ReminderService.processReminders();
+
+      // Fechar indicador de carregamento
+      Navigator.of(context).pop();
+
+      if (result != null) {
+        // Recarregar notificações
+        await _loadNotifications();
+
+        // Mostrar mensagem de sucesso
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Lembretes processados com sucesso!',
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(16),
+            ),
+          );
+        }
+      } else {
+        // Mostrar mensagem de erro
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Erro ao processar lembretes',
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(16),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Fechar indicador de carregamento se ainda estiver aberto
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+
+      // Mostrar mensagem de erro
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Erro: $e',
+              style: GoogleFonts.inter(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      }
+    }
   }
 }
