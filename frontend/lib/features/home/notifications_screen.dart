@@ -284,12 +284,6 @@ class _NotificationsScreenState extends State<NotificationsScreen>
           ),
         ),
         actions: [
-          // Botão para testar processamento de lembretes
-          IconButton(
-            icon: const Icon(Icons.schedule, color: Colors.blueAccent),
-            onPressed: _testReminderProcessing,
-            tooltip: 'Testar lembretes',
-          ),
           if (notifications.isNotEmpty)
             TextButton(
               onPressed: _deleteAllNotifications,
@@ -400,6 +394,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
     final controller = animationControllers[notification.id];
 
     return Container(
+      height: 120, // Altura fixa para todos os boxes
       margin: const EdgeInsets.only(bottom: 12.0),
       child: Material(
         color: Colors.transparent,
@@ -413,6 +408,7 @@ class _NotificationsScreenState extends State<NotificationsScreen>
             animation: controller ?? const AlwaysStoppedAnimation(0),
             builder: (context, child) {
               return Container(
+                height: 120, // Altura fixa para todos os boxes
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color:
@@ -449,6 +445,8 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment:
+                            MainAxisAlignment.center, // Centraliza o conteúdo
                         children: [
                           Row(
                             children: [
@@ -464,6 +462,8 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                                             : FontWeight.bold,
                                     fontSize: 16.0,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               if (!isRead)
@@ -478,16 +478,19 @@ class _NotificationsScreenState extends State<NotificationsScreen>
                             ],
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            notification.message,
-                            style: GoogleFonts.inter(
-                              color: isRead ? Colors.white54 : Colors.white70,
-                              fontSize: 14.0,
+                          Expanded(
+                            child: Text(
+                              notification.message,
+                              style: GoogleFonts.inter(
+                                color: isRead ? Colors.white54 : Colors.white70,
+                                fontSize: 14.0,
+                                height: 1.3,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 4),
                           Text(
                             notification.formattedDate,
                             style: GoogleFonts.inter(
