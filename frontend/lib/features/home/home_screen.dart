@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../user/screens/edit_profile_screen.dart';
 import 'services/home_service.dart';
+import 'services/notification_service.dart';
+import 'dart:async'; // Adicione esta linha junto com os imports
 
 // Importações dos widgets
 import 'widgets/top_priorities_widget.dart';
@@ -31,6 +33,10 @@ class _HomeScreenState extends State<HomeScreen> {
   int _habitsTotal = 0;
   int _habitsCompleted = 0;
 
+  int _unreadNotifications = 0;
+
+  Timer? _notificationTimer; // Adicione este campo
+
   @override
   void initState() {
     super.initState();
@@ -38,6 +44,17 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadCompletedTodayCount();
       _loadHabitsSummary();
+      _fetchUnreadNotifications();
+      _startNotificationAutoRefresh(); // Chame o método aqui
+    });
+  }
+
+  void _startNotificationAutoRefresh() {
+    _notificationTimer?.cancel();
+    _notificationTimer = Timer.periodic(const Duration(milliseconds: 200), (timer) {
+      if (_userId != null) {
+        _fetchUnreadNotifications();
+      }
     });
   }
 
@@ -87,6 +104,15 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _habitsTotal = 0;
         _habitsCompleted = 0;
+      });
+    }
+  }
+
+  Future<void> _fetchUnreadNotifications() async {
+    if (_userId != null) {
+      final count = await NotificationService.getUnreadCount(_userId!);
+      setState(() {
+        _unreadNotifications = count;
       });
     }
   }
@@ -276,14 +302,56 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Notificações à esquerda
-                      _FancyIconButton(
-                        icon: Icons.notifications,
-                        color: Colors.white,
-                        highlightColor: Colors.blueAccent,
-                        size: 32,
-                        onTap: () {
-                          Navigator.pushNamed(context, '/notificacoes');
-                        },
+                      Stack(
+                        children: [
+                          _FancyIconButton(
+                            icon: Icons.notifications,
+                            color: Colors.white,
+                            highlightColor: Colors.blueAccent,
+                            size: 32,
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                '/notificacoes',
+                              ).then((_) {
+                                _fetchUnreadNotifications();
+                              });
+                            },
+                          ),
+                          if (_unreadNotifications > 0)
+                            IgnorePointer(
+                              ignoring: true,
+                              child: Positioned(
+                                right: 2,
+                                top: 2,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 24,
+                                    minHeight: 16,
+                                  ),
+                                  child: Text(
+                                    _unreadNotifications > 99
+                                        ? '99+'
+                                        : '$_unreadNotifications',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       // Relatórios centralizado
                       Expanded(
@@ -482,6 +550,12 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     }
     return null;
+  }
+
+  @override
+  void dispose() {
+    _notificationTimer?.cancel(); // Cancele o timer ao destruir o widget
+    super.dispose();
   }
 }
 

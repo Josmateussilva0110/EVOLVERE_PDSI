@@ -1,5 +1,6 @@
 const Habit = require("../models/Habit")
 const Notification = require("../models/Notification")
+const ReminderScheduler = require("../services/ReminderScheduler")
 
 
 class HabitController {
@@ -41,6 +42,15 @@ class HabitController {
         }
         var done = await Habit.new(name, description, category_id, frequency, start_date, end_date, priority, reminders, user_id)
         if(done) {
+            // Processar lembretes após criar o hábito
+            try {
+                console.log(`🔄 Processando lembretes para novo hábito: ${name}`);
+                await ReminderScheduler.processReminders();
+            } catch (error) {
+                console.error('❌ Erro ao processar lembretes após criar hábito:', error);
+                // Não falhar a criação do hábito se o processamento de lembretes falhar
+            }
+            
             response.status(200)
             response.send('Cadastro realizado com sucesso.')
         }

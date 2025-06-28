@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'services/notification_service.dart';
+import 'services/reminder_service.dart';
 import 'models/notification_model.dart';
 import 'widgets/notification_detail_dialog.dart';
 
@@ -12,15 +13,27 @@ class NotificationsScreen extends StatefulWidget {
   State<NotificationsScreen> createState() => _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class _NotificationsScreenState extends State<NotificationsScreen>
+    with TickerProviderStateMixin {
   List<NotificationModel> notifications = [];
   bool isLoading = true;
   int? userId;
+  Map<int, bool> readNotifications = {};
+  Map<int, AnimationController> animationControllers = {};
 
   @override
   void initState() {
     super.initState();
     _loadNotifications();
+  }
+
+  @override
+  void dispose() {
+    // Dispose de todos os controllers de animação
+    for (var controller in animationControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   Future<void> _loadNotifications() async {
@@ -75,6 +88,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           print(
             '🎉 Total de notificações convertidas: ${convertedNotifications.length}',
           );
+
+          // Inicializar animações e status de leitura
+          for (var notification in convertedNotifications) {
+            // Criar controller de animação para cada notificação
+            animationControllers[notification.id] = AnimationController(
+              duration: const Duration(milliseconds: 300),
+              vsync: this,
+            );
+
+            // Marcar como lida se o status for true (1)
+            if (notification.status == true) {
+              readNotifications[notification.id] = true;
+              animationControllers[notification.id]?.forward();
+            } else {
+              // Se status for false (0), marcar como não lida
+              readNotifications[notification.id] = false;
+            }
+          }
 
           setState(() {
             notifications = convertedNotifications;
@@ -204,6 +235,38 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
+  Future<void> _markAsRead(NotificationModel notification) async {
+    // Se já está lida, não fazer nada
+    if (readNotifications[notification.id] == true) {
+      return;
+    }
+
+    // Animar a transição para "lida"
+    final controller = animationControllers[notification.id];
+    if (controller != null) {
+      await controller.forward();
+    }
+
+    // Marcar como lida localmente
+    setState(() {
+      readNotifications[notification.id] = true;
+    });
+
+    // Atualizar no backend
+    try {
+      final success = await NotificationService.updateNotificationStatus(
+        notification.id,
+      );
+      if (success) {
+        print('✅ Notificação marcada como lida no backend');
+      } else {
+        print('❌ Erro ao marcar notificação como lida no backend');
+      }
+    } catch (e) {
+      print('💥 Erro ao atualizar status da notificação: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -327,105 +390,244 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   }
 
   Widget _buildNotificationItem(NotificationModel notification) {
+    final isRead = readNotifications[notification.id] ?? false;
+    final controller = animationControllers[notification.id];
+
     return Container(
+      height: 120, // Altura fixa para todos os boxes
       margin: const EdgeInsets.only(bottom: 12.0),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _showNotificationDetails(notification),
+          onTap: () {
+            _markAsRead(notification);
+            _showNotificationDetails(notification);
+          },
           borderRadius: BorderRadius.circular(12.0),
-          child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: const Color(0xFF2C2C2C),
-              borderRadius: BorderRadius.circular(12.0),
-              border: Border.all(color: Colors.grey[800]!, width: 1),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.celebration,
-                    color: Colors.blue,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        notification.title,
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16.0,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        notification.message,
-                        style: GoogleFonts.inter(
-                          color: Colors.white70,
-                          fontSize: 14.0,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        notification.formattedDate,
-                        style: GoogleFonts.inter(
-                          color: Colors.white54,
-                          fontSize: 12.0,
-                        ),
-                      ),
-                    ],
+          child: AnimatedBuilder(
+            animation: controller ?? const AlwaysStoppedAnimation(0),
+            builder: (context, child) {
+              return Container(
+                height: 120, // Altura fixa para todos os boxes
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color:
+                      isRead
+                          ? const Color(0xFF2C2C2C).withOpacity(0.7)
+                          : const Color(0xFF2C2C2C),
+                  borderRadius: BorderRadius.circular(12.0),
+                  border: Border.all(
+                    color:
+                        isRead
+                            ? Colors.grey[600]!
+                            : Colors.blue.withOpacity(0.3),
+                    width: isRead ? 1 : 2,
                   ),
                 ),
-                PopupMenuButton<String>(
-                  icon: Icon(Icons.more_vert, color: Colors.white70),
-                  color: const Color(0xFF2C2C2C),
-                  onSelected: (value) {
-                    if (value == 'delete') {
-                      _deleteNotification(notification);
-                    }
-                  },
-                  itemBuilder:
-                      (context) => [
-                        PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Row(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color:
+                            isRead
+                                ? Colors.grey.withOpacity(0.2)
+                                : Colors.blue.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        isRead ? Icons.mark_email_read : Icons.celebration,
+                        color: isRead ? Colors.grey : Colors.blue,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment:
+                            MainAxisAlignment.center, // Centraliza o conteúdo
+                        children: [
+                          Row(
                             children: [
-                              const Icon(
-                                Icons.delete,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Remover',
-                                style: GoogleFonts.inter(
-                                  color: Colors.red,
-                                  fontSize: 14,
+                              Expanded(
+                                child: Text(
+                                  notification.title,
+                                  style: GoogleFonts.inter(
+                                    color:
+                                        isRead ? Colors.white70 : Colors.white,
+                                    fontWeight:
+                                        isRead
+                                            ? FontWeight.normal
+                                            : FontWeight.bold,
+                                    fontSize: 16.0,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
+                              if (!isRead)
+                                Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: const BoxDecoration(
+                                    color: Colors.blue,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
                             ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 4),
+                          Expanded(
+                            child: Text(
+                              notification.message,
+                              style: GoogleFonts.inter(
+                                color: isRead ? Colors.white54 : Colors.white70,
+                                fontSize: 14.0,
+                                height: 1.3,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            notification.formattedDate,
+                            style: GoogleFonts.inter(
+                              color: isRead ? Colors.white38 : Colors.white54,
+                              fontSize: 12.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    PopupMenuButton<String>(
+                      icon: Icon(
+                        Icons.more_vert,
+                        color: isRead ? Colors.white54 : Colors.white70,
+                      ),
+                      color: const Color(0xFF2C2C2C),
+                      onSelected: (value) {
+                        if (value == 'delete') {
+                          _deleteNotification(notification);
+                        }
+                      },
+                      itemBuilder:
+                          (context) => [
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Remover',
+                                    style: GoogleFonts.inter(
+                                      color: Colors.red,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
     );
+  }
+
+  // Método para testar o processamento de lembretes
+  Future<void> _testReminderProcessing() async {
+    try {
+      // Mostrar indicador de carregamento
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => const Center(
+              child: CircularProgressIndicator(color: Colors.blue),
+            ),
+      );
+
+      // Processar lembretes
+      final result = await ReminderService.processReminders();
+
+      // Fechar indicador de carregamento
+      Navigator.of(context).pop();
+
+      if (result != null) {
+        // Recarregar notificações
+        await _loadNotifications();
+
+        // Mostrar mensagem de sucesso
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Lembretes processados com sucesso!',
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(16),
+            ),
+          );
+        }
+      } else {
+        // Mostrar mensagem de erro
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Erro ao processar lembretes',
+                style: GoogleFonts.inter(color: Colors.white),
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              margin: const EdgeInsets.all(16),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Fechar indicador de carregamento se ainda estiver aberto
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      }
+
+      // Mostrar mensagem de erro
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Erro: $e',
+              style: GoogleFonts.inter(color: Colors.white),
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            margin: const EdgeInsets.all(16),
+          ),
+        );
+      }
+    }
   }
 }
