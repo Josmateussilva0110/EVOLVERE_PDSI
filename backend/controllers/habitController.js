@@ -314,6 +314,16 @@ class HabitController {
         }
     }
 
+    async pizzaGraph(request, response) {
+        var result = await Habit.finishHabitGraph()
+        if(!result) {
+            return response.status(404).json({err: "Nenhum dado para o gráfico encontrado."})
+        }
+        else {
+            response.status(200).json({result})
+        }
+    }
+
 }
 
 module.exports = new HabitController()

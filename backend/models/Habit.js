@@ -414,6 +414,31 @@ class Habit {
         }
     }
 
+    async finishHabitGraph() {
+        try {
+            const result = await knex.raw(`
+                SELECT 
+                CASE mood
+                    WHEN 0 THEN 'Neutro'
+                    WHEN 1 THEN 'Feliz'
+                    WHEN 2 THEN 'Triste'
+                    ELSE 'Desconhecido'
+                END AS label,
+                COUNT(*) as value
+                FROM finish_habit
+                GROUP BY mood;
+            `)
+
+            if (result[0].length > 0) {
+                return result[0]
+            } else {
+                return []
+            }
+        } catch (err) {
+            console.error('Erro ao buscar dados de gráfico em finalizar:', err)
+            return []
+        }
+    }
 }
 
 module.exports = new Habit()
