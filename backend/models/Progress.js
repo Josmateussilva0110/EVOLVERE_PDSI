@@ -141,6 +141,35 @@ class Progress {
             return false
         }
     }
+    
+
+    async progressHabitGraph(userId) {
+        try {
+            const result = await knex.raw(`
+                select 
+                case hp.type 
+                    when 0 then 'Automático'
+                    when 1 then 'Manual'
+                    when 2 then 'Acumulativa'
+                    else 'Desconhecido'
+                end as label,
+                count(*) as value
+                from habit_progress hp
+                join habits h on hp.habit_id = h.id
+                where h.user_id = ?
+                group by hp.type;
+            `, [userId]);
+
+            if (result[0].length > 0) {
+                return result[0];
+            } else {
+                return [];
+            }
+        } catch (err) {
+            console.error('Erro ao buscar dados de gráfico em finalizar:', err);
+            return [];
+        }
+    }
 }
 
 module.exports = new Progress()

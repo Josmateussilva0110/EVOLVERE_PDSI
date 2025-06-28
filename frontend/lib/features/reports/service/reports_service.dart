@@ -4,9 +4,9 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HabitService {
 
-  Future<List<Map<String, dynamic>>> fetchPizzaGraph() async {
+  Future<List<Map<String, dynamic>>> fetchPizzaGraph(int user_id) async {
     try {
-      final url = Uri.parse('${dotenv.env['API_URL']}/habit/graph/pizza');
+      final url = Uri.parse('${dotenv.env['API_URL']}/habit/graph/pizza/$user_id');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {

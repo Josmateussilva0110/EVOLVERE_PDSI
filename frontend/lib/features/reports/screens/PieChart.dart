@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import '../service/reports_service.dart'; // seu service que busca do Node
+import '../service/reports_service.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // seu service que busca do Node
 
 class FinishHabitPieChart extends StatefulWidget {
   const FinishHabitPieChart({super.key});
@@ -12,17 +13,29 @@ class FinishHabitPieChart extends StatefulWidget {
 class _FinishHabitPieChartState extends State<FinishHabitPieChart> {
   List<Map<String, dynamic>> _moods = [];
   bool _loading = true;
+  int? _userId;
 
   final HabitService _habitService = HabitService();
+
+  void _loadUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('loggedInUserId');
+    if (userId != null) {
+      setState(() {
+        _userId = userId;
+      });
+      await loadMoods(); 
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    loadMoods();
+    _loadUserData();
   }
 
   Future<void> loadMoods() async {
-    final data = await _habitService.fetchPizzaGraph();
+    final data = await _habitService.fetchPizzaGraph(_userId!);
 
     // mapeia cores fixas
     final mapped =
