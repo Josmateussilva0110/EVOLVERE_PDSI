@@ -7,6 +7,8 @@ import '../models/HabitModel.dart';
 import '../widgets/habit_card.dart';
 import '../widgets/archived_habits.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/CategoryModel.dart';
+import '../services/list_categories_service.dart';
 
 class HabitsListPage extends StatefulWidget {
   const HabitsListPage({Key? key}) : super(key: key);
@@ -25,26 +27,48 @@ class _HabitsListPageState extends State<HabitsListPage> {
   List<Habit> _filteredHabits = [];
   String? _selectedCategoryChip;
   bool showFilters = true;
+  List<Category> _categories = [];
 
   Future<int?> _loadUserId() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt('loggedInUserId');
   }
 
+  Future<void> _loadCategories() async {
+    final cats = await CategoryService.fetchNotArchivedCategories();
+    setState(() {
+      _categories = cats;
+    });
+  }
+
   Future<void> _loadHabits() async {
     if (userId == null) return;
 
-    // Buscar todos os hábitos para estatísticas
-    final allHabits = await HabitService.fetchAllHabits(userId!);
-    // Buscar apenas hábitos ativos para exibição
-    final activeHabits = await HabitService.fetchHabits(userId!);
-    print('HABIT: $activeHabits');
+    try {
+      // Buscar todos os hábitos para estatísticas
+      final allHabits = await HabitService.fetchAllHabits(userId!);
+      // Buscar apenas hábitos ativos para exibição
+      final activeHabits = await HabitService.fetchHabits(userId!);
+      print('HABIT: $activeHabits');
 
-    setState(() {
-      _allHabits = allHabits;
-      _activeHabits = activeHabits;
+      setState(() {
+        _allHabits = allHabits;
+        _activeHabits = activeHabits;
+        _filteredHabits = List.from(
+          activeHabits,
+        ); // Inicializar com todos os hábitos ativos
+      });
+
+      // Aplicar filtros após carregar os dados
       _applyFilters();
-    });
+    } catch (e) {
+      print('Erro ao carregar hábitos: $e');
+      setState(() {
+        _allHabits = [];
+        _activeHabits = [];
+        _filteredHabits = [];
+      });
+    }
   }
 
   void _applyFilters() {
@@ -252,10 +276,18 @@ class _HabitsListPageState extends State<HabitsListPage> {
   }
 
   void _onFilterChanged(String filter) {
+    print('Filter changed to: $filter');
     setState(() {
       selectedFilter = filter;
     });
     _applyFilters();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    print('HabitsListPage initialized with selectedFilter: $selectedFilter');
+    _initData();
   }
 
   Future<void> _initData() async {
@@ -264,14 +296,9 @@ class _HabitsListPageState extends State<HabitsListPage> {
       setState(() {
         userId = id;
       });
+      await _loadCategories();
       await _loadHabits();
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _initData();
   }
 
   @override
@@ -279,8 +306,8 @@ class _HabitsListPageState extends State<HabitsListPage> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenHeight < 700 || screenWidth < 500;
-    final isLandscape = screenWidth > screenHeight;
-    final isTablet = screenWidth > 700;
+    //final isLandscape = screenWidth > screenHeight;
+    //final isTablet = screenWidth > 700;
 
     // Obter lista única de categorias dos hábitos ativos
     final categorias =
@@ -381,364 +408,557 @@ class _HabitsListPageState extends State<HabitsListPage> {
             ],
           ),
           body: SafeArea(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isSmallScreen ? 8 : 24,
-                  vertical: isSmallScreen ? 8 : 16,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Estatísticas simplificadas
-                    Container(
-                      margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 24),
-                      padding: EdgeInsets.all(isSmallScreen ? 12 : 28),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.03),
-                        borderRadius: BorderRadius.circular(
-                          isSmallScreen ? 16 : 28,
-                        ),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.1),
-                          width: 1,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: _buildStatCard(
-                              icon: Icons.list_alt,
-                              title: 'Total',
-                              value: _allHabits.length.toString(),
-                              color: Colors.white,
-                              isSmallScreen: isSmallScreen,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final screenHeight = constraints.maxHeight;
+                final screenWidth = constraints.maxWidth;
+                final isSmallScreen = screenHeight < 700 || screenWidth < 500;
+                final isTablet = screenWidth > 700;
+                final isLandscape = screenWidth > screenHeight;
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal:
+                          isTablet
+                              ? 48
+                              : isSmallScreen
+                              ? 8
+                              : 24,
+                      vertical:
+                          isTablet
+                              ? 24
+                              : isSmallScreen
+                              ? 8
+                              : 16,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Estatísticas simplificadas
+                        Container(
+                          margin: EdgeInsets.only(
+                            bottom:
+                                isTablet
+                                    ? 24
+                                    : isSmallScreen
+                                    ? 8
+                                    : 24,
+                          ),
+                          padding: EdgeInsets.all(
+                            isTablet
+                                ? 32
+                                : isSmallScreen
+                                ? 12
+                                : 28,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.03),
+                            borderRadius: BorderRadius.circular(
+                              isTablet
+                                  ? 32
+                                  : isSmallScreen
+                                  ? 16
+                                  : 28,
+                            ),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.1),
+                              width: 1,
                             ),
                           ),
-                          Container(
-                            width: 1,
-                            height: isSmallScreen ? 30 : 60,
-                            color: Colors.white.withOpacity(0.1),
-                          ),
-                          Expanded(
-                            child: _buildStatCard(
-                              icon: Icons.check_circle_outline,
-                              title: 'Ativos',
-                              value:
-                                  _allHabits
-                                      .where((h) => h.status == 1)
-                                      .length
-                                      .toString(),
-                              color: Colors.green,
-                              isSmallScreen: isSmallScreen,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Barra de busca
-                    SearchBarWidget(onSearchChanged: _onSearchChanged),
-                    SizedBox(height: isSmallScreen ? 6 : 18),
-                    // Botão de mostrar/ocultar filtros
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton.icon(
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.blue,
-                          backgroundColor: Colors.white.withOpacity(0.04),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 8,
-                          ),
-                        ),
-                        icon: AnimatedRotation(
-                          turns: showFilters ? 0.5 : 0,
-                          duration: Duration(milliseconds: 200),
-                          child: Icon(Icons.filter_alt_rounded, size: 22),
-                        ),
-                        label: Text(
-                          showFilters ? 'Ocultar filtros' : 'Mostrar filtros',
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w500,
-                            fontSize: isSmallScreen ? 12 : 14,
-                          ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            showFilters = !showFilters;
-                          });
-                        },
-                      ),
-                    ),
-                    SizedBox(height: isSmallScreen ? 4 : 10),
-                    AnimatedCrossFade(
-                      duration: Duration(milliseconds: 250),
-                      crossFadeState:
-                          showFilters
-                              ? CrossFadeState.showFirst
-                              : CrossFadeState.showSecond,
-                      firstChild: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Filtro de categorias por chips
-                          if (categorias.isNotEmpty)
-                            Padding(
-                              padding: EdgeInsets.only(
-                                bottom: isSmallScreen ? 6 : 18,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(
+                                  icon: Icons.list_alt,
+                                  title: 'Total',
+                                  value: _allHabits.length.toString(),
+                                  color: Colors.white,
+                                  isSmallScreen: isSmallScreen,
+                                ),
                               ),
-                              child: Wrap(
-                                spacing: isSmallScreen ? 8 : 16,
-                                runSpacing: 6,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 4.0),
-                                    child: ChoiceChip(
-                                      label: Text(
-                                        'Todas',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              _selectedCategoryChip == null
-                                                  ? Colors.white
-                                                  : Colors.blue,
-                                          fontSize: isSmallScreen ? 13 : 17,
-                                        ),
-                                      ),
-                                      selected: _selectedCategoryChip == null,
-                                      selectedColor: Colors.blue.shade600,
-                                      backgroundColor: Colors.white.withOpacity(
-                                        0.08,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                          isSmallScreen ? 18 : 24,
-                                        ),
-                                        side: BorderSide(
-                                          color:
-                                              _selectedCategoryChip == null
-                                                  ? Colors.blue.shade600
-                                                  : Colors.white24,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      elevation:
-                                          _selectedCategoryChip == null ? 4 : 0,
-                                      shadowColor: Colors.blue.withOpacity(0.2),
-                                      onSelected: (selected) {
-                                        setState(() {
-                                          _selectedCategoryChip = null;
-                                        });
-                                        _applyFilters();
-                                      },
-                                    ),
-                                  ),
-                                  ...categorias.map(
-                                    (cat) => Padding(
-                                      padding: const EdgeInsets.only(
-                                        right: 4.0,
-                                      ),
-                                      child: ChoiceChip(
-                                        label: Text(
-                                          cat,
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color:
-                                                _selectedCategoryChip == cat
-                                                    ? Colors.white
-                                                    : Colors.blue,
-                                            fontSize: isSmallScreen ? 13 : 17,
-                                          ),
-                                        ),
-                                        selected: _selectedCategoryChip == cat,
-                                        selectedColor: Colors.blue.shade600,
-                                        backgroundColor: Colors.white
-                                            .withOpacity(0.08),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            isSmallScreen ? 18 : 24,
-                                          ),
-                                          side: BorderSide(
-                                            color:
-                                                _selectedCategoryChip == cat
-                                                    ? Colors.blue.shade600
-                                                    : Colors.white24,
-                                            width: 2,
-                                          ),
-                                        ),
-                                        elevation:
-                                            _selectedCategoryChip == cat
-                                                ? 4
-                                                : 0,
-                                        shadowColor: Colors.blue.withOpacity(
-                                          0.2,
-                                        ),
-                                        onSelected: (selected) {
-                                          setState(() {
-                                            _selectedCategoryChip =
-                                                selected ? cat : null;
-                                          });
-                                          _applyFilters();
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              Container(
+                                width: 1,
+                                height:
+                                    isTablet
+                                        ? 60
+                                        : isSmallScreen
+                                        ? 30
+                                        : 60,
+                                color: Colors.white.withOpacity(0.1),
+                              ),
+                              Expanded(
+                                child: _buildStatCard(
+                                  icon: Icons.check_circle_outline,
+                                  title: 'Ativos',
+                                  value:
+                                      _allHabits
+                                          .where((h) => h.status == 1)
+                                          .length
+                                          .toString(),
+                                  color: Colors.green,
+                                  isSmallScreen: isSmallScreen,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Barra de busca
+                        SearchBarWidget(onSearchChanged: _onSearchChanged),
+                        SizedBox(
+                          height:
+                              isTablet
+                                  ? 18
+                                  : isSmallScreen
+                                  ? 6
+                                  : 18,
+                        ),
+                        // Botão de mostrar/ocultar filtros
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton.icon(
+                            style: TextButton.styleFrom(
+                              foregroundColor: Colors.blue,
+                              backgroundColor: Colors.white.withOpacity(0.04),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: isTablet ? 24 : 14,
+                                vertical: isTablet ? 12 : 8,
                               ),
                             ),
-                          // Filtros de prioridade com contadores
-                          FilterChipsWidget(
-                            onFilterChanged: _onFilterChanged,
-                            selectedFilter: selectedFilter,
-                            filterCounts: {
-                              'Todos': _getFilterCount('Todos'),
-                              'Alta': _getFilterCount('Alta'),
-                              'Normal': _getFilterCount('Normal'),
-                              'Baixa': _getFilterCount('Baixa'),
-                              'Diário': _getFilterCount('Diário'),
-                              'Semanal': _getFilterCount('Semanal'),
-                              'Mensal': _getFilterCount('Mensal'),
-                              'Anual': _getFilterCount('Anual'),
+                            icon: AnimatedRotation(
+                              turns: showFilters ? 0.5 : 0,
+                              duration: Duration(milliseconds: 200),
+                              child: Icon(
+                                Icons.filter_alt_rounded,
+                                size: isTablet ? 28 : 22,
+                              ),
+                            ),
+                            label: Text(
+                              showFilters
+                                  ? 'Ocultar filtros'
+                                  : 'Mostrar filtros',
+                              style: GoogleFonts.inter(
+                                fontWeight: FontWeight.w500,
+                                fontSize:
+                                    isTablet
+                                        ? 16
+                                        : isSmallScreen
+                                        ? 12
+                                        : 14,
+                              ),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                showFilters = !showFilters;
+                              });
                             },
                           ),
-                        ],
-                      ),
-                      secondChild: SizedBox.shrink(),
-                    ),
-                    SizedBox(height: isSmallScreen ? 6 : 18),
-                    // Indicador de filtros ativos (mais sutil)
-                    if (searchQuery != null && searchQuery!.isNotEmpty ||
-                        selectedFilter != 'Todos')
-                      Container(
-                        margin: EdgeInsets.only(bottom: isSmallScreen ? 8 : 20),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isSmallScreen ? 10 : 24,
-                          vertical: isSmallScreen ? 6 : 14,
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(
-                            isSmallScreen ? 12 : 20,
-                          ),
-                          border: Border.all(
-                            color: Colors.blue.withOpacity(0.2),
-                            width: 1,
-                          ),
+                        SizedBox(
+                          height:
+                              isTablet
+                                  ? 10
+                                  : isSmallScreen
+                                  ? 4
+                                  : 10,
                         ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.filter_alt,
-                              color: Colors.blue,
-                              size: isSmallScreen ? 12 : 20,
-                            ),
-                            SizedBox(width: isSmallScreen ? 6 : 14),
-                            Expanded(
-                              child: Text(
-                                _getFilterText(),
-                                style: GoogleFonts.inter(
-                                  color: Colors.blue,
-                                  fontSize: isSmallScreen ? 10 : 16,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  searchQuery = '';
-                                  selectedFilter = 'Todos';
-                                });
-                                _applyFilters();
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Icon(
-                                  Icons.clear,
-                                  color: Colors.blue,
-                                  size: isSmallScreen ? 12 : 20,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    // Lista de hábitos
-                    if (_filteredHabits.isEmpty)
-                      _buildEmptyState(isSmallScreen)
-                    else
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final useGrid = isLandscape || isTablet;
-                          final crossAxisCount =
-                              useGrid ? (isTablet ? 3 : 2) : 1;
-                          final cardAspectRatio = useGrid ? 1.7 : 2.8;
-                          return useGrid
-                              ? GridView.builder(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: isSmallScreen ? 8 : 24,
-                                  vertical: isSmallScreen ? 8 : 16,
-                                ),
-                                gridDelegate:
-                                    SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: crossAxisCount,
-                                      crossAxisSpacing: isSmallScreen ? 8 : 24,
-                                      mainAxisSpacing: isSmallScreen ? 8 : 24,
-                                      childAspectRatio: cardAspectRatio,
+                        AnimatedCrossFade(
+                          duration: Duration(milliseconds: 250),
+                          crossFadeState:
+                              showFilters
+                                  ? CrossFadeState.showFirst
+                                  : CrossFadeState.showSecond,
+                          firstChild: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Filtro de categorias por chips
+                              if (categorias.isNotEmpty)
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    bottom:
+                                        isTablet
+                                            ? 18
+                                            : isSmallScreen
+                                            ? 6
+                                            : 18,
+                                  ),
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: Wrap(
+                                      spacing:
+                                          isTablet
+                                              ? 18
+                                              : isSmallScreen
+                                              ? 8
+                                              : 16,
+                                      runSpacing: 6,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 4.0,
+                                          ),
+                                          child: ChoiceChip(
+                                            label: Text(
+                                              'Todas',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color:
+                                                    _selectedCategoryChip ==
+                                                            null
+                                                        ? Colors.white
+                                                        : Colors.blue,
+                                                fontSize:
+                                                    isTablet
+                                                        ? 18
+                                                        : isSmallScreen
+                                                        ? 13
+                                                        : 17,
+                                              ),
+                                            ),
+                                            selected:
+                                                _selectedCategoryChip == null,
+                                            selectedColor: Colors.blue.shade600,
+                                            backgroundColor: Colors.white
+                                                .withOpacity(0.08),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                    isTablet
+                                                        ? 24
+                                                        : isSmallScreen
+                                                        ? 18
+                                                        : 24,
+                                                  ),
+                                              side: BorderSide(
+                                                color:
+                                                    _selectedCategoryChip ==
+                                                            null
+                                                        ? Colors.blue.shade600
+                                                        : Colors.white24,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            elevation:
+                                                _selectedCategoryChip == null
+                                                    ? 4
+                                                    : 0,
+                                            shadowColor: Colors.blue
+                                                .withOpacity(0.2),
+                                            onSelected: (selected) {
+                                              setState(() {
+                                                _selectedCategoryChip = null;
+                                              });
+                                              _applyFilters();
+                                            },
+                                          ),
+                                        ),
+                                        ...categorias.map(
+                                          (cat) => Padding(
+                                            padding: const EdgeInsets.only(
+                                              right: 4.0,
+                                            ),
+                                            child: ChoiceChip(
+                                              label: Text(
+                                                cat,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color:
+                                                      _selectedCategoryChip ==
+                                                              cat
+                                                          ? Colors.white
+                                                          : Colors.blue,
+                                                  fontSize:
+                                                      isTablet
+                                                          ? 18
+                                                          : isSmallScreen
+                                                          ? 13
+                                                          : 17,
+                                                ),
+                                              ),
+                                              selected:
+                                                  _selectedCategoryChip == cat,
+                                              selectedColor:
+                                                  Colors.blue.shade600,
+                                              backgroundColor: Colors.white
+                                                  .withOpacity(0.08),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                      isTablet
+                                                          ? 24
+                                                          : isSmallScreen
+                                                          ? 18
+                                                          : 24,
+                                                    ),
+                                                side: BorderSide(
+                                                  color:
+                                                      _selectedCategoryChip ==
+                                                              cat
+                                                          ? Colors.blue.shade600
+                                                          : Colors.white24,
+                                                  width: 2,
+                                                ),
+                                              ),
+                                              elevation:
+                                                  _selectedCategoryChip == cat
+                                                      ? 4
+                                                      : 0,
+                                              shadowColor: Colors.blue
+                                                  .withOpacity(0.2),
+                                              onSelected: (selected) {
+                                                setState(() {
+                                                  _selectedCategoryChip =
+                                                      selected ? cat : null;
+                                                });
+                                                _applyFilters();
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                itemCount: _filteredHabits.length,
-                                itemBuilder: (context, index) {
-                                  final habit = _filteredHabits[index];
-                                  return HabitCardWidget(
-                                    habit: habit,
-                                    onHabitArchived: () {
-                                      _loadHabits();
-                                    },
-                                    onHabitDeleted: () {
-                                      _loadHabits();
-                                    },
-                                    onHabitUpdated: () {
-                                      _loadHabits();
-                                    },
-                                  );
-                                },
-                              )
-                              : ListView.builder(
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: isSmallScreen ? 8 : 16,
+                                  ),
                                 ),
-                                itemCount: _filteredHabits.length,
-                                itemBuilder: (context, index) {
-                                  final habit = _filteredHabits[index];
-                                  return HabitCardWidget(
-                                    habit: habit,
-                                    onHabitArchived: () {
-                                      _loadHabits();
-                                    },
-                                    onHabitDeleted: () {
-                                      _loadHabits();
-                                    },
-                                    onHabitUpdated: () {
-                                      _loadHabits();
-                                    },
+                              // Filtros de prioridade com contadores
+                              Builder(
+                                builder: (context) {
+                                  final filterCounts = {
+                                    'Todos': _getFilterCount('Todos'),
+                                    'Alta': _getFilterCount('Alta'),
+                                    'Normal': _getFilterCount('Normal'),
+                                    'Baixa': _getFilterCount('Baixa'),
+                                    'Diário': _getFilterCount('Diário'),
+                                    'Semanal': _getFilterCount('Semanal'),
+                                    'Mensal': _getFilterCount('Mensal'),
+                                    'Anual': _getFilterCount('Anual'),
+                                  };
+                                  print(
+                                    'Filter counts: $filterCounts, selectedFilter: $selectedFilter',
+                                  );
+                                  return FilterChipsWidget(
+                                    onFilterChanged: _onFilterChanged,
+                                    selectedFilter: selectedFilter,
+                                    filterCounts: filterCounts,
                                   );
                                 },
-                              );
-                        },
-                      ),
-                  ],
-                ),
-              ),
+                              ),
+                            ],
+                          ),
+                          secondChild: SizedBox.shrink(),
+                        ),
+                        SizedBox(
+                          height:
+                              isTablet
+                                  ? 18
+                                  : isSmallScreen
+                                  ? 6
+                                  : 18,
+                        ),
+                        // Indicador de filtros ativos (mais sutil)
+                        if (searchQuery != null && searchQuery!.isNotEmpty ||
+                            selectedFilter != 'Todos')
+                          Container(
+                            margin: EdgeInsets.only(
+                              bottom:
+                                  isTablet
+                                      ? 20
+                                      : isSmallScreen
+                                      ? 8
+                                      : 20,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  isTablet
+                                      ? 24
+                                      : isSmallScreen
+                                      ? 10
+                                      : 24,
+                              vertical:
+                                  isTablet
+                                      ? 14
+                                      : isSmallScreen
+                                      ? 6
+                                      : 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(
+                                isTablet
+                                    ? 20
+                                    : isSmallScreen
+                                    ? 12
+                                    : 20,
+                              ),
+                              border: Border.all(
+                                color: Colors.blue.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.filter_alt,
+                                  color: Colors.blue,
+                                  size:
+                                      isTablet
+                                          ? 20
+                                          : isSmallScreen
+                                          ? 12
+                                          : 20,
+                                ),
+                                SizedBox(
+                                  width:
+                                      isTablet
+                                          ? 14
+                                          : isSmallScreen
+                                          ? 6
+                                          : 14,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    _getFilterText(),
+                                    style: GoogleFonts.inter(
+                                      color: Colors.blue,
+                                      fontSize:
+                                          isTablet
+                                              ? 16
+                                              : isSmallScreen
+                                              ? 10
+                                              : 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      searchQuery = '';
+                                      selectedFilter = 'Todos';
+                                    });
+                                    _applyFilters();
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Icon(
+                                      Icons.clear,
+                                      color: Colors.blue,
+                                      size:
+                                          isTablet
+                                              ? 20
+                                              : isSmallScreen
+                                              ? 12
+                                              : 20,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        // Lista de hábitos
+                        if (_filteredHabits.isEmpty)
+                          _buildEmptyState(isSmallScreen)
+                        else
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final useGrid = isLandscape || isTablet;
+                              final crossAxisCount =
+                                  useGrid ? (isTablet ? 3 : 2) : 1;
+                              final cardAspectRatio = useGrid ? 1.7 : 2.8;
+                              return useGrid
+                                  ? GridView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal:
+                                          isTablet
+                                              ? 24
+                                              : isSmallScreen
+                                              ? 8
+                                              : 24,
+                                      vertical:
+                                          isTablet
+                                              ? 16
+                                              : isSmallScreen
+                                              ? 8
+                                              : 16,
+                                    ),
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: crossAxisCount,
+                                          crossAxisSpacing:
+                                              isTablet
+                                                  ? 24
+                                                  : isSmallScreen
+                                                  ? 8
+                                                  : 24,
+                                          mainAxisSpacing:
+                                              isTablet
+                                                  ? 24
+                                                  : isSmallScreen
+                                                  ? 8
+                                                  : 24,
+                                          childAspectRatio: cardAspectRatio,
+                                        ),
+                                    itemCount: _filteredHabits.length,
+                                    itemBuilder: (context, index) {
+                                      final habit = _filteredHabits[index];
+                                      return HabitCardWidget(
+                                        habit: habit,
+                                        categories: _categories,
+                                        onHabitArchived: () {
+                                          _loadHabits();
+                                        },
+                                        onHabitDeleted: () {
+                                          _loadHabits();
+                                        },
+                                        onHabitUpdated: () {
+                                          _loadHabits();
+                                        },
+                                      );
+                                    },
+                                  )
+                                  : ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal:
+                                          isTablet
+                                              ? 16
+                                              : isSmallScreen
+                                              ? 8
+                                              : 16,
+                                    ),
+                                    itemCount: _filteredHabits.length,
+                                    itemBuilder: (context, index) {
+                                      final habit = _filteredHabits[index];
+                                      return HabitCardWidget(
+                                        habit: habit,
+                                        categories: _categories,
+                                        onHabitArchived: () {
+                                          _loadHabits();
+                                        },
+                                        onHabitDeleted: () {
+                                          _loadHabits();
+                                        },
+                                        onHabitUpdated: () {
+                                          _loadHabits();
+                                        },
+                                      );
+                                    },
+                                  );
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           floatingActionButton: FloatingActionButton(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/HabitModel.dart';
 import '../services/list_habits_service.dart';
 import '../services/list_categories_service.dart';
@@ -7,9 +8,11 @@ import '../../progress_record/screens/progress_record_screen.dart';
 import '../../habit_completion/screens/finish_habit_screen.dart';
 import '../../Habits/model/HabitData.dart';
 import 'confirm_action_dialog.dart';
+import '../models/CategoryModel.dart';
 
 class HabitCardWidget extends StatelessWidget {
   final Habit habit;
+  final List<Category> categories;
   final VoidCallback? onHabitArchived;
   final VoidCallback? onHabitDeleted;
   final VoidCallback? onHabitUpdated;
@@ -17,6 +20,7 @@ class HabitCardWidget extends StatelessWidget {
   const HabitCardWidget({
     Key? key,
     required this.habit,
+    required this.categories,
     this.onHabitArchived,
     this.onHabitDeleted,
     this.onHabitUpdated,
@@ -54,22 +58,26 @@ class HabitCardWidget extends StatelessWidget {
                   // Cabeçalho do card
                   Row(
                     children: [
-                      // Ícone da categoria
-                      Container(
-                        padding: EdgeInsets.all(isSmallScreen ? 8 : 10),
-                        decoration: BoxDecoration(
-                          color: _getPriorityColor(
-                            habit.priority,
-                          ).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(10),
+                      if (categories.any(
+                        (cat) =>
+                            cat.name == habit.categoryName &&
+                            cat.icon.isNotEmpty,
+                      ))
+                        Container(
+                          width: isSmallScreen ? 36 : 44,
+                          height: isSmallScreen ? 36 : 44,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: _buildCategoryImage(),
                         ),
-                        child: Icon(
-                          _getCategoryIcon(habit.categoryName),
-                          color: _getPriorityColor(habit.priority),
-                          size: isSmallScreen ? 18 : 20,
-                        ),
-                      ),
-                      SizedBox(width: isSmallScreen ? 12 : 16),
+                      if (categories.any(
+                        (cat) =>
+                            cat.name == habit.categoryName &&
+                            cat.icon.isNotEmpty,
+                      ))
+                        SizedBox(width: isSmallScreen ? 12 : 16),
 
                       // Informações principais
                       Expanded(
@@ -267,35 +275,7 @@ class HabitCardWidget extends StatelessWidget {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           // Frequência
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isSmallScreen ? 8 : 10,
-                              vertical: isSmallScreen ? 4 : 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  _getFrequencyIcon(habit.frequency.option),
-                                  color: Colors.blue,
-                                  size: isSmallScreen ? 12 : 14,
-                                ),
-                                SizedBox(width: isSmallScreen ? 4 : 6),
-                                Text(
-                                  _getFrequencyText(habit.frequency),
-                                  style: GoogleFonts.inter(
-                                    fontSize: isSmallScreen ? 11 : 12,
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          _buildFrequencyChip(habit),
                           // Prioridade
                           Container(
                             padding: EdgeInsets.symmetric(
@@ -322,47 +302,6 @@ class HabitCardWidget extends StatelessWidget {
                                   style: GoogleFonts.inter(
                                     fontSize: isSmallScreen ? 11 : 12,
                                     color: _getPriorityColor(habit.priority),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Status
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isSmallScreen ? 8 : 10,
-                              vertical: isSmallScreen ? 4 : 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  habit.status == 1
-                                      ? Colors.green.withOpacity(0.1)
-                                      : Colors.orange.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  habit.status == 1
-                                      ? Icons.check_circle
-                                      : Icons.pause_circle,
-                                  color:
-                                      habit.status == 1
-                                          ? Colors.green
-                                          : Colors.orange,
-                                  size: isSmallScreen ? 12 : 14,
-                                ),
-                                SizedBox(width: isSmallScreen ? 4 : 6),
-                                Text(
-                                  habit.status == 1 ? 'Ativo' : 'Pausado',
-                                  style: GoogleFonts.inter(
-                                    fontSize: isSmallScreen ? 11 : 12,
-                                    color:
-                                        habit.status == 1
-                                            ? Colors.green
-                                            : Colors.orange,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -375,36 +314,7 @@ class HabitCardWidget extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Frequência
-                          Container(
-                            margin: EdgeInsets.only(bottom: 4),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isSmallScreen ? 8 : 10,
-                              vertical: isSmallScreen ? 4 : 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  _getFrequencyIcon(habit.frequency.option),
-                                  color: Colors.blue,
-                                  size: isSmallScreen ? 12 : 14,
-                                ),
-                                SizedBox(width: isSmallScreen ? 4 : 6),
-                                Text(
-                                  _getFrequencyText(habit.frequency),
-                                  style: GoogleFonts.inter(
-                                    fontSize: isSmallScreen ? 11 : 12,
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          _buildFrequencyChip(habit),
                           // Prioridade
                           Container(
                             margin: EdgeInsets.only(bottom: 4),
@@ -432,47 +342,6 @@ class HabitCardWidget extends StatelessWidget {
                                   style: GoogleFonts.inter(
                                     fontSize: isSmallScreen ? 11 : 12,
                                     color: _getPriorityColor(habit.priority),
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Status
-                          Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: isSmallScreen ? 8 : 10,
-                              vertical: isSmallScreen ? 4 : 5,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  habit.status == 1
-                                      ? Colors.green.withOpacity(0.1)
-                                      : Colors.orange.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  habit.status == 1
-                                      ? Icons.check_circle
-                                      : Icons.pause_circle,
-                                  color:
-                                      habit.status == 1
-                                          ? Colors.green
-                                          : Colors.orange,
-                                  size: isSmallScreen ? 12 : 14,
-                                ),
-                                SizedBox(width: isSmallScreen ? 4 : 6),
-                                Text(
-                                  habit.status == 1 ? 'Ativo' : 'Pausado',
-                                  style: GoogleFonts.inter(
-                                    fontSize: isSmallScreen ? 11 : 12,
-                                    color:
-                                        habit.status == 1
-                                            ? Colors.green
-                                            : Colors.orange,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -504,6 +373,27 @@ class HabitCardWidget extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+
+                  // Categoria
+                  if (habit.categoryName != null)
+                    Row(
+                      children: [
+                        Icon(
+                          _getCategoryIcon(habit.categoryName),
+                          size: isSmallScreen ? 14 : 16,
+                          color: Colors.blue.withOpacity(0.8),
+                        ),
+                        SizedBox(width: isSmallScreen ? 6 : 8),
+                        Text(
+                          habit.categoryName!,
+                          style: GoogleFonts.inter(
+                            fontSize: isSmallScreen ? 14 : 16,
+                            color: Colors.blue.withOpacity(0.8),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                 ],
               ),
@@ -681,7 +571,7 @@ class HabitCardWidget extends StatelessWidget {
   }
 
   IconData _getCategoryIcon(String? categoryName) {
-    if (categoryName == null) return Icons.category;
+    if (categoryName == null || categoryName.isEmpty) return Icons.category;
 
     final lowerCategory = categoryName.toLowerCase();
     if (lowerCategory.contains('saúde') || lowerCategory.contains('health')) {
@@ -712,34 +602,118 @@ class HabitCardWidget extends StatelessWidget {
     }
   }
 
-  IconData _getFrequencyIcon(String option) {
-    switch (option) {
-      case 'daily':
-        return Icons.calendar_today;
-      case 'weekly':
-        return Icons.view_week;
-      case 'monthly':
-        return Icons.calendar_month;
-      default:
-        return Icons.schedule;
-    }
-  }
-
-  String _getFrequencyText(Frequency frequency) {
-    switch (frequency.option) {
-      case 'daily':
-        return 'Diário';
-      case 'weekly':
-        return 'Semanal';
-      case 'monthly':
-        return 'Mensal';
-      default:
-        return 'Personalizado';
-    }
+  String _formatDateTime(DateTime dateTime) {
+    final day = dateTime.day.toString().padLeft(2, '0');
+    final month = dateTime.month.toString().padLeft(2, '0');
+    final year = dateTime.year;
+    final hour = dateTime.hour.toString().padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    return '$day/$month/$year às $hour:$minute';
   }
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  Widget _buildFrequencyChip(Habit habit) {
+    final freq = habit.frequency;
+    Color color;
+    IconData icon;
+    String label;
+
+    switch (freq.option) {
+      case 'daily':
+        color = Colors.green;
+        icon = Icons.calendar_today;
+        label = 'Todos os dias';
+        break;
+      case 'weekly':
+        color = Colors.blue;
+        icon = Icons.view_week;
+        if (freq.value is List && (freq.value as List).isNotEmpty) {
+          final dias = _getShortDayNames(freq.value as List);
+          label = dias.join(', ');
+        } else {
+          label = 'Semanal';
+        }
+        break;
+      case 'monthly':
+        color = Colors.purple;
+        icon = Icons.calendar_month;
+        if (freq.value is List && (freq.value as List).isNotEmpty) {
+          label = (freq.value as List).join(', ');
+        } else {
+          label = 'Mensal';
+        }
+        break;
+      default:
+        color = Colors.orange;
+        icon = Icons.tune;
+        label = 'Personalizado';
+    }
+
+    return Chip(
+      avatar: Icon(icon, color: Colors.white, size: 18),
+      label: Text(
+        label,
+        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+      ),
+      backgroundColor: color.withOpacity(0.8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+    );
+  }
+
+  List<String> _getShortDayNames(List days) {
+    const dayNames = {
+      1: 'Seg',
+      2: 'Ter',
+      3: 'Qua',
+      4: 'Qui',
+      5: 'Sex',
+      6: 'Sáb',
+      7: 'Dom',
+    };
+    return days.map((d) => dayNames[d] ?? 'Dia$d').toList();
+  }
+
+  Widget _buildCategoryImage() {
+    final category = categories.firstWhere(
+      (cat) => cat.name == habit.categoryName,
+      orElse:
+          () => Category(id: 0, name: '', description: '', color: '', icon: ''),
+    );
+
+    if (category.icon.isNotEmpty) {
+      final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:3333';
+      final imageUrl = '$apiUrl${category.icon}';
+
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return SizedBox.shrink();
+          },
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Center(
+              child: CircularProgressIndicator(
+                value:
+                    loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),
+              ),
+            );
+          },
+        ),
+      );
+    } else {
+      return SizedBox.shrink();
+    }
   }
 }
 
@@ -747,6 +721,107 @@ class _HabitDetailsModal extends StatelessWidget {
   final Habit habit;
 
   const _HabitDetailsModal({required this.habit});
+
+  String _getFrequencyDetails() {
+    switch (habit.frequency.option) {
+      case 'daily':
+        return 'Todos os dias';
+      case 'weekly':
+        if (habit.frequency.value is List) {
+          final days = habit.frequency.value as List;
+          if (days.isNotEmpty) {
+            final dayNames = _getDayNames(days);
+            return 'Dias da semana: ${dayNames.join(', ')}';
+          }
+        }
+        return 'Semanal';
+      case 'monthly':
+        if (habit.frequency.value is List) {
+          final days = habit.frequency.value as List;
+          if (days.isNotEmpty) {
+            final dayNumbers = days.map((d) => d.toString()).join(', ');
+            return 'Dias do mês: $dayNumbers';
+          }
+        }
+        return 'Mensal';
+      default:
+        if (habit.frequency.value is List) {
+          final days = habit.frequency.value as List;
+          if (days.isNotEmpty) {
+            return 'Personalizado: ${days.join(', ')}';
+          }
+        }
+        return 'Personalizado';
+    }
+  }
+
+  String _getRemindersDetails() {
+    final reminders = habit.reminders;
+    if (reminders == null || reminders.isEmpty) {
+      return 'Nenhum lembrete configurado';
+    }
+    final formattedReminders =
+        reminders.map((r) => _formatDateTime(r)).toList();
+    return formattedReminders.join('\n');
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final day = dateTime.day.toString().padLeft(2, '0');
+    final month = dateTime.month.toString().padLeft(2, '0');
+    final year = dateTime.year;
+    final hour = dateTime.hour.toString().padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    return '$day/$month/$year às $hour:$minute';
+  }
+
+  List<String> _getDayNames(List days) {
+    final dayNames = {
+      1: 'Segunda',
+      2: 'Terça',
+      3: 'Quarta',
+      4: 'Quinta',
+      5: 'Sexta',
+      6: 'Sábado',
+      7: 'Domingo',
+    };
+    return days.map((day) => dayNames[day] ?? 'Dia $day').toList();
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  IconData _getCategoryIcon(String? categoryName) {
+    if (categoryName == null || categoryName.isEmpty) return Icons.category;
+
+    final lowerCategory = categoryName.toLowerCase();
+    if (lowerCategory.contains('saúde') || lowerCategory.contains('health')) {
+      return Icons.favorite;
+    } else if (lowerCategory.contains('exercício') ||
+        lowerCategory.contains('fitness')) {
+      return Icons.fitness_center;
+    } else if (lowerCategory.contains('estudo') ||
+        lowerCategory.contains('study')) {
+      return Icons.school;
+    } else if (lowerCategory.contains('trabalho') ||
+        lowerCategory.contains('work')) {
+      return Icons.work;
+    } else if (lowerCategory.contains('casa') ||
+        lowerCategory.contains('home')) {
+      return Icons.home;
+    } else if (lowerCategory.contains('financeiro') ||
+        lowerCategory.contains('money')) {
+      return Icons.attach_money;
+    } else if (lowerCategory.contains('social') ||
+        lowerCategory.contains('people')) {
+      return Icons.people;
+    } else if (lowerCategory.contains('hobby') ||
+        lowerCategory.contains('lazer')) {
+      return Icons.sports_esports;
+    } else {
+      return Icons.category;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -795,7 +870,7 @@ class _HabitDetailsModal extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.label,
+                          _getCategoryIcon(habit.categoryName),
                           size: isSmallScreen ? 14 : 16,
                           color: Colors.blue.withOpacity(0.8),
                         ),
@@ -873,14 +948,12 @@ class _HabitDetailsModal extends StatelessWidget {
                     isSmallScreen: isSmallScreen,
                   ),
 
-                  if (habit.reminders != null &&
-                      habit.reminders!.isNotEmpty) ...[
+                  if (habit.reminders?.isNotEmpty == true) ...[
                     SizedBox(height: isSmallScreen ? 12 : 16),
                     _buildDetailSection(
                       title: 'Lembretes',
                       icon: Icons.notifications,
-                      content:
-                          '${habit.reminders!.length} lembretes configurados',
+                      content: _getRemindersDetails(),
                       isSmallScreen: isSmallScreen,
                     ),
                   ],
@@ -891,6 +964,32 @@ class _HabitDetailsModal extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Color _getPriorityColor(int priority) {
+    switch (priority) {
+      case 1:
+        return Colors.red;
+      case 2:
+        return Colors.orange;
+      case 3:
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _getPriorityText(int priority) {
+    switch (priority) {
+      case 1:
+        return 'Alta';
+      case 2:
+        return 'Normal';
+      case 3:
+        return 'Baixa';
+      default:
+        return 'Não definida';
+    }
   }
 
   Widget _buildDetailSection({
@@ -908,6 +1007,7 @@ class _HabitDetailsModal extends StatelessWidget {
         border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: EdgeInsets.all(isSmallScreen ? 6 : 8),
@@ -941,6 +1041,7 @@ class _HabitDetailsModal extends StatelessWidget {
                     color: Colors.white,
                     fontSize: isSmallScreen ? 14 : 16,
                     fontWeight: FontWeight.w500,
+                    height: 1.3,
                   ),
                 ),
               ],
@@ -949,52 +1050,5 @@ class _HabitDetailsModal extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  String _getFrequencyDetails() {
-    switch (habit.frequency.option) {
-      case 'daily':
-        return 'Todos os dias';
-      case 'weekly':
-        if (habit.frequency.value is List) {
-          final days = habit.frequency.value as List;
-          return '${days.length} vezes por semana';
-        }
-        return 'Semanal';
-      case 'monthly':
-        return 'Mensal';
-      default:
-        return 'Personalizado';
-    }
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
-  }
-
-  Color _getPriorityColor(int priority) {
-    switch (priority) {
-      case 1:
-        return Colors.red;
-      case 2:
-        return Colors.orange;
-      case 3:
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _getPriorityText(int priority) {
-    switch (priority) {
-      case 1:
-        return 'Alta';
-      case 2:
-        return 'Normal';
-      case 3:
-        return 'Baixa';
-      default:
-        return 'Não definida';
-    }
   }
 }

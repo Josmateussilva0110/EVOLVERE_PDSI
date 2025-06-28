@@ -51,46 +51,53 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget> {
     final isTablet = screenWidth > 700;
     final isWide = screenWidth > 500;
     final isVerySmall = screenWidth < 350;
+
+    // Ajustes responsivos melhorados
     final chipPadding =
         isTablet
-            ? EdgeInsets.symmetric(horizontal: 28, vertical: 18)
+            ? const EdgeInsets.symmetric(horizontal: 28, vertical: 18)
             : isWide
-            ? EdgeInsets.symmetric(horizontal: 20, vertical: 14)
+            ? const EdgeInsets.symmetric(horizontal: 20, vertical: 14)
             : isVerySmall
-            ? EdgeInsets.symmetric(horizontal: 8, vertical: 4)
-            : EdgeInsets.symmetric(horizontal: 16, vertical: 10);
+            ? const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
+            : const EdgeInsets.symmetric(horizontal: 16, vertical: 12);
+
     final chipFont =
         isTablet
             ? 20.0
             : isWide
             ? 16.0
             : isVerySmall
-            ? 10.0
+            ? 12.0
             : 14.0;
+
     final chipIcon =
         isTablet
             ? 26.0
             : isWide
             ? 20.0
             : isVerySmall
-            ? 11.0
+            ? 14.0
             : 16.0;
+
     final chipSpacing =
         isTablet
             ? 24.0
             : isWide
             ? 16.0
             : isVerySmall
-            ? 6.0
+            ? 8.0
             : 12.0;
+
     final chipBorder =
         isTablet
             ? 32.0
             : isWide
             ? 28.0
             : isVerySmall
-            ? 14.0
+            ? 20.0
             : 25.0;
+
     return SingleChildScrollView(
       controller: _scrollController,
       scrollDirection: Axis.horizontal,
@@ -103,6 +110,8 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget> {
                 ? 32
                 : isWide
                 ? 24
+                : isVerySmall
+                ? 12
                 : 16,
       ),
       child: Row(
@@ -121,6 +130,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget> {
                   chipFont,
                   chipIcon,
                   chipBorder,
+                  isVerySmall,
                 ),
               );
             }).toList(),
@@ -136,6 +146,7 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget> {
     double chipFont,
     double chipIcon,
     double chipBorder,
+    bool isVerySmall,
   ) {
     return ChoiceChip(
       label: Row(
@@ -147,20 +158,26 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget> {
               size: chipIcon,
               color: isSelected ? Colors.blue : Colors.white70,
             ),
-          if (filter.icon != null) SizedBox(width: 6),
-          Text(
-            filter.label,
-            style: GoogleFonts.inter(
-              fontSize: chipFont,
-              color: isSelected ? Colors.blue : Colors.white70,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              letterSpacing: 0.1,
+          if (filter.icon != null) SizedBox(width: isVerySmall ? 4 : 6),
+          Flexible(
+            child: Text(
+              filter.label,
+              style: GoogleFonts.inter(
+                fontSize: chipFont,
+                color: isSelected ? Colors.blue : Colors.white70,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                letterSpacing: 0.1,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           if (count > 0) ...[
-            SizedBox(width: 4),
+            SizedBox(width: isVerySmall ? 2 : 4),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              padding: EdgeInsets.symmetric(
+                horizontal: isVerySmall ? 3 : 5,
+                vertical: 1,
+              ),
               decoration: BoxDecoration(
                 color:
                     isSelected ? Colors.blue.withOpacity(0.15) : Colors.white12,
@@ -188,10 +205,16 @@ class _FilterChipsWidgetState extends State<FilterChipsWidget> {
           width: isSelected ? 1.5 : 1,
         ),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: EdgeInsets.symmetric(
+        horizontal: isVerySmall ? 8 : 12,
+        vertical: isVerySmall ? 4 : 6,
+      ),
       visualDensity: VisualDensity.compact,
       onSelected: (selected) {
-        if (selected) widget.onFilterChanged!(filter.label);
+        print('Filter chip selected: ${filter.label}, selected: $selected');
+        if (selected && widget.onFilterChanged != null) {
+          widget.onFilterChanged!(filter.label);
+        }
       },
     );
   }

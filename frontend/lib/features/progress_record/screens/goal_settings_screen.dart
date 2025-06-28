@@ -31,16 +31,20 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
 
     setState(() {
       goals =
-          progressList.map((e) {
-            return Goal(
-              id: e.id,
-              title: e.name ?? 'Meta sem nome',
-              type: e.type_description ?? 'Monitorado',
-              progress: e.parameter ?? 0,
-              total: _defineTotal(e.type),
-              isProgressBar: e.type == 0, // apenas 'automático' mostra barra
-            );
-          }).toList();
+          progressList
+              .where((e) => e.status == 1) // Apenas metas ativas (status = 1)
+              .map((e) {
+                return Goal(
+                  id: e.id,
+                  title: e.name ?? 'Meta sem nome',
+                  type: e.type_description ?? 'Monitorado',
+                  progress: e.parameter ?? 0,
+                  total: _defineTotal(e.type),
+                  isProgressBar:
+                      e.type == 0, // apenas 'automático' mostra barra
+                );
+              })
+              .toList();
       isLoading = false;
     });
   }
@@ -94,7 +98,7 @@ class _GoalSettingsScreenState extends State<GoalSettingsScreen> {
                               return GoalCard(
                                 goal: goal,
                                 habitId: widget.habitId,
-                                onDeleteSuccess: fetchGoals, 
+                                onDeleteSuccess: fetchGoals,
                                 onCompletedSuccess: fetchGoals,
                                 onCanceledSuccess: fetchGoals,
                                 onEditSuccess: fetchGoals,

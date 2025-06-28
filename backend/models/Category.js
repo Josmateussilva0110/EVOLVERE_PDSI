@@ -134,7 +134,7 @@ class Category {
                 "description",
                 "color",
                 "icon"
-            ]).where('archived', false).knex.andWhere('user_id', user_id).from("category");
+            ]).where('archived', false).andWhere('user_id', user_id).from("category");
             if(result.length > 0)
                 return result;
             else 
