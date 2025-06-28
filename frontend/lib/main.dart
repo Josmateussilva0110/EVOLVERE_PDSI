@@ -17,6 +17,7 @@ import 'features/Habits/model/HabitData.dart';
 import 'features/explanation/screens/explanation_screen.dart';
 import 'features/home/notifications_screen.dart';
 import 'features/settings/screens/settings_screen.dart';
+import 'features/reports/screens/graph_screen.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -65,6 +66,7 @@ class _MyAppState extends State<MyApp> {
         '/explanation_screen': (context) => ExplanationScreen(),
         '/notificacoes': (context) => NotificationsScreen(),
         '/configuracoes': (context) => SettingsScreen(),
+        '/relatorios': (context) => ChartsScreen(),
       },
 
       onGenerateRoute: (settings) {

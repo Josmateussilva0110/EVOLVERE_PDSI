@@ -53,12 +53,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               trailing: Icon(Icons.arrow_forward_ios, color: Colors.grey),
               onTap: () {
-                // TODO: Navegar para a tela de Alterar Senha
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Tela de Alterar Senha em desenvolvimento.'),
-                  ),
-                );
+                Navigator.pushNamed(context, '/esqueci_senha');
               },
             ),
             Divider(color: Colors.grey[700]),
