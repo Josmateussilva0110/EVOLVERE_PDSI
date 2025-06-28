@@ -224,7 +224,7 @@ class CategoryListItem extends StatelessWidget {
     );
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
@@ -235,7 +235,7 @@ class CategoryListItem extends StatelessWidget {
           ),
         );
       },
-      onLongPress: () => _showOptions(context),      
+      onLongPress: () => _showOptions(context),
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
         padding: const EdgeInsets.all(12),
@@ -259,16 +259,19 @@ class CategoryListItem extends StatelessWidget {
                 color: category.color.withOpacity(0.2),
                 shape: BoxShape.circle,
               ),
-              child: category.iconUrl.isNotEmpty
-                  ? ClipOval(
-                      child: Image.network(
-                        '${dotenv.env['API_URL']}${category.iconUrl}',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Icon(Icons.category, color: category.color),
-                      ),
-                    )
-                  : Icon(Icons.category, color: category.color, size: 28),
+              child: Padding( // <-- ALTERAÇÃO APLICADA AQUI
+                padding: const EdgeInsets.all(8.0), // Você pode ajustar este valor
+                child: category.iconUrl.isNotEmpty
+                    ? ClipOval(
+                        child: Image.network(
+                          '${dotenv.env['API_URL']}${category.iconUrl}',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Icon(Icons.category, color: category.color),
+                        ),
+                      )
+                    : Icon(Icons.category, color: category.color, size: 28),
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
