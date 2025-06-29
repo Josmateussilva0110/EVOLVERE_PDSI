@@ -59,7 +59,7 @@ router.get("/habits/total/:user_id", HabitController.getHabitsSummaryByUser)
 router.get("/habits/completed_by_month/:user_id", HabitController.getCompletedHabitsByMonth)
 router.get("/habits/active/:user_id", HabitController.getHabitsActive)
 router.get("/habit/graph/pizza/:user_id", HabitController.pizzaGraph)
-router.get("/habit/graph/bar/:user_id", ProgressController.barGraph)
+
 
 // -------------------------------------------------------------------------
 
@@ -70,6 +70,7 @@ router.delete("/habit/progress/:id", ProgressController.removeProgress)
 router.post("/habit/progress/complete/:id", ProgressController.completeProgress)
 router.post("/habit/progress/cancel/:id", ProgressController.cancelProgress)
 router.patch("/habit/progress/edit/:id", ProgressController.editProgress)
+router.get("/habit/graph/bar/:user_id", ProgressController.barGraph)
 
 // -------------------------------------------------------------------------
 
