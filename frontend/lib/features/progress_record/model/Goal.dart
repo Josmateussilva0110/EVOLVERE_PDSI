@@ -5,6 +5,7 @@ class Goal {
   final int? progress;
   final int? total;
   final bool isProgressBar;
+  final String? status;
 
   Goal({
     this.id,
@@ -13,5 +14,6 @@ class Goal {
     this.progress,
     this.total,
     this.isProgressBar = false,
+    this.status,
   });
 }

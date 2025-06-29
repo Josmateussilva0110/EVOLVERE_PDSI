@@ -35,6 +35,7 @@ class Progress {
                     name, 
                     parameter,
                     type,
+                    status,
                     CASE 
                         WHEN type = 0 THEN 'automático'
                         WHEN type = 1 THEN 'manual'
@@ -42,7 +43,8 @@ class Progress {
                         ELSE 'desconhecido'
                     END AS type_description
                 FROM habit_progress 
-                WHERE habit_id = ? and status = 1
+                WHERE habit_id = ?
+                ORDER BY id DESC
             `, [habit_id]);
 
             const rows = result[0]
