@@ -33,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _habitsTotal = 0;
   int _habitsCompleted = 0;
 
+
   int _unreadNotifications = 0;
 
   Timer? _notificationTimer; // Adicione este campo

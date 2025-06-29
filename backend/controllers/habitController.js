@@ -324,6 +324,32 @@ class HabitController {
         }
     }
 
+    async pizzaGraph(request, response) {
+        const userId = request.params.user_id
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+        const result = await Habit.finishHabitGraph(userId);
+        if (!result || result.length === 0) {
+            return response.status(404).json({ err: "Nenhum dado para o gráfico encontrado para esse usuário." });
+        } else {
+            response.status(200).json({ result });
+        }
+    }
+
+    async FrequencyGraph(request, response) {
+        const userId = request.params.user_id
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+        const result = await Habit.FrequencyHabitGraph(userId)
+        if (!result || result.length === 0) {
+            return response.status(404).json({ err: "Nenhum dado para o gráfico encontrado para esse usuário." });
+        } else {
+            response.status(200).json({ result });
+        }
+    }
+
 }
 
 module.exports = new HabitController()

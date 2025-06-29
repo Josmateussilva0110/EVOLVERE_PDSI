@@ -242,7 +242,7 @@ class UserController {
             if (!user) {
                 return response.status(404).json({ err: "Usuário não encontrado" });
             }
-            
+
             // Formata a data de criação
             const createdAt = new Date(user.created_at);
             const formattedDate = createdAt.toLocaleDateString('pt-BR', {

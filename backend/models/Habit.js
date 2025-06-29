@@ -199,6 +199,7 @@ class Habit {
             return undefined
         }
     }
+    
     async findByName(name) {
         try {
             var result = await knex.select(["id", "name", "description", "category_id", "frequency", "start_date", "end_date", "priority", "reminders", "status", "user_id"]).where({name: name}).table("habits")
@@ -414,6 +415,55 @@ class Habit {
         }
     }
 
+    async finishHabitGraph(userId) {
+        try {
+            const result = await knex.raw(`
+                SELECT 
+                    CASE fh.mood
+                        WHEN 0 THEN 'Neutro'
+                        WHEN 1 THEN 'Feliz'
+                        WHEN 2 THEN 'Triste'
+                        ELSE 'Desconhecido'
+                    END AS label,
+                    COUNT(*) as value
+                FROM finish_habit fh
+                JOIN habits h ON fh.habit_id = h.id
+                WHERE h.user_id = ?
+                GROUP BY fh.mood;
+            `, [userId]);
+
+            if (result[0].length > 0) {
+                return result[0];
+            } else {
+                return [];
+            }
+        } catch (err) {
+            console.error('Erro ao buscar dados de gráfico em finalizar:', err);
+            return [];
+        }
+    }
+
+    async FrequencyHabitGraph(userId) {
+        try {
+            const result = await knex.raw(`
+                SELECT 
+                    JSON_UNQUOTE(JSON_EXTRACT(frequency, '$.option')) AS \`option\`,
+                    COUNT(*) as value
+                FROM habits
+                WHERE user_id = ?
+                GROUP BY JSON_UNQUOTE(JSON_EXTRACT(frequency, '$.option'));
+            `, [userId])
+            if(result[0].length > 0) {
+                return result[0]
+            }
+            else {
+                return []
+            }
+        } catch(err) {
+            console.error('Erro ao buscar dados de gráfico em habitos:', err);
+            return [];
+        }
+    }
     async findAllActiveWithReminders() {
         try {
             const result = await knex('habits as h')

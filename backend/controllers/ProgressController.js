@@ -24,13 +24,13 @@ class ProgressController {
             return response.status(400).json({ err: "Parâmetro invalido." })
         }
 
-        var valid = await Habit.habitExist(habit_id)
+        var valid = await Habit.findById(habit_id)
         if(!valid) {
             response.status(404)
             response.json({err: "Nenhum habito encontrado."})
             return 
         }
-        var nameExists = await Progress.findNameProgress(name)
+        var nameExists = await Progress.findNameByIdUser(name, valid.user_id)
         if(nameExists) {
             return response.status(406).json({err: "nome de progresso ja existe."})
         }
@@ -163,6 +163,20 @@ class ProgressController {
         else {
             response.status(500)
             response.json({err: "erro ao editar progresso de habito."})
+        }
+    }
+
+    async barGraph(request, response) {
+        const userId = request.params.user_id
+        if (!userId || isNaN(userId)) {
+            return response.status(400).json({ err: "Usuário inválido." });
+        }
+        const result = await Progress.progressHabitGraph(userId);
+        console.log(result)
+        if (!result || result.length === 0) {
+            return response.status(404).json({ err: "Nenhum dado para o gráfico encontrado para esse usuário." });
+        } else {
+            response.status(200).json({ result });
         }
     }
 
