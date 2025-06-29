@@ -1,48 +1,77 @@
 import 'package:flutter/material.dart';
-import 'package:fl_chart/fl_chart.dart';
 
+class FrequencyProgressChart extends StatelessWidget {
+  // exemplo de dados
+  final Map<String, int> data = {
+    'todos_os_dias': 5,
+    'alguns_dias_semana': 7,
+    'dias_especificos_mes': 2,
+  };
 
-class HabitFrequencyLineChart extends StatelessWidget {
-  const HabitFrequencyLineChart({super.key});
+  FrequencyProgressChart({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // exemplo fictício:
-    final freqData = [
-      {'day': 1, 'count': 2},
-      {'day': 5, 'count': 5},
-      {'day': 10, 'count': 3},
-      {'day': 15, 'count': 4},
-      {'day': 20, 'count': 6},
-    ];
+    final maxValue = data.values.reduce((a, b) => a > b ? a : b).toDouble();
 
-    return SizedBox(
-      height: 300,
-      child: LineChart(
-        LineChartData(
-          lineBarsData: [
-            LineChartBarData(
-              isCurved: true,
-              color: Colors.orangeAccent,
-              spots: freqData
-                  .map((e) => FlSpot(
-                        e['day']!.toDouble(),
-                        e['count']!.toDouble(),
-                      ))
-                  .toList(),
-              dotData: FlDotData(show: true),
-            ),
-          ],
-          titlesData: FlTitlesData(
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(showTitles: true),
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: data.entries.map((entry) {
+        final percent = entry.value / maxValue;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                entry.key,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Stack(
+                children: [
+                  Container(
+                    height: 20,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade800,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  FractionallySizedBox(
+                    widthFactor: percent,
+                    child: Container(
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          "${entry.value}",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ),
-      ),
+        );
+      }).toList(),
     );
   }
 }

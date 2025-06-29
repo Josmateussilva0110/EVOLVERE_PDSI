@@ -41,7 +41,7 @@ class ChartsScreen extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            const HabitFrequencyLineChart(),
+            FrequencyProgressChart(),
             const SizedBox(height: 16),
           ],
         ),
