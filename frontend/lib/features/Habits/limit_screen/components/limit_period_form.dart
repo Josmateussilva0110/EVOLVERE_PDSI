@@ -1,35 +1,42 @@
-// lib/components/limit_period_form.dart
+// lib/features/Habits/limit_screen/components/limit_period_form.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/option_button.dart';
 import 'package:intl/intl.dart';
-
+import '../widgets/option_button.dart';
 
 class LimitPeriodForm extends StatelessWidget {
-  final VoidCallback onClearEndDate;
   final DateTime? startDate;
   final DateTime? endDate;
   final String priority;
   final List<DateTime> reminders;
-  final VoidCallback onSelectedStartDate;
-  final VoidCallback onSelectedEndDate;
+  final VoidCallback onSelectPeriod;
   final VoidCallback onSelectedReminders;
   final VoidCallback onSelectedPriority;
   final void Function(DateTime reminder) onRemoveReminder;
 
+  // Construtor simplificado. A função onClearEndDate não é mais necessária aqui.
   const LimitPeriodForm({
     super.key,
     required this.priority,
     required this.reminders,
     required this.startDate,
     required this.endDate,
-    required this.onSelectedStartDate,
-    required this.onSelectedEndDate,
-    required this.onClearEndDate,
+    required this.onSelectPeriod,
     required this.onSelectedReminders,
     required this.onSelectedPriority,
     required this.onRemoveReminder,
   });
+
+  String _buildPeriodSubtitle() {
+    if (startDate == null) {
+      return 'Selecione a data de início da tarefa';
+    }
+    final formatter = DateFormat('dd/MM/yyyy');
+    if (endDate == null || DateUtils.isSameDay(startDate, endDate)) {
+      return 'Início: ${formatter.format(startDate!)}';
+    }
+    return 'De ${formatter.format(startDate!)} até ${formatter.format(endDate!)}';
+  }
 
   Color _getPrioridadeColor(String priority) {
     switch (priority) {
@@ -48,105 +55,67 @@ class LimitPeriodForm extends StatelessWidget {
     return Column(
       children: [
         OptionButton(
-          icon: Icons.calendar_today,
-          title: 'Data de início',
-          subtitle: startDate != null
-              ? DateFormat('dd/MM/yyyy').format(startDate!)
-              : 'Selecione a data de início da tarefa',
-          onTap: onSelectedStartDate,
+          icon: Icons.date_range_outlined,
+          title: 'Período',
+          subtitle: _buildPeriodSubtitle(),
+          onTap: onSelectPeriod,
         ),
-        OptionButton(
-          icon: Icons.calendar_month,
-          title: 'Data Fim',
-          subtitle: endDate != null
-              ? DateFormat('dd/MM/yyyy').format(endDate!)
-              : 'Selecione a data de fim da tarefa',
-          onTap: onSelectedEndDate,
-        ),
-
-
-        if (endDate != null)
-          TextButton(
-            onPressed: onClearEndDate,
-            child: Text(
-              'Remover data final',
-              style: TextStyle(color: Colors.redAccent),
-            ),
-          ),
-
-
         OptionButton(
           icon: Icons.notifications_outlined,
           title: 'Horário e lembretes',
           subtitle: 'Defina horários e lembretes para a tarefa',
           onTap: onSelectedReminders,
         ),
-
         if (reminders.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: Card(
-              color: const Color(0xFF1C1F26),
-              shape: RoundedRectangleBorder(
+          Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16.0),
+              margin: const EdgeInsets.only(top: 16.0),
+              decoration: BoxDecoration(
+                color: const Color(0xFF1C1F26),
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF3B4254), width: 1),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Lembretes',
-                      style: GoogleFonts.inter(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Lembretes Definidos',
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                    ...reminders.map((reminder) {
-                      final formatted = DateFormat(
-                        'dd/MM/yyyy - HH:mm',
-                      ).format(reminder);
-                      return Column(
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.notifications,
-                                size: 20,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  formatted,
-                                  style: GoogleFonts.inter(
-                                    color: Colors.grey[300],
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.delete_outline,
-                                  color: Colors.redAccent,
-                                  size: 20,
-                                ),
-                                onPressed: () => onRemoveReminder(reminder),
-                              ),
-                            ],
+                  ),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 12.0, // Espaçamento horizontal entre os chips
+                    runSpacing: 12.0, // Espaçamento vertical entre as linhas de chips
+                    children: reminders.map((reminder) {
+                      return Chip(
+                        avatar: Icon(Icons.notifications, color: Colors.amber[200], size: 18),
+                        label: Text(
+                          DateFormat('dd/MM/yy \'às\' HH:mm').format(reminder),
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w500,
                           ),
-                          const Divider(color: Colors.grey, height: 8),
-                        ],
+                        ),
+                        onDeleted: () => onRemoveReminder(reminder),
+                        deleteIcon: const Icon(Icons.close, size: 18),
+                        deleteIconColor: Colors.white70,
+                        backgroundColor: const Color(0xFF2B2D3A),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: const BorderSide(color: Color(0xFF3B4254)),
+                        ),
                       );
                     }).toList(),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ),
-          //const SizedBox(height: 24,),
-
         OptionButton(
           icon: Icons.sort,
           title: 'Prioridade',

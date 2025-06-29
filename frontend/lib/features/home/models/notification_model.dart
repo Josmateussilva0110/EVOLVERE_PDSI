@@ -14,6 +14,7 @@ class NotificationModel {
   final String? timeSpent;
   final String createdAt;
   final String updatedAt;
+  final bool status;
 
   NotificationModel({
     required this.id,
@@ -31,11 +32,12 @@ class NotificationModel {
     this.timeSpent,
     required this.createdAt,
     required this.updatedAt,
+    this.status = false,
   });
 
   factory NotificationModel.fromJson(Map<String, dynamic> json) {
     print('🔍 NotificationModel.fromJson - Dados recebidos: $json');
-    
+
     try {
       return NotificationModel(
         id: json['id'] ?? 0,
@@ -53,6 +55,7 @@ class NotificationModel {
         timeSpent: json['timeSpent'],
         createdAt: json['created_at'] ?? '',
         updatedAt: json['updated_at'] ?? '',
+        status: json['status'] == 1 || json['status'] == true,
       );
     } catch (e) {
       print('❌ Erro no NotificationModel.fromJson: $e');
@@ -78,6 +81,7 @@ class NotificationModel {
       'timeSpent': timeSpent,
       'created_at': createdAt,
       'updated_at': updatedAt,
+      'status': status,
     };
   }
 
@@ -137,4 +141,4 @@ class NotificationModel {
         return 'Não informado';
     }
   }
-} 
+}

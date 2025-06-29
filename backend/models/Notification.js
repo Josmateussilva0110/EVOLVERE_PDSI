@@ -68,6 +68,51 @@ class Notification {
             return {status: false, err: err}
         }
     }
+
+    async updateStatus(id, status) {
+        try {
+            await knex.update({status: status}).where({id: id}).table("notification")
+            return {status: true}
+        } catch(err) {
+            console.log('erro ao atualizar status da notificação', err)
+            return {status: false, err: err}
+        }
+    }
+
+    async countReadByUserId(userId) {
+        try {
+            const result = await knex('notification')
+                .where({ user_id: userId, status: true })
+                .count('id as count');
+            return parseInt(result[0].count, 10) || 0;
+        } catch (err) {
+            return 0;
+        }
+    }
+
+    async countUnreadByUserId(userId) {
+        try {
+            const result = await knex('notification')
+                .where({ user_id: userId, status: false })
+                .count('id as count');
+            return parseInt(result[0].count, 10) || 0;
+        } catch (err) {
+            return 0;
+        }
+    }
+
+    async findByHabitIdAndDateRange(habitId, startDate, endDate) {
+        try {
+            const result = await knex('notification')
+                .whereRaw('JSON_EXTRACT(data, "$.habitId") = ?', [habitId.toString()])
+                .whereBetween('created_at', [startDate, endDate])
+                .select('*');
+            return result;
+        } catch (err) {
+            console.log('erro no findByHabitIdAndDateRange', err);
+            return [];
+        }
+    }
 }
 
 module.exports = new Notification() 

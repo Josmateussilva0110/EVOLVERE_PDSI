@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:ui' as ui; // Import necessário para a conversão de ícone para imagem
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart'; // Import do path_provider
 import '../../user/widgets/text_field.dart';
 import '../../user/widgets/form_container.dart';
 import '../widgets/color_selector.dart';
-import '../widgets/icon_picker.dart';
+// O widget IconPicker não será mais necessário aqui, a lógica estará dentro do form.
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -31,8 +33,21 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
     Colors.black,
   ];
 
-  Color _selectedColor = Colors.red;
-  File? _image;
+  Color _selectedColor = Colors.green; // Cor inicial alterada para verde
+  
+  // --- NOVOS ESTADOS PARA OS ÍCONES ---
+  IconData? _selectedIconData;
+  File? _pickedImage; // Para a imagem da galeria
+
+  // Lista de ícones pré-definidos
+  final List<IconData> _predefinedIcons = [
+    Icons.directions_run,
+    Icons.book,
+    Icons.favorite,
+    Icons.star,
+    Icons.school,
+    // Adicione mais ícones conforme desejar
+  ];
 
   void _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -43,23 +58,59 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
     print('USER ID: $_userId');
   }
 
-
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    // Definir um ícone padrão ao iniciar
+    if (_predefinedIcons.isNotEmpty) {
+      _selectedIconData = _predefinedIcons.first;
+    }
+    
     if (widget.category != null) {
       _nameController.text = widget.category.name ?? '';
       _descriptionController.text = widget.category.description ?? '';
       if (widget.category.color != null) {
         _selectedColor = widget.category.color;
       }
-      // Imagem não é carregada localmente, só se o usuário escolher outra
+      // Lógica para carregar ícone existente (se vier do backend) pode ser adicionada aqui
     }
   }
 
   String colorToHex(Color color) {
     return '#${color.value.toRadixString(16).padLeft(8, '0').toUpperCase()}';
+  }
+
+  // --- NOVA FUNÇÃO: CONVERTER IconData PARA File ---
+  Future<File> _createFileFromIcon(IconData iconData) async {
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
+    final iconStr = String.fromCharCode(iconData.codePoint);
+    
+    textPainter.text = TextSpan(
+      text: iconStr,
+      style: TextStyle(
+        letterSpacing: 0.0,
+        fontSize: 128.0, // Tamanho do ícone na imagem
+        fontFamily: iconData.fontFamily,
+        color: Colors.white, // Cor do ícone na imagem
+      ),
+    );
+
+    textPainter.layout();
+    textPainter.paint(canvas, Offset.zero);
+
+    final picture = recorder.endRecording();
+    final image = await picture.toImage(
+        textPainter.width.toInt(), textPainter.height.toInt());
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
+    
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/icon_${DateTime.now().millisecondsSinceEpoch}.png');
+    await file.writeAsBytes(bytes!.buffer.asUint8List(), flush: true);
+
+    return file;
   }
 
   Future<void> _submitCategory() async {
@@ -73,19 +124,28 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
       return;
     }
 
-    var request =
-        http.MultipartRequest(
-            'POST',
-            Uri.parse('${dotenv.env['API_URL']}/category'),
-          )
-          ..fields['name'] = _nameController.text
-          ..fields['description'] = _descriptionController.text
-          ..fields['color'] = colorToHex(_selectedColor)
-          ..fields['user_id'] = _userId.toString();
+    // --- LÓGICA DE SUBMISSÃO MODIFICADA ---
+    File? iconFile;
+    if (_pickedImage != null) {
+      iconFile = _pickedImage;
+    } else if (_selectedIconData != null) {
+      // Converte o ícone selecionado em um arquivo antes de enviar
+      iconFile = await _createFileFromIcon(_selectedIconData!);
+    }
+    // Se nenhum dos dois for selecionado, iconFile continuará null
 
-    if (_image != null) {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('${dotenv.env['API_URL']}/category'),
+    )
+      ..fields['name'] = _nameController.text
+      ..fields['description'] = _descriptionController.text
+      ..fields['color'] = colorToHex(_selectedColor)
+      ..fields['user_id'] = _userId.toString();
+
+    if (iconFile != null) {
       request.files.add(
-        await http.MultipartFile.fromPath('icon', _image!.path),
+        await http.MultipartFile.fromPath('icon', iconFile.path),
       );
     }
 
@@ -130,7 +190,8 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
 
     if (pickedFile != null) {
       setState(() {
-        _image = File(pickedFile.path);
+        _pickedImage = File(pickedFile.path);
+        _selectedIconData = null; // Desmarca o ícone pré-definido
       });
     }
   }
@@ -164,7 +225,63 @@ class _RegisterFormCategoryState extends State<RegisterFormCategory> {
                   controller: _descriptionController,
                 ),
                 const SizedBox(height: 24),
-                IconPicker(image: _image, onPickImage: _pickImage),
+                
+                // --- NOVA SEÇÃO DE ÍCONES ---
+                const Text('Ícone', style: TextStyle(color: Colors.white70, fontSize: 16)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 12.0,
+                  runSpacing: 12.0,
+                  children: [
+                    ..._predefinedIcons.map((icon) {
+                      final isSelected = _selectedIconData == icon;
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedIconData = icon;
+                            _pickedImage = null; // Desmarca a imagem da galeria
+                          });
+                        },
+                        child: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: isSelected ? Theme.of(context).primaryColor.withOpacity(0.2) : Colors.grey[800],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isSelected ? Theme.of(context).primaryColor : Colors.transparent,
+                              width: 2,
+                            ),
+                          ),
+                          child: Icon(icon, color: Colors.white, size: 30),
+                        ),
+                      );
+                    }).toList(),
+
+                    // Botão para pegar da galeria
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(8),
+                           border: _pickedImage != null ? Border.all(color: Theme.of(context).primaryColor, width: 2) : null,
+                        ),
+                        // Mostra a imagem selecionada ou um ícone de galeria
+                        child: _pickedImage != null
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.circular(6),
+                                child: Image.file(_pickedImage!, fit: BoxFit.cover),
+                              )
+                            : const Icon(Icons.photo_library, color: Colors.white, size: 30),
+                      ),
+                    ),
+                  ],
+                ),
+                // --- FIM DA SEÇÃO DE ÍCONES ---
+
                 const SizedBox(height: 32),
                 ColorSelector(
                   colors: _colorsAvailable,

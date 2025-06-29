@@ -5,7 +5,7 @@ import 'goal_settings_screen.dart';
 import '../../listHabits/widgets/stat_card.dart';
 import '../../listHabits/widgets/period_chip.dart';
 import '../../listHabits/widgets/chart_type_icon.dart';
-import '../../listHabits/widgets/show_history_bottom_sheet.dart';
+import 'goal_history_screen.dart';
 
 class ProgressRecordScreen extends StatefulWidget {
   final int habitId;
@@ -345,18 +345,21 @@ class _ProgressRecordScreenState extends State<ProgressRecordScreen> {
                           width: largura * 0.9,
                           child: TextButton.icon(
                             onPressed: () {
-                              showHistoryBottomSheet(context);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (_) => GoalSettingsScreen(widget.habitId),
+                                ),
+                              );
                             },
-                            icon: const Icon(
-                              Icons.history,
-                              color: Colors.white,
-                            ),
+                            icon: const Icon(Icons.tune, color: Colors.white),
                             label: Text(
-                              'Visualizar histórico',
+                              'Configurar Metas',
                               style: GoogleFonts.inter(color: Colors.white),
                             ),
                             style: TextButton.styleFrom(
-                              backgroundColor: Colors.blue.withOpacity(0.12),
+                              backgroundColor: Colors.white12,
                               padding: EdgeInsets.symmetric(
                                 horizontal: largura * 0.05,
                                 vertical: 16,
@@ -374,17 +377,23 @@ class _ProgressRecordScreenState extends State<ProgressRecordScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => GoalSettingsScreen(widget.habitId),
+                                  builder:
+                                      (_) => GoalHistoryScreen(
+                                        habitId: widget.habitId,
+                                      ),
                                 ),
                               );
                             },
-                            icon: const Icon(Icons.tune, color: Colors.white),
+                            icon: const Icon(
+                              Icons.history,
+                              color: Colors.white,
+                            ),
                             label: Text(
-                              'Configurar Metas',
+                              'Visualizar histórico',
                               style: GoogleFonts.inter(color: Colors.white),
                             ),
                             style: TextButton.styleFrom(
-                              backgroundColor: Colors.white12,
+                              backgroundColor: Colors.blue.withOpacity(0.12),
                               padding: EdgeInsets.symmetric(
                                 horizontal: largura * 0.05,
                                 vertical: 16,

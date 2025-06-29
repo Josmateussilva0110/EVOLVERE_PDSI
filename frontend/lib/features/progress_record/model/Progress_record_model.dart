@@ -5,6 +5,7 @@ class ProgressRecordData {
   int? parameter;
   int? id;
   String? type_description;
+  int? status;
 
   ProgressRecordData({
     this.habitId,
@@ -12,7 +13,8 @@ class ProgressRecordData {
     this.type,
     this.parameter,
     this.id,
-    this.type_description
+    this.type_description,
+    this.status,
   });
 
   ProgressRecordData copyWith({
@@ -21,7 +23,8 @@ class ProgressRecordData {
     String? name,
     int? parameter,
     int? id,
-    String? type_description
+    String? type_description,
+    int? status,
   }) {
     return ProgressRecordData(
       habitId: habitId ?? this.habitId,
@@ -29,7 +32,8 @@ class ProgressRecordData {
       type: type ?? this.type,
       parameter: parameter ?? this.parameter,
       id: id ?? this.id,
-      type_description: type_description ?? this.type_description
+      type_description: type_description ?? this.type_description,
+      status: status ?? this.status,
     );
   }
 
@@ -42,11 +46,11 @@ class ProgressRecordData {
       type: $type,
       parameter: $parameter,
       id: $id,
-      type_description: $type_description
+      type_description: $type_description,
+      status: $status
     )
     ''';
   }
-
 
   /// Converte para JSON, útil para envio via HTTP POST
   Map<String, dynamic> toJson() {
@@ -56,7 +60,8 @@ class ProgressRecordData {
       'type': type,
       'parameter': parameter,
       'id': id,
-      'type_description': type_description
+      'type_description': type_description,
+      'status': status,
     };
   }
 
@@ -67,7 +72,8 @@ class ProgressRecordData {
       type: json['type'],
       parameter: json['parameter'],
       id: json['id'],
-      type_description: json['type_description']
+      type_description: json['type_description'],
+      status: json['status'],
     );
   }
 }

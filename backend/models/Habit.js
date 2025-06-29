@@ -136,6 +136,7 @@ class Habit {
                 'h.priority',
                 'h.reminders',
                 'h.status',
+                'h.user_id'
             );
 
             const habits = result.map(habit => ({
@@ -463,6 +464,40 @@ class Habit {
             return [];
         }
     }
+    async findAllActiveWithReminders() {
+        try {
+            const result = await knex('habits as h')
+            .leftJoin('category as c', 'h.category_id', 'c.id')
+            .where('h.status', '=', 1)
+            .select(
+                'h.id',
+                'h.name',
+                'h.description',
+                'c.name as categoria',
+                'h.frequency',
+                'h.start_date',
+                'h.end_date',
+                'h.priority',
+                'h.reminders',
+                'h.status',
+                'h.user_id'
+            );
+
+            const habits = result.map(habit => ({
+            ...habit,
+            reminders: Array.isArray(habit.reminders) ? habit.reminders : [],
+            }));
+
+            if(habits)
+                return habits;
+            else 
+                return undefined;
+        } catch (err) {
+            console.error('Erro em findAllActiveWithReminders:', err);
+            return undefined;
+        }
+    }
+
 }
 
 module.exports = new Habit()
