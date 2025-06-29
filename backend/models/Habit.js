@@ -441,6 +441,28 @@ class Habit {
             return [];
         }
     }
+
+    async FrequencyHabitGraph(userId) {
+        try {
+            const result = await knex.raw(`
+                SELECT 
+                    JSON_UNQUOTE(JSON_EXTRACT(frequency, '$.option')) AS \`option\`,
+                    COUNT(*) as value
+                FROM habits
+                WHERE user_id = ?
+                GROUP BY JSON_UNQUOTE(JSON_EXTRACT(frequency, '$.option'));
+            `, [userId])
+            if(result[0].length > 0) {
+                return result[0]
+            }
+            else {
+                return []
+            }
+        } catch(err) {
+            console.error('Erro ao buscar dados de gráfico em habitos:', err);
+            return [];
+        }
+    }
 }
 
 module.exports = new Habit()
